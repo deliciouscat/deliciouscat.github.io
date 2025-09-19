@@ -1,6 +1,6 @@
 baseURL = 'https://deliciouscat.github.io/'
 languageCode = 'ko-kr'
-title = 'deliciouscat의 블로그'
+title = '잡부를 지향합니다.'
 theme = 'Mainroad'
 [pagination]
   pagerSize = 10
@@ -18,9 +18,13 @@ theme = 'Mainroad'
   pager = true
   post_meta = ["date", "categories"]
   mainSections = ["posts"]
+  customCSS = ["css/custom.css"]
+
+[Params.style.vars]
+  highlightColor = "#176662"
 
 [Params.logo]
-  subtitle = "개발과 일상의 기록"
+  subtitle = "Deliciouscat의 개발/일상"
 
 [Params.sidebar]
   home = "right"
