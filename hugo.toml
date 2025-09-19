@@ -2,6 +2,10 @@ baseURL = 'https://deliciouscat.github.io/'
 languageCode = 'ko-kr'
 title = '잡부를 지향합니다.'
 theme = 'Mainroad'
+
+# GitHub Pages 설정
+publishDir = "docs"
+canonifyURLs = true
 [pagination]
   pagerSize = 10
 
@@ -11,6 +15,7 @@ theme = 'Mainroad'
 
 [Params]
   description = "deliciouscat의 개발 블로그"
+  favicon = "favicon.ico"
   opengraph = true
   twitter_cards = false
   readmore = true
