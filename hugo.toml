@@ -2,9 +2,10 @@ baseURL = 'https://deliciouscat.github.io/'
 languageCode = 'ko-kr'
 title = 'deliciouscat의 블로그'
 theme = 'Mainroad'
-paginate = 10
+[pagination]
+  pagerSize = 10
 
-[Author]
+[Params.Author]
   name = "deliciouscat"
   bio = "개발자의 일상과 학습 기록을 담은 블로그입니다."
 
