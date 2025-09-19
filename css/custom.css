@@ -1,7 +1,10 @@
 /* 커스텀 색상 설정 */
 
 /* 테마 색상은 hugo.toml의 Params.style.vars.highlightColor에서 설정됨 (#176662) */
-/* 배경색은 기본 테마 설정 유지 */
+/* 배경색 커스터마이징 */
+body {
+    background-color: #949995;
+}
 
 /* 레이아웃 조정 - 좌우 마진 줄이기 */
 .container {
