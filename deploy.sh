@@ -5,8 +5,9 @@ echo "Building the website..."
 hugo
 
 # public 폴더의 내용을 root로 복사 (User Pages는 root에서 배포)
+# hugo.toml 제외하고 복사 (원본 설정 보호)
 echo "Copying public contents to root..."
-cp -r public/* .
+rsync -av --exclude='hugo.toml' public/ .
 
 # 변경사항 추가
 git add .
