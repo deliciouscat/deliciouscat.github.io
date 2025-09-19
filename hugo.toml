@@ -1,3 +1,42 @@
-baseURL = 'https://example.org/'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+baseURL = 'https://deliciouscat.github.io/'
+languageCode = 'ko-kr'
+title = '잡부를 지향합니다.'
+theme = 'Mainroad'
+
+# GitHub Pages 설정 - User Pages는 root에서 배포됨
+canonifyURLs = true
+
+[pagination]
+  pagerSize = 10
+
+[Params.Author]
+  name = "deliciouscat"
+  bio = "개발자의 일상과 학습 기록을 담은 블로그입니다."
+
+[Params]
+  description = "deliciouscat의 개발 블로그"
+  favicon = "favicon.ico"
+  opengraph = true
+  twitter_cards = false
+  readmore = true
+  authorbox = true
+  pager = true
+  post_meta = ["date", "categories"]
+  mainSections = ["posts"]
+  customCSS = ["css/custom.css"]
+
+[Params.style.vars]
+  highlightColor = "#176662"
+
+[Params.logo]
+  subtitle = "Deliciouscat의 개발/일상"
+
+[Params.sidebar]
+  home = "right"
+  list = "right"
+  single = "right"
+  widgets = ["search", "recent", "categories", "taglist"]
+
+[Params.widgets]
+  recent_num = 5
+  tags_counter = true
