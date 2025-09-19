@@ -2,3 +2,27 @@
 
 /* 테마 색상은 hugo.toml의 Params.style.vars.highlightColor에서 설정됨 (#176662) */
 /* 배경색은 기본 테마 설정 유지 */
+
+/* 레이아웃 조정 - 좌우 마진 줄이기 */
+.container {
+    max-width: 1200px; /* 기본 1080px에서 더 넓게 */
+}
+
+.container--outer {
+    margin: 15px auto; /* 기본 25px에서 줄임 */
+}
+
+.wrapper {
+    padding: 20px; /* 기본 25px에서 줄임 */
+}
+
+/* 반응형: 작은 화면에서도 여백 조정 */
+@media screen and (max-width: 900px) {
+    .container--outer {
+        margin: 10px auto;
+    }
+    
+    .wrapper {
+        padding: 15px;
+    }
+}
