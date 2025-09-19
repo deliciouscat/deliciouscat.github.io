@@ -1,3 +1,32 @@
-baseURL = 'https://example.org/'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+baseURL = 'https://deliciouscat.github.io/'
+languageCode = 'ko-kr'
+title = 'deliciouscat의 블로그'
+theme = 'Mainroad'
+paginate = 10
+
+[Author]
+  name = "deliciouscat"
+  bio = "개발자의 일상과 학습 기록을 담은 블로그입니다."
+
+[Params]
+  description = "deliciouscat의 개발 블로그"
+  opengraph = true
+  twitter_cards = false
+  readmore = true
+  authorbox = true
+  pager = true
+  post_meta = ["date", "categories"]
+  mainSections = ["posts"]
+
+[Params.logo]
+  subtitle = "개발과 일상의 기록"
+
+[Params.sidebar]
+  home = "right"
+  list = "right"
+  single = "right"
+  widgets = ["search", "recent", "categories", "taglist"]
+
+[Params.widgets]
+  recent_num = 5
+  tags_counter = true
