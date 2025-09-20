@@ -13,9 +13,15 @@ echo "Building the website..."
 hugo
 
 # public 폴더의 내용을 root로 복사 (User Pages는 root에서 배포)
-# hugo.toml 제외하고 복사 (원본 설정 보호)
+# hugo.toml과 커스텀 favicon 제외하고 복사 (원본 설정 보호)
 echo "Copying public contents to root..."
-rsync -av --exclude='hugo.toml' public/ .
+rsync -av --exclude='hugo.toml' --exclude='favicon.ico' public/ .
+
+# 커스텀 favicon이 있으면 복원
+if [ -f "favicon_dogecat.ico" ]; then
+    echo "Restoring custom favicon..."
+    cp favicon_dogecat.ico favicon.ico
+fi
 
 # 변경사항 추가
 git add .
