@@ -3,8 +3,7 @@ languageCode = 'en-us'
 title = '잡부를 지향합니다.'
 theme = 'Mainroad'
 
-# GitHub Pages 설정 - User Pages는 root에서 배포됨
-canonifyURLs = true
+# GitHub Pages 설정 - main 브랜치에서 자동 배포
 
 [pagination]
   pagerSize = 10

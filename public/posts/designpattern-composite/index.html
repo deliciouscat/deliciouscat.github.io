@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 복합체(Composite) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="https://deliciouscat.github.io/posts/designpattern-composite/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)">
+  <meta property="og:description" content="Composite Pattern(복합체 패턴)은 객체들을 트리 구조로 구성하여 부분과 전체로 계층을 표현하는 디자인 패턴이다. 클라이언트가 개별 객체와 복합 객체를 동일한 방식으로 다룰 수 있다.
+예를 들어:
+class Component: def execute(self): pass class Leaf(Component): def execute(self): return 1 class Composite(Component): def __init__(self): self.children = [] def add(self, c): self.children.append(c) def execute(self): return sum(c.execute() for c in self.children) # 클라이언트는 Leaf와 Composite를 구분하지 않음 items = [Leaf(), Composite(), Leaf()] # 모두 Component items[1].add(Leaf()) # Composite에 Leaf 추가: children = [leaf1] items[1].add(Leaf()) # Composite에 Leaf 추가: children = [leaf1, leaf2] total = sum(item.execute() for item in items) print(total) # 1 &#43; 2 &#43; 1 = 4 -&gt; Leaf와 Composite는 둘 다 Component(execute 메서드를 가진)를 상속해서 execute 메서드를 호출할 수 있고, 위계에 상관없이 메서드를 호출 가능하다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-09-20T18:00:00+09:00">
+    <meta property="article:modified_time" content="2025-09-20T18:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="복합체">
+    <meta property="article:tag" content="Composite">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	<link rel="shortcut icon" href="/favicon.ico">
+		
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-20T18:00:00&#43;09:00">September 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p>Composite Pattern(복합체 패턴)은 객체들을 트리 구조로 구성하여 부분과 전체로 계층을 표현하는 디자인 패턴이다.
+클라이언트가 <strong>개별 객체</strong>와 <strong>복합 객체</strong>를 동일한 방식으로 다룰 수 있다.</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Component</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Leaf</span>(Component):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Composite</span>(Component):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self): self<span style="color:#f92672">.</span>children <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, c): self<span style="color:#f92672">.</span>children<span style="color:#f92672">.</span>append(c)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">return</span> sum(c<span style="color:#f92672">.</span>execute() <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>children)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 Leaf와 Composite를 구분하지 않음</span>
+</span></span><span style="display:flex;"><span>items <span style="color:#f92672">=</span> [Leaf(), Composite(), Leaf()]  <span style="color:#75715e"># 모두 Component</span>
+</span></span><span style="display:flex;"><span>items[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>add(Leaf())    <span style="color:#75715e"># Composite에 Leaf 추가: children = [leaf1]</span>
+</span></span><span style="display:flex;"><span>items[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>add(Leaf())    <span style="color:#75715e"># Composite에 Leaf 추가: children = [leaf1, leaf2]</span>
+</span></span><span style="display:flex;"><span>total <span style="color:#f92672">=</span> sum(item<span style="color:#f92672">.</span>execute() <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> items)
+</span></span><span style="display:flex;"><span>print(total)  <span style="color:#75715e"># 1 + 2 + 1 = 4</span>
+</span></span></code></pre></div><p>-&gt; <code>Leaf</code>와 <code>Composite</code>는 둘 다 <code>Component</code>(execute 메서드를 가진)를 상속해서 <code>execute</code> 메서드를 호출할 수 있고, 위계에 상관없이 메서드를 호출 가능하다.</p>
+<h2 id="단일-책임-원칙--개방-폐쇄-원칙">단일 책임 원칙 / 개방-폐쇄 원칙</h2>
+<p>Composite Pattern을 사용할 땐 이 원칙을 준수해야 하는데, 먼저 단일 책임 원칙 (Single Responsibility Principle; SRP)이 지켜지지 않은 예시를 보자.</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FileSystemItem</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name, is_folder<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>is_folder <span style="color:#f92672">=</span> is_folder
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>children <span style="color:#f92672">=</span> [] <span style="color:#66d9ef">if</span> is_folder <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>size <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> is_folder <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_size</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>is_folder:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> sum(c<span style="color:#f92672">.</span>calculate_size() <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>children)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>size
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render_ui</span>(self):  <span style="color:#75715e"># UI 렌더링 책임까지 가짐</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;&lt;div&gt;</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">&lt;/div&gt;&#34;</span>
+</span></span></code></pre></div><p>위의 코드를 보면 <code>type()</code>으로 이것이 폴더인지 파일인지 확인할 수도 없고, 번거롭게 <code>if is_folder else None</code>을 반복하고 있다. (<code>self.children</code>과 <code>self.size</code>가 쓸테없는 책임을 지고 있음!) 게다가 파일 시스템에 렌더링 기능까지&hellip; 이 코드를 SRP를 준수하도록 수정하자.</p>
+<p><strong>잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Component</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_size</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">File</span>(Component):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name, size):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name, self<span style="color:#f92672">.</span>size <span style="color:#f92672">=</span> name, size
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_size</span>(self): <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>size
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Folder</span>(Component):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name, self<span style="color:#f92672">.</span>children <span style="color:#f92672">=</span> name, []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, item): self<span style="color:#f92672">.</span>children<span style="color:#f92672">.</span>append(item)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_size</span>(self): 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> sum(c<span style="color:#f92672">.</span>calculate_size() <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>children)
+</span></span></code></pre></div><p>이렇게 하면 파일은 파일대로, 폴더는 폴더대로 각 클래스가 필요한 역할을 담당하게 된다.</p>
+<p>다음으로 개방-폐쇄 원칙(Open-Closed Principle; OCP)를 살펴보자. &lsquo;Entity는 확장에는 열려있고, 수정에는 닫혀있어야 한다&rsquo;는 원칙인데,</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GraphicEditor</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw_shape</span>(self, shape):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> shape<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;circle&#34;</span>:
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>draw_circle(shape)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> shape<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;rectangle&#34;</span>:
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>draw_rectangle(shape)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> shape<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;triangle&#34;</span>:
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>draw_triangle(shape)
+</span></span></code></pre></div><p>-&gt; 이렇게 하면 오각형은 어쩌려고? 입체도형은?? 매번 <code>GraphicEditor</code>를 수정해야 하는 구조이다. (확장에 대해 개방성이 없다)</p>
+<p><strong>잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Shape</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Circle</span>(Shape):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw</span>(self): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Drawing circle&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Rectangle</span>(Shape):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw</span>(self): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Drawing rectangle&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShapeGroup</span>(Shape):  <span style="color:#75715e"># 새 도형 추가해도 기존 코드 수정 불필요</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>shapes <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, shape): self<span style="color:#f92672">.</span>shapes<span style="color:#f92672">.</span>append(shape)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">draw</span>(self): <span style="color:#66d9ef">return</span> [s<span style="color:#f92672">.</span>draw() <span style="color:#66d9ef">for</span> s <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>shapes]
+</span></span></code></pre></div><p>이제, 새로운 도형을 다루고자 할 때엔 <code>Shape</code> 클래스를 상속하여 쉽게 기존 기능들을 확장할 수 있으며(확장에는 개방), <code>ShapeGroup</code> 클래스에 별도의 코드를 추가할 필요가 없다. (수정에는 닫혀있다.)<br>
+<strong>각 클래스가 명확한 단일 책임, 각 컴포넌트들이 인터페이스(<code>Component</code>, <code>Shape</code> 등)를 통해서만 상호작용!</strong></p>
+<p>Composite Pattern의 가장 큰 특징은 재귀적 구조이다. 복합 객체는 자식으로 다른 복합 객체나 단일 객체를 포함할 수 있으며, 이러한 구조가 재귀적으로 반복된다.</p>
+<ul>
+<li>트리의 깊이와 관계없이 일관된 처리 방식</li>
+<li>새로운 구성 요소 추가가 용이</li>
+<li>복잡한 구조를 단순한 재귀 호출로 순회 가능</li>
+</ul>
+<h2 id="composite-pattern은-다음과-같은-상황에서-유용하다">Composite Pattern은 다음과 같은 상황에서 유용하다:</h2>
+<ol>
+<li>계층적 구조를 표현해야 할 때.
+ex.)</li>
+</ol>
+<ul>
+<li>파일 시스템 (폴더-파일 구조)</li>
+<li>UI 컴포넌트 (컨테이너-위젯 구조)</li>
+<li>조직도 (부서-팀-직원 구조)</li>
+</ul>
+<ol start="2">
+<li>부분과 전체를 동일하게 처리해야 할 때(재귀적 특성!)
+ex.)</li>
+</ol>
+<ul>
+<li>그래픽 편집기의 도형 그룹화</li>
+<li>메뉴와 서브메뉴 구조</li>
+</ul>
+<h2 id="용어-정리">용어 정리</h2>
+<p>Component (추상 인터페이스): Leaf와 Composite 모두가 구현해야 하는 공통 인터페이스<br>
+Leaf (단일 객체): 트리 구조의 말단 노드로, 더 이상 자식을 가지지 않는 기본 구성 요소<br>
+Composite (복합 객체): Leaf 객체나 다른 Composite 객체를 자식으로 가지는 객체</p>
+<ol>
+<li>Python 파일 시스템 예시:</li>
+</ol>
+<ul>
+<li>Component (추상 인터페이스) → Component</li>
+<li>Leaf (단일 객체) → File</li>
+<li>Composite (복합 객체) → Folder</li>
+</ul>
+<ol start="2">
+<li>그래픽 에디터 예시:</li>
+</ol>
+<ul>
+<li>Component (추상 인터페이스) → Shape</li>
+<li>Leaf (단일 객체) → Circle, Rectangle</li>
+<li>Composite (복합 객체) → ShapeGroup</li>
+</ul>
+<hr>
+<p>원래는 pseudo coding을 통한 vibe coding 예시를 보이고 싶었으나.. 분량이 넘쳐 의도치 않게 vibe coding은 어그로가 되어버렸네요,,
+2편으로 찾아뵙는 것으로..!</p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" rel="tag">복합체</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/composite/" rel="tag">Composite</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/hello-world/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Hello World! github 블로그 초기설정 테스트중입니다.</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="https://deliciouscat.github.io/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/designpattern-composite/">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/hello-world/">Hello World! github 블로그 초기설정 테스트중입니다.</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/%EC%9D%BC%EB%B0%98/">일반</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

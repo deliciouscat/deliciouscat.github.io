@@ -1,7 +1,3 @@
-[submodule "public"]
-	path = public
-	url = https://github.com/deliciouscat/deliciouscat.github.io.git
-	branch = gh-pages
 [submodule "themes/Mainroad"]
 	path = themes/Mainroad
 	url = https://github.com/Vimux/Mainroad.git
