@@ -1,6 +1,6 @@
 ---
 title: "Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)"
-date: 2025-09-19T10:00:00+09:00
+date: 2025-09-20T18:00:00+09:00
 draft: false
 categories: ["Computer Science"]
 tags: ["디자인패턴", "Vibe Coding", "복합체", "Composite"]
