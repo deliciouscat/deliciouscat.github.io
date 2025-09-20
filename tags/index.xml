@@ -9,10 +9,38 @@
     <lastBuildDate>Fri, 19 Sep 2025 10:00:00 +0900</lastBuildDate>
     <atom:link href="https://deliciouscat.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Composite</title>
+      <link>https://deliciouscat.github.io/tags/composite/</link>
+      <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
+      <guid>https://deliciouscat.github.io/tags/composite/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Hugo</title>
       <link>https://deliciouscat.github.io/tags/hugo/</link>
       <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
       <guid>https://deliciouscat.github.io/tags/hugo/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vibe Coding</title>
+      <link>https://deliciouscat.github.io/tags/vibe-coding/</link>
+      <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
+      <guid>https://deliciouscat.github.io/tags/vibe-coding/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>디자인패턴</title>
+      <link>https://deliciouscat.github.io/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
+      <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
+      <guid>https://deliciouscat.github.io/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>복합체</title>
+      <link>https://deliciouscat.github.io/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</link>
+      <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
+      <guid>https://deliciouscat.github.io/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</guid>
       <description></description>
     </item>
     <item>

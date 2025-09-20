@@ -40,3 +40,7 @@ canonifyURLs = true
 [Params.widgets]
   recent_num = 5
   tags_counter = true
+
+# 댓글 시스템 설정 (utterances)
+[Params.comments]
+  enable = true
