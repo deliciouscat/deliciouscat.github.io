@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# content 폴더의 변경사항이 있으면 먼저 커밋
+if ! git diff --quiet HEAD -- content/; then
+    echo "Content changes detected. Committing source files first..."
+    git add content/
+    git commit -m "Update content: $(date '+%Y-%m-%d %H:%M:%S')"
+    git push origin main
+fi
+
 # Hugo 사이트 빌드 (public 폴더로 출력)
 echo "Building the website..."
 hugo
