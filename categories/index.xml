@@ -5,9 +5,16 @@
     <link>https://deliciouscat.github.io/categories/</link>
     <description>Recent content in Categories on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
-    <language>ko-kr</language>
-    <lastBuildDate>Fri, 19 Sep 2025 10:00:00 +0900</lastBuildDate>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 20 Sep 2025 18:00:00 +0900</lastBuildDate>
     <atom:link href="https://deliciouscat.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Computer Science</title>
+      <link>https://deliciouscat.github.io/categories/computer-science/</link>
+      <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
+      <guid>https://deliciouscat.github.io/categories/computer-science/</guid>
+      <description></description>
+    </item>
     <item>
       <title>일반</title>
       <link>https://deliciouscat.github.io/categories/%EC%9D%BC%EB%B0%98/</link>

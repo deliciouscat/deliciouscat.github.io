@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 복합체(Composite) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/designpattern-composite-optional/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)">
+  <meta property="og:description" content="1. 패턴 소개 정의와 핵심 개념 트리 구조와 재귀적 처리 언제 사용하는가 2. 구조와 구성 요소 Component (추상 인터페이스) Leaf (단일 객체) Composite (복합 객체) UML 다이어그램">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-09-19T10:00:00+09:00">
+    <meta property="article:modified_time" content="2025-09-19T10:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="Vue.js">
+    <meta property="article:tag" content="Pinia">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="http://localhost:1313/css/style.css">
+	<link rel="stylesheet" href="http://localhost:1313/css/custom.css">
+
+	<link rel="shortcut icon" href="http://localhost:1313/favicon.ico">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="http://localhost:1313/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-19T10:00:00&#43;09:00">September 19, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="http://localhost:1313/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="1-패턴-소개">1. 패턴 소개</h1>
+<h2 id="정의와-핵심-개념">정의와 핵심 개념</h2>
+<h2 id="트리-구조와-재귀적-처리">트리 구조와 재귀적 처리</h2>
+<h2 id="언제-사용하는가">언제 사용하는가</h2>
+<h1 id="2-구조와-구성-요소">2. 구조와 구성 요소</h1>
+<h2 id="component-추상-인터페이스">Component (추상 인터페이스)</h2>
+<h2 id="leaf-단일-객체">Leaf (단일 객체)</h2>
+<h2 id="composite-복합-객체">Composite (복합 객체)</h2>
+<h2 id="uml-다이어그램">UML 다이어그램</h2>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://localhost:1313/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://localhost:1313/tags/vue.js/" rel="tag">Vue.js</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="http://localhost:1313/tags/pinia/" rel="tag">Pinia</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="http://localhost:1313/posts/hello-world/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Hello World! github 블로그 초기설정 테스트중입니다.</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="http://localhost:1313/posts/hello-world/">Hello World! github 블로그 초기설정 테스트중입니다.</a></li>
+			<li class="widget__item"><a class="widget__link" href="http://localhost:1313/posts/designpattern-composite-optional/">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="http://localhost:1313/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="http://localhost:1313/categories/%EC%9D%BC%EB%B0%98/">일반</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="http://localhost:1313/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="http://localhost:1313/tags/pinia/" title="Pinia">Pinia (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="http://localhost:1313/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="http://localhost:1313/tags/vue.js/" title="Vue.js">Vue.js (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="http://localhost:1313/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="http://localhost:1313/js/menu.js"></script>
+</body>
+</html>
