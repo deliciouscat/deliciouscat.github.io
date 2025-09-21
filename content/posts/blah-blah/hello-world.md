@@ -2,7 +2,7 @@
 title: "Hello World! github 블로그 초기설정 테스트중입니다."
 date: 2025-09-19T10:00:00+09:00
 draft: false
-categories: ["일반"]
+categories: ["Generals"]
 tags: ["첫 포스트", "Hugo"]
 ---
 
