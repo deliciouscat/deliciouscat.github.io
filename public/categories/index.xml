@@ -2,31 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on 잡부를 지향합니다.</title>
-    <link>https://deliciouscat.github.io/categories/</link>
+    <link>http://localhost:1313/categories/</link>
     <description>Recent content in Categories on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 21 Sep 2025 21:20:00 +0900</lastBuildDate>
-    <atom:link href="https://deliciouscat.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Resources</title>
-      <link>https://deliciouscat.github.io/categories/resources/</link>
+      <link>http://localhost:1313/categories/resources/</link>
       <pubDate>Sun, 21 Sep 2025 21:20:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/categories/resources/</guid>
+      <guid>http://localhost:1313/categories/resources/</guid>
       <description></description>
     </item>
     <item>
       <title>Computer Science</title>
-      <link>https://deliciouscat.github.io/categories/computer-science/</link>
+      <link>http://localhost:1313/categories/computer-science/</link>
       <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/categories/computer-science/</guid>
+      <guid>http://localhost:1313/categories/computer-science/</guid>
       <description></description>
     </item>
     <item>
       <title>Generals</title>
-      <link>https://deliciouscat.github.io/categories/generals/</link>
+      <link>http://localhost:1313/categories/generals/</link>
       <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/categories/generals/</guid>
+      <guid>http://localhost:1313/categories/generals/</guid>
       <description></description>
     </item>
   </channel>

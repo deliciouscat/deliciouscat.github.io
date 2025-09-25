@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-observer/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)">
+  <meta property="og:description" content="Observer Pattern (관찰자 패턴) Observer Pattern(관찰자 패턴)은 객체 간의 일대다(one-to-many) 의존 관계를 정의하여, 한 객체의 상태가 변경되면 그에 의존하는 모든 객체들에게 자동으로 알림을 전달하고 업데이트하는 행동 디자인 패턴이다.
+클라이언트가 Subject(관찰 대상)과 Observer(관찰자)를 느슨하게 결합된 방식으로 상호작용할 수 있게 한다.
+예를 들어:
+class Subject: def __init__(self): self.observers = [] def attach(self, observer): self.observers.append(observer) def notify(self): for observer in self.observers: observer.update(self) class Observer: def update(self, subject): pass class ConcreteSubject(Subject): def __init__(self): super().__init__() self.state = 0 def set_state(self, state): self.state = state self.notify() # 상태 변경 시 자동 알림 class ConcreteObserver(Observer): def __init__(self, name): self.name = name def update(self, subject): print(f&#34;{self.name}: 상태가 {subject.state}로 변경됨&#34;) # 클라이언트는 Subject와 Observer를 구분하지 않음 stock = ConcreteSubject() investor1 = ConcreteObserver(&#34;투자자A&#34;) investor2 = ConcreteObserver(&#34;투자자B&#34;) stock.attach(investor1) # 관찰자 등록(투자자A가 주식을 관찰) stock.attach(investor2) # 관찰자 등록 stock.set_state(100) # 투자자A: 상태가 100으로 변경됨 # 투자자B: 상태가 100으로 변경됨 → ConcreteSubject와 ConcreteObserver는 모두 각각 Subject, Observer 인터페이스를 구현해서 발행-구독 메커니즘을 통해 느슨하게 결합된다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-09-25T00:00:00+09:00">
+    <meta property="article:modified_time" content="2025-09-25T00:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="관찰자">
+    <meta property="article:tag" content="Observer">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-25T00:00:00&#43;09:00">September 25, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="observer-pattern-관찰자-패턴">Observer Pattern (관찰자 패턴)</h1>
+<p>Observer Pattern(관찰자 패턴)은 객체 간의 <strong>일대다(one-to-many) 의존 관계</strong>를 정의하여, 한 객체의 상태가 변경되면 그에 의존하는 모든 객체들에게 <strong>자동으로 알림을 전달</strong>하고 업데이트하는 행동 디자인 패턴이다.</p>
+<p>클라이언트가 <strong>Subject</strong>(관찰 대상)과 <strong>Observer</strong>(관찰자)를 느슨하게 결합된 방식으로 상호작용할 수 있게 한다.</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Subject</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>observers <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">attach</span>(self, observer): self<span style="color:#f92672">.</span>observers<span style="color:#f92672">.</span>append(observer)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">notify</span>(self): 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> observer <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>observers:
+</span></span><span style="display:flex;"><span>            observer<span style="color:#f92672">.</span>update(self)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Observer</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcreteSubject</span>(Subject):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self): 
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>state <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_state</span>(self, state): 
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>state <span style="color:#f92672">=</span> state
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>notify()  <span style="color:#75715e"># 상태 변경 시 자동 알림</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcreteObserver</span>(Observer):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name): self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject): 
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">: 상태가 </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>state<span style="color:#e6db74">}</span><span style="color:#e6db74">로 변경됨&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 Subject와 Observer를 구분하지 않음</span>
+</span></span><span style="display:flex;"><span>stock <span style="color:#f92672">=</span> ConcreteSubject()
+</span></span><span style="display:flex;"><span>investor1 <span style="color:#f92672">=</span> ConcreteObserver(<span style="color:#e6db74">&#34;투자자A&#34;</span>)
+</span></span><span style="display:flex;"><span>investor2 <span style="color:#f92672">=</span> ConcreteObserver(<span style="color:#e6db74">&#34;투자자B&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor1)  <span style="color:#75715e"># 관찰자 등록(투자자A가 주식을 관찰)</span>
+</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor2)  <span style="color:#75715e"># 관찰자 등록</span>
+</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>set_state(<span style="color:#ae81ff">100</span>)     <span style="color:#75715e"># 투자자A: 상태가 100으로 변경됨</span>
+</span></span><span style="display:flex;"><span>                         <span style="color:#75715e"># 투자자B: 상태가 100으로 변경됨</span>
+</span></span></code></pre></div><p>→ <code>ConcreteSubject</code>와 <code>ConcreteObserver</code>는 모두 각각 <code>Subject</code>, <code>Observer</code> 인터페이스를 구현해서 <strong>발행-구독 메커니즘</strong>을 통해 느슨하게 결합된다.</p>
+<h2 id="단일-책임-원칙--개방-폐쇄-원칙">단일 책임 원칙 / 개방-폐쇄 원칙</h2>
+<p>Composite Pattern과 마찬가지로 Observer Pattern을 사용할 땐 이 원칙들을 준수해야 하는데, 먼저 단일 책임 원칙(Single Responsibility Principle; SRP)이 지켜지지 않은 예시를 보자.</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NewsSystem</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>subscribers <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>news <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add_subscriber</span>(self, subscriber):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>subscribers<span style="color:#f92672">.</span>append(subscriber)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_news</span>(self, news):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>news <span style="color:#f92672">=</span> news
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 뉴스 업데이트와 동시에 여러 책임을 담당</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> sub <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>subscribers:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> sub<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;email&#34;</span>:
+</span></span><span style="display:flex;"><span>                self<span style="color:#f92672">.</span>send_email(sub, news)  <span style="color:#75715e"># 이메일 전송 책임</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> sub<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;sms&#34;</span>:
+</span></span><span style="display:flex;"><span>                self<span style="color:#f92672">.</span>send_sms(sub, news)    <span style="color:#75715e"># SMS 전송 책임</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> sub<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;push&#34;</span>:
+</span></span><span style="display:flex;"><span>                self<span style="color:#f92672">.</span>send_push(sub, news)   <span style="color:#75715e"># 푸시 알림 책임</span>
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send_email</span>(self, sub, news): <span style="color:#66d9ef">pass</span>  <span style="color:#75715e"># 이메일 전송 로직</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send_sms</span>(self, sub, news): <span style="color:#66d9ef">pass</span>    <span style="color:#75715e"># SMS 전송 로직</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send_push</span>(self, sub, news): <span style="color:#66d9ef">pass</span>   <span style="color:#75715e"># 푸시 알림 로직</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">&#34;=== 잘못된 예 (SRP 위반) 시연 ===&#34;</span>)
+</span></span><span style="display:flex;"><span>bad_news <span style="color:#f92672">=</span> NewsSystem()
+</span></span><span style="display:flex;"><span>subscriber1 <span style="color:#f92672">=</span> Subscriber(<span style="color:#e6db74">&#34;김개발&#34;</span>, <span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span><span style="display:flex;"><span>subscriber2 <span style="color:#f92672">=</span> Subscriber(<span style="color:#e6db74">&#34;박디자인&#34;</span>, <span style="color:#e6db74">&#34;sms&#34;</span>)
+</span></span><span style="display:flex;"><span>subscriber3 <span style="color:#f92672">=</span> Subscriber(<span style="color:#e6db74">&#34;이기획&#34;</span>, <span style="color:#e6db74">&#34;push&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>bad_news<span style="color:#f92672">.</span>add_subscriber(subscriber1)
+</span></span><span style="display:flex;"><span>bad_news<span style="color:#f92672">.</span>add_subscriber(subscriber2)
+</span></span><span style="display:flex;"><span>bad_news<span style="color:#f92672">.</span>add_subscriber(subscriber3)
+</span></span><span style="display:flex;"><span>bad_news<span style="color:#f92672">.</span>set_news(<span style="color:#e6db74">&#34;첫 번째 뉴스&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 뉴스 발행: 첫 번째 뉴스</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 이메일 전송: 김개발에게 첫 번째 뉴스</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># SMS 전송: 박디자인에게 첫 번째 뉴스</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 푸시 알림: 이기획에게 첫 번째 뉴스</span>
+</span></span></code></pre></div><p>위의 코드를 보면 <code>NewsSystem</code>이 뉴스 관리뿐만 아니라 다양한 알림 방식의 구체적인 전송 로직까지 담당하고 있다. 게다가 새로운 알림 방식이 추가될 때마다 <code>NewsSystem</code>을 수정해야 한다. 이 코드를 SRP를 준수하도록 수정하자.</p>
+<p><strong>잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Subject</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>observers <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">attach</span>(self, observer): self<span style="color:#f92672">.</span>observers<span style="color:#f92672">.</span>append(observer)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">detach</span>(self, observer): self<span style="color:#f92672">.</span>observers<span style="color:#f92672">.</span>remove(observer)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">notify</span>(self): 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> observer <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>observers:
+</span></span><span style="display:flex;"><span>            observer<span style="color:#f92672">.</span>update(self)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NewsAgency</span>(Subject):  <span style="color:#75715e"># 뉴스 관리에만 집중</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>news <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_news</span>(self, news):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>news <span style="color:#f92672">=</span> news
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>notify()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Observer</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailNotifier</span>(Observer):  <span style="color:#75715e"># 이메일 알림에만 집중</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;이메일 전송: </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>news<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SMSNotifier</span>(Observer):    <span style="color:#75715e"># SMS 알림에만 집중</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;SMS 전송: </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>news<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">&#34;=== Observer Pattern 시연 ===&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 NewsAgency와 각 Notifier를 구분하지 않음</span>
+</span></span><span style="display:flex;"><span>good_news <span style="color:#f92672">=</span> NewsAgency()
+</span></span><span style="display:flex;"><span>kim_dev <span style="color:#f92672">=</span> EmailNotifier(<span style="color:#e6db74">&#34;김개발&#34;</span>)
+</span></span><span style="display:flex;"><span>park_designer <span style="color:#f92672">=</span> SMSNotifier(<span style="color:#e6db74">&#34;박디자인&#34;</span>)
+</span></span><span style="display:flex;"><span>lee_planner <span style="color:#f92672">=</span> PushNotifier(<span style="color:#e6db74">&#34;이기획&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>good_news<span style="color:#f92672">.</span>attach(kim_dev)       <span style="color:#75715e"># 관찰자 등록</span>
+</span></span><span style="display:flex;"><span>good_news<span style="color:#f92672">.</span>attach(park_designer) <span style="color:#75715e"># 관찰자 등록</span>
+</span></span><span style="display:flex;"><span>good_news<span style="color:#f92672">.</span>attach(lee_planner)   <span style="color:#75715e"># 관찰자 등록</span>
+</span></span><span style="display:flex;"><span>good_news<span style="color:#f92672">.</span>set_news(<span style="color:#e6db74">&#34;첫 번째 뉴스&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 뉴스 발행: 첫 번째 뉴스</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 이메일 전송: 김개발에게 첫 번째 뉴스</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># SMS 전송: 박디자인에게 첫 번째 뉴스</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 푸시 알림: 이기획에게 첫 번째 뉴스</span>
+</span></span></code></pre></div><p>이렇게 하면 뉴스 관리는 <code>NewsAgency</code>가, 각각의 알림 방식은 해당 <code>Observer</code>가 담당하게 된다.</p>
+<p>Observer Pattern에서도 개방-폐쇄 원칙(Open-Closed Principle; OCP)은 중요하다. (&lsquo;Entity는 확장에는 열려있고, 수정에는 닫혀있어야 한다&rsquo;)</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StockMonitor</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>watchers <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">price_changed</span>(self, stock_price):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> watcher <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>watchers:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> watcher<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;investor&#34;</span>:
+</span></span><span style="display:flex;"><span>                watcher<span style="color:#f92672">.</span>notify_price_change(stock_price)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> watcher<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;news&#34;</span>:
+</span></span><span style="display:flex;"><span>                watcher<span style="color:#f92672">.</span>publish_news(stock_price)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> watcher<span style="color:#f92672">.</span>type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;alert&#34;</span>:
+</span></span><span style="display:flex;"><span>                watcher<span style="color:#f92672">.</span>send_alert(stock_price)
+</span></span></code></pre></div><p>→ 이렇게 하면 새로운 종류의 관찰자(예: 분석 시스템)를 추가할 때마다 <code>StockMonitor</code>를 수정해야 하는 구조이다. (확장에 대해 개방성이 없다)</p>
+<p><strong>잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Observer</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StockPrice</span>(Subject):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, symbol):
+</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>symbol <span style="color:#f92672">=</span> symbol
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>price <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_price</span>(self, price):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>price <span style="color:#f92672">=</span> price
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>notify()  <span style="color:#75715e"># 새로운 Observer 추가해도 기존 코드 수정 불필요</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InvestorObserver</span>(Observer):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;투자 전략 업데이트: </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>symbol<span style="color:#e6db74">}</span><span style="color:#e6db74"> = $</span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>price<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NewsObserver</span>(Observer):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;뉴스 발행: </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>symbol<span style="color:#e6db74">}</span><span style="color:#e6db74"> 가격 변동&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AnalysisObserver</span>(Observer):  <span style="color:#75715e"># 새로운 Observer도 쉽게 추가</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;분석 시작: </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>symbol<span style="color:#e6db74">}</span><span style="color:#e6db74"> 데이터 분석&#34;</span>)
+</span></span></code></pre></div><p>이제, 새로운 관찰자를 추가하고자 할 때엔 <code>Observer</code> 클래스를 상속하여 쉽게 기능을 확장할 수 있으며(확장에는 개방), <code>StockPrice</code> 클래스에 별도의 코드를 추가할 필요가 없다. (수정에는 닫혀있다.)</p>
+<p><strong>각 클래스가 명확한 단일 책임, 각 컴포넌트들이 인터페이스(<code>Subject</code>, <code>Observer</code> 등)를 통해서만 상호작용!</strong></p>
+<p>Observer Pattern의 가장 큰 특징은 <strong>발행-구독(Pub-Sub) 메커니즘</strong>이다. Subject는 상태 변화를 발행(publish)하고, Observer들은 해당 변화를 구독(subscribe)한다.</p>
+<ul>
+<li>런타임에 동적으로 관찰자 등록/해제 가능</li>
+<li>브로드캐스트 통신으로 일대다 알림</li>
+<li>Subject와 Observer 간의 느슨한 결합</li>
+</ul>
+<h2 id="observer-pattern은-다음과-같은-상황에서-유용하다">Observer Pattern은 다음과 같은 상황에서 유용하다:</h2>
+<ol>
+<li><strong>상태 변화 알림이 필요할 때</strong>
+ex.)</li>
+</ol>
+<ul>
+<li>주식 가격 모니터링 시스템 (가격 변동 → 투자자들에게 알림)</li>
+<li>GUI 이벤트 처리 (버튼 클릭 → 여러 컴포넌트 반응)</li>
+<li>데이터 바인딩 (모델 변경 → 뷰 업데이트)</li>
+</ul>
+<ol start="2">
+<li><strong>일대다 의존 관계를 구현해야 할 때 (발행-구독 특성!)</strong>
+ex.)</li>
+</ol>
+<ul>
+<li>뉴스 구독 시스템 (뉴스 발행 → 구독자들에게 전달)</li>
+<li>이벤트 처리 시스템 (이벤트 발생 → 리스너들에게 통지)</li>
+</ul>
+<h2 id="용어-정리">용어 정리</h2>
+<p><strong>Subject (관찰 대상)</strong>: Observer들을 관리하고 상태 변화 시 알림을 보내는 객체<br>
+<strong>Observer (관찰자)</strong>: Subject의 상태 변화를 관찰하고 알림을 받아 반응하는 객체<br>
+<strong>ConcreteSubject (구체적 관찰 대상)</strong>: 실제 상태를 가지고 변화를 감지하는 구체적인 Subject<br>
+<strong>ConcreteObserver (구체적 관찰자)</strong>: 실제 알림에 대한 구체적인 반응을 구현하는 Observer</p>
+<ol>
+<li>주식 모니터링 시스템 예시:</li>
+</ol>
+<ul>
+<li>Subject (관찰 대상) → Subject</li>
+<li>Observer (관찰자) → Observer</li>
+<li>ConcreteSubject (구체적 관찰 대상) → StockPrice</li>
+<li>ConcreteObserver (구체적 관찰자) → InvestorObserver, NewsObserver</li>
+</ul>
+<ol start="2">
+<li>GUI 이벤트 시스템 예시:</li>
+</ol>
+<ul>
+<li>Subject (관찰 대상) → EventSource</li>
+<li>Observer (관찰자) → EventListener</li>
+<li>ConcreteSubject (구체적 관찰 대상) → Button, TextField</li>
+<li>ConcreteObserver (구체적 관찰자) → ClickHandler, ChangeHandler</li>
+</ul>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" rel="tag">관찰자</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/observer/" rel="tag">Observer</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/resources/judithbutler-humanitystudy/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Judith Butler - 공공에서의 인문학의 미래</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-observer/">Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/resources/judithbutler-humanitystudy/">Judith Butler - 공공에서의 인문학의 미래</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-composite/">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/blah-blah/hello-world/">Hello World! github 블로그 초기설정 테스트중입니다.</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pinia/" title="Pinia">Pinia (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vue.js/" title="Vue.js">Vue.js (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

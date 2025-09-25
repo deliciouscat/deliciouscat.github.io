@@ -2,66 +2,66 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on 잡부를 지향합니다.</title>
-    <link>https://deliciouscat.github.io/tags/</link>
+    <link>http://localhost:1313/tags/</link>
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 21 Sep 2025 21:20:00 +0900</lastBuildDate>
-    <atom:link href="https://deliciouscat.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Pinia</title>
-      <link>https://deliciouscat.github.io/tags/pinia/</link>
+      <link>http://localhost:1313/tags/pinia/</link>
       <pubDate>Sun, 21 Sep 2025 21:20:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/pinia/</guid>
+      <guid>http://localhost:1313/tags/pinia/</guid>
       <description></description>
     </item>
     <item>
       <title>Vue.js</title>
-      <link>https://deliciouscat.github.io/tags/vue.js/</link>
+      <link>http://localhost:1313/tags/vue.js/</link>
       <pubDate>Sun, 21 Sep 2025 21:20:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/vue.js/</guid>
+      <guid>http://localhost:1313/tags/vue.js/</guid>
       <description></description>
     </item>
     <item>
       <title>Composite</title>
-      <link>https://deliciouscat.github.io/tags/composite/</link>
+      <link>http://localhost:1313/tags/composite/</link>
       <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/composite/</guid>
+      <guid>http://localhost:1313/tags/composite/</guid>
       <description></description>
     </item>
     <item>
       <title>Vibe Coding</title>
-      <link>https://deliciouscat.github.io/tags/vibe-coding/</link>
+      <link>http://localhost:1313/tags/vibe-coding/</link>
       <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/vibe-coding/</guid>
+      <guid>http://localhost:1313/tags/vibe-coding/</guid>
       <description></description>
     </item>
     <item>
       <title>디자인패턴</title>
-      <link>https://deliciouscat.github.io/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
+      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
       <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
+      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
       <description></description>
     </item>
     <item>
       <title>복합체</title>
-      <link>https://deliciouscat.github.io/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</link>
+      <link>http://localhost:1313/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</link>
       <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</guid>
+      <guid>http://localhost:1313/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</guid>
       <description></description>
     </item>
     <item>
       <title>Hugo</title>
-      <link>https://deliciouscat.github.io/tags/hugo/</link>
+      <link>http://localhost:1313/tags/hugo/</link>
       <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/hugo/</guid>
+      <guid>http://localhost:1313/tags/hugo/</guid>
       <description></description>
     </item>
     <item>
       <title>첫 포스트</title>
-      <link>https://deliciouscat.github.io/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/</link>
+      <link>http://localhost:1313/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/</link>
       <pubDate>Fri, 19 Sep 2025 10:00:00 +0900</pubDate>
-      <guid>https://deliciouscat.github.io/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/</guid>
+      <guid>http://localhost:1313/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/</guid>
       <description></description>
     </item>
   </channel>

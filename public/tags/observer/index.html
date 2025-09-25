@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
-<head>
-	<meta name="generator" content="Hugo 0.150.0"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>잡부를 지향합니다.</title>
+	<title>Observer - 잡부를 지향합니다.</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
-	<meta name="description" content="deliciouscat의 개발 블로그">
-		<meta property="og:url" content="http://localhost:1313/">
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/tags/observer/">
   <meta property="og:site_name" content="잡부를 지향합니다.">
-  <meta property="og:title" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Observer">
   <meta property="og:description" content="deliciouscat의 개발 블로그">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
@@ -21,7 +20,7 @@
 
 	<link rel="stylesheet" href="/css/style.css">
 	<link rel="stylesheet" href="/css/custom.css">
-	<link rel="alternate" type="application/rss+xml" href="/index.xml" title="잡부를 지향합니다.">
+	<link rel="alternate" type="application/rss+xml" href="/tags/observer/index.xml" title="잡부를 지향합니다.">
 
 	
 	<link rel="shortcut icon" href="/favicon.ico">
@@ -55,7 +54,9 @@
 			<div class="primary">
 			
 <main class="main list" role="main">
-	<article class="list__item post">
+	<header class="main__header">
+		<h1 class="main__title">Observer</h1>
+	</header><article class="list__item post">
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
@@ -72,7 +73,7 @@
 	<div class="content list__excerpt post__content clearfix">
 		<h1 id="observer-pattern-관찰자-패턴">Observer Pattern (관찰자 패턴)</h1>
 <p>Observer Pattern(관찰자 패턴)은 객체 간의 <strong>일대다(one-to-many) 의존 관계</strong>를 정의하여, 한 객체의 상태가 변경되면 그에 의존하는 모든 객체들에게 <strong>자동으로 알림을 전달</strong>하고 업데이트하는 행동 디자인 패턴이다.</p>
-<p>클라이언트가 <strong>Subject</strong>(관찰 대상)과 <strong>Observer</strong>(관찰자)를 느슨하게 결합된 방식으로 상호작용할 수 있게 한다.</p>
+<p>클라이언트가 **Subject(관찰 대상)**와 **Observer(관찰자)**를 느슨하게 결합된 방식으로 상호작용할 수 있게 한다.</p>
 <p>예를 들어:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Subject</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
@@ -103,7 +104,7 @@
 </span></span><span style="display:flex;"><span>investor1 <span style="color:#f92672">=</span> ConcreteObserver(<span style="color:#e6db74">&#34;투자자A&#34;</span>)
 </span></span><span style="display:flex;"><span>investor2 <span style="color:#f92672">=</span> ConcreteObserver(<span style="color:#e6db74">&#34;투자자B&#34;</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor1)  <span style="color:#75715e"># 관찰자 등록(투자자A가 주식을 관찰)</span>
+</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor1)  <span style="color:#75715e"># 관찰자 등록</span>
 </span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor2)  <span style="color:#75715e"># 관찰자 등록</span>
 </span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>set_state(<span style="color:#ae81ff">100</span>)     <span style="color:#75715e"># 투자자A: 상태가 100으로 변경됨</span>
 </span></span><span style="display:flex;"><span>                         <span style="color:#75715e"># 투자자B: 상태가 100으로 변경됨</span>
@@ -112,96 +113,13 @@
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-observer/">Read more…</a>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/resources/judithbutler-humanitystudy/" rel="bookmark">
-			Judith Butler - 공공에서의 인문학의 미래
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-21T21:20:00&#43;09:00">September 21, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/resources/" rel="category">Resources</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p><a href="https://youtu.be/EaF4ODAon6o?si=Tev74FEJNBMotous">유튜브</a>에서의 언급을 통해 접한 자료입니다.<br>
-<a href="https://direct.mit.edu/daed/article/151/3/40/112684/The-Public-Futures-of-the-Humanities">영어원문</a></p>
-<p>중간의 소제목은 가독성을 위해 임의로 삽입함.</p>
-<hr>
-<p>인문학의 가치를 입증하려는 도전은 인문학이 다른 학문 분야에 기여한다는 점을 보여주는 것만으로는 완전히 달성될 수 없다. 이러한 논리는 다른 학문 분야, 특히 STEM 분야의 가치를 전제로 하며, 인문학을 기껏해야 도구적 가치만을 지닌 부차적 지위로 격하시킨다. 진정한 과제는 도구성과 수익성 모두에 환원될 수 없는 가치들을 살아있게 유지함으로써 인문학이 모든 지식 분야에 기여할 수 있는 고유한 측면을 보여주는 것이다. 공공인문학은 이러한 과제를 성취할 수 있는 최고의 기회를 제공한다. 공공인문학은 인문학이 공론장에 무엇을 제공할 수 있는지 보여줄 뿐만 아니라, 다양한 공중들이 대학 내에서 인문학의 역할을 어떻게 규정하고 있는지도 드러내기 때문이다. 더 나아가, 공공인문학은 대학의 사명을 재정향시킬 잠재력을 가지고 있다. 인문학이 재정적 지원을 받지 못하는 이유 중 하나는 인문학이 신자유주의의 헤게모니와 그 시장 지표들 및 금융적 합리성에 도전할 힘을 지니고 있기 때문이다. 대학들은 문학 및 예술 행사를 포함한 공공예술과 더욱 적극적으로 관계를 맺어야 하며, 공중을 위한 열린 토론을 통해 공중이 왜 인문학을 필요로 하는지, 그리고 이미 인문학의 실천에 참여하고 있는지를 보여주어야 한다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/resources/judithbutler-humanitystudy/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-composite/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-20T18:00:00&#43;09:00">September 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p>Composite Pattern(복합체 패턴)은 객체들을 트리 구조로 구성하여 부분과 전체로 계층을 표현하는 디자인 패턴이다.
-클라이언트가 <strong>개별 객체</strong>와 <strong>복합 객체</strong>를 동일한 방식으로 다룰 수 있다.</p>
-<p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Component</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">pass</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Leaf</span>(Component):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Composite</span>(Component):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self): self<span style="color:#f92672">.</span>children <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, c): self<span style="color:#f92672">.</span>children<span style="color:#f92672">.</span>append(c)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">return</span> sum(c<span style="color:#f92672">.</span>execute() <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>children)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 Leaf와 Composite를 구분하지 않음</span>
-</span></span><span style="display:flex;"><span>items <span style="color:#f92672">=</span> [Leaf(), Composite(), Leaf()]  <span style="color:#75715e"># 모두 Component</span>
-</span></span><span style="display:flex;"><span>items[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>add(Leaf())    <span style="color:#75715e"># Composite에 Leaf 추가: children = [leaf1]</span>
-</span></span><span style="display:flex;"><span>items[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>add(Leaf())    <span style="color:#75715e"># Composite에 Leaf 추가: children = [leaf1, leaf2]</span>
-</span></span><span style="display:flex;"><span>total <span style="color:#f92672">=</span> sum(item<span style="color:#f92672">.</span>execute() <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> items)
-</span></span><span style="display:flex;"><span>print(total)  <span style="color:#75715e"># 1 + 2 + 1 = 4</span>
-</span></span></code></pre></div><p>-&gt; <code>Leaf</code>와 <code>Composite</code>는 둘 다 <code>Component</code>(execute 메서드를 가진)를 상속해서 <code>execute</code> 메서드를 호출할 수 있고, 위계에 상관없이 메서드를 호출 가능하다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-composite/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/blah-blah/hello-world/" rel="bookmark">
-			Hello World! github 블로그 초기설정 테스트중입니다.
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-19T10:00:00&#43;09:00">September 19, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/generals/" rel="category">Generals</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="안녕하세요">안녕하세요!</h1>
-<p>Hugo와 Mainroad 테마를 사용한 첫 번째 블로그 포스트입니다.
-<a href="https://minyeamer.github.io/blog/hugo-blog-1/">참고자료</a></p>
-<p>세팅하면서 고생한 부분: <code>en-us</code>를 <code>ko-kr</code>로 바꾸면 안되네요,, github 블로그 만드시는 분들은 theme에서 지원하는 언어를 곡 확인하시기 바랍니다. 어처피 영어로 해도 한국어 사용은 되네요.</p>
-	</div>
 </article>
 </main>
 
 
 			</div>
-			<aside class="sidebar"><div class="widget-search widget">
+			
+<aside class="sidebar"><div class="widget-search widget">
 	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
 		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
 		<input class="widget-search__submit" type="submit" value="Search">
