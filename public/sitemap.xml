@@ -3,13 +3,31 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>http://localhost:1313/posts/</loc>
-    <lastmod>2025-09-25T18:00:00+09:00</lastmod>
+    <lastmod>2025-09-27T18:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/</loc>
-    <lastmod>2025-09-25T18:00:00+09:00</lastmod>
+    <lastmod>2025-09-27T18:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2025-09-21T21:20:00+09:00</lastmod>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/categories/computer-science/</loc>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/observer/</loc>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/design-pattern/designpattern-observer/</loc>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/</loc>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</loc>
+    <lastmod>2025-09-25T17:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/resources/judithbutler-humanitystudy/</loc>
     <lastmod>2025-09-21T21:20:00+09:00</lastmod>
@@ -20,25 +38,16 @@
     <loc>http://localhost:1313/categories/resources/</loc>
     <lastmod>2025-09-21T21:20:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-09-21T21:20:00+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/tags/vue.js/</loc>
     <lastmod>2025-09-21T21:20:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/composite/</loc>
     <lastmod>2025-09-20T18:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/computer-science/</loc>
-    <lastmod>2025-09-20T18:00:00+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/tags/vibe-coding/</loc>
     <lastmod>2025-09-20T18:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/design-pattern/designpattern-composite/</loc>
-    <lastmod>2025-09-20T18:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</loc>
     <lastmod>2025-09-20T18:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</loc>
