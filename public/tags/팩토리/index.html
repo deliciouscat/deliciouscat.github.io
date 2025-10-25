@@ -66,16 +66,15 @@
 		</h2>
 		<div class="list__meta meta">
 <div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-27T11:00:00&#43;09:00">September 27, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-27T16:55:00&#43;09:00">September 27, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
 	</span>
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		<h1 id="factory-method-pattern-팩토리-메서드-패턴">Factory Method Pattern (팩토리 메서드 패턴)</h1>
-<p>Factory Method Pattern은 객체 생성을 위한 인터페이스를 정의하되, 어떤 클래스의 인스턴스를 생성할지는 서브클래스가 결정하도록 하는 생성 디자인 패턴이다.
+		<p>Factory Method Pattern은 객체 생성을 위한 인터페이스를 정의하되, 어떤 클래스의 인스턴스를 생성할지는 서브클래스가 결정하도록 하는 생성 디자인 패턴이다.
 클라이언트 코드가 <strong>구체적인 클래스를 알 필요 없이</strong> 객체를 생성할 수 있다.</p>
-<h2 id="컴포넌트객체-생성의-기본">컴포넌트/객체 생성의 기본</h2>
-<p>먼저 Factory Method 없이 객체를 생성하는 일반적인 방법을 보자:</p>
+<h2 id="의존성-역전-원칙-dependency-inversion-principle">의존성 역전 원칙 (Dependency Inversion Principle)</h2>
+<p>DIP는 &ldquo;고수준 모듈은 저수준 모듈에 의존해서는 안 되며, 둘 다 추상화에 의존해야 한다&quot;는 원칙이다.</p>
 <p><strong>문제가 있는 예시:</strong></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_document</span>(self, doc_type):
@@ -108,11 +107,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/clerkauth-1/">Clerk 로그인 화면을 나의 앱에 도입하기</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-factory/">Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-observer/">Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/resources/judithbutler-humanitystudy/">Judith Butler - 공공에서의 인문학의 미래</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-composite/">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/blah-blah/hello-world/">Hello World! github 블로그 초기설정 테스트중입니다.</a></li>
 		</ul>
 	</div>
 </div>
@@ -120,6 +119,8 @@
 	<h4 class="widget__title">Categories</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
 			<li class="widget__item">
 				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
 			<li class="widget__item">
@@ -132,6 +133,7 @@
 <div class="widget-taglist widget">
 	<h4 class="widget__title">Tags</h4>
 	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>

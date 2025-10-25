@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Clerk 로그인 화면을 나의 앱에 도입하기 - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/api-manuals/clerkauth-1/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Clerk 로그인 화면을 나의 앱에 도입하기">
+  <meta property="og:description" content="Session token 추가하기 Clerk Dashboard에 단 하나의 JSON 스니펫을 추가하면 사용자 메타데이터가 JWT 세션 토큰에 직접 포함되고, Vue Router의 네비게이션 가드를 사용해서 해당 토큰을 읽고 라우팅을 제어할 수 있다.
+Clerk Console의 Sessions 메뉴 중 Customize session token을 다음과 같이 수정하자.
+{ &#34;metadata&#34;: &#34;{{user.public_metadata}}&#34; } 그 다음, 내 프로젝트의 src/types/globals.d.ts에 다음의 스크립트를 작성하여 애플리케이션에서 메타데이터 접근이 가능하게 한다.
+export {} declare global { interface CustomJwtSessionClaims { metadata: { onboardingComplete?: boolean applicationName?: string applicationType?: string } firstName?: string } } 이제 Clerk Dashboard에 session token에 custom 데이터를 추가했고, 이러한 claims를 앱에서 접근할 수 있게 만들었다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-25T12:55:00+09:00">
+    <meta property="article:modified_time" content="2025-10-25T12:55:00+09:00">
+    <meta property="article:tag" content="Authentification">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Clerk 로그인 화면을 나의 앱에 도입하기</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-10-25T12:55:00&#43;09:00">October 25, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="session-token-추가하기">Session token 추가하기</h1>
+<p>Clerk Dashboard에 단 하나의 JSON 스니펫을 추가하면 사용자 메타데이터가 JWT 세션 토큰에 직접 포함되고, Vue Router의 네비게이션 가드를 사용해서 해당 토큰을 읽고 라우팅을 제어할 수 있다.</p>
+<p>Clerk Console의 <a href="http://dashboard.clerk.com/apps/app_34Mrxw8lQUzyaKDJvgZJ6JUDKGn/instances/ins_34Mrxs1f4zHBE4EUiNQW9nzVL3g/sessions">Sessions 메뉴</a> 중 <code>Customize session token</code>을 다음과 같이 수정하자.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&#34;metadata&#34;</span>: <span style="color:#e6db74">&#34;{{user.public_metadata}}&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>그 다음, 내 프로젝트의 <code>src/types/globals.d.ts</code>에 다음의 스크립트를 작성하여 애플리케이션에서 메타데이터 접근이 가능하게 한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">export</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">declare</span> <span style="color:#66d9ef">global</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">CustomJwtSessionClaims</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">metadata</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">onboardingComplete?</span>: <span style="color:#66d9ef">boolean</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">applicationName?</span>: <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">applicationType?</span>: <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">firstName?</span>: <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>이제 Clerk Dashboard에 session token에 custom 데이터를 추가했고, 이러한 claims를 앱에서 접근할 수 있게 만들었다.</p>
+<h1 id="미들웨어-구성-vue-router-navigation-guards">미들웨어 구성 (Vue Router Navigation Guards)</h1>
+<p>Vue.js에서는 Next.js 미들웨어 대신 Vue Router의 Navigation Guards를 사용하여 라우트 접근을 제어한다.<br>
+<strong>src/router/index.ts</strong> 파일을 다음과 같이 구성:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">createRouter</span>, <span style="color:#a6e22e">createWebHistory</span> } <span style="color:#66d9ef">from</span> <span style="color:#e6db74">&#39;vue-router&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">useAuth</span> } <span style="color:#66d9ef">from</span> <span style="color:#e6db74">&#39;@clerk/vue&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">router</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">createRouter</span>({
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">history</span>: <span style="color:#66d9ef">createWebHistory</span>(),
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">routes</span><span style="color:#f92672">:</span> [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">path</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;/&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;Home&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">component</span><span style="color:#f92672">:</span> () <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">import</span>(<span style="color:#e6db74">&#39;@/views/Home.vue&#39;</span>),
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">meta</span><span style="color:#f92672">:</span> { <span style="color:#a6e22e">isPublic</span>: <span style="color:#66d9ef">true</span> }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">path</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;/onboarding&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;Onboarding&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">component</span><span style="color:#f92672">:</span> () <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">import</span>(<span style="color:#e6db74">&#39;@/views/Onboarding.vue&#39;</span>),
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">meta</span><span style="color:#f92672">:</span> { <span style="color:#a6e22e">isPublic</span>: <span style="color:#66d9ef">true</span> }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">path</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;/dashboard&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;Dashboard&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">component</span><span style="color:#f92672">:</span> () <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">import</span>(<span style="color:#e6db74">&#39;@/views/Dashboard.vue&#39;</span>),
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">meta</span><span style="color:#f92672">:</span> { <span style="color:#a6e22e">requiresAuth</span>: <span style="color:#66d9ef">true</span> }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Global Navigation Guard
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">router</span>.<span style="color:#a6e22e">beforeEach</span>(<span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">to</span>, <span style="color:#66d9ef">from</span>, <span style="color:#a6e22e">next</span>) <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> { <span style="color:#a6e22e">userId</span>, <span style="color:#a6e22e">sessionClaims</span>, <span style="color:#a6e22e">isLoaded</span> } <span style="color:#f92672">=</span> <span style="color:#a6e22e">useAuth</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Clerk가 로드될 때까지 대기
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">isLoaded</span>.<span style="color:#a6e22e">value</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Promise</span>(<span style="color:#a6e22e">resolve</span> <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">unwatch</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">watch</span>(<span style="color:#a6e22e">isLoaded</span>, (<span style="color:#a6e22e">loaded</span>) <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">loaded</span>) {
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">unwatch</span>()
+</span></span><span style="display:flex;"><span>          <span style="color:#a6e22e">resolve</span>(<span style="color:#66d9ef">true</span>)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      })
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">isPublicRoute</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">meta</span>.<span style="color:#a6e22e">isPublic</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">requiresAuth</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">meta</span>.<span style="color:#a6e22e">requiresAuth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 사용자가 로그인하지 않았고 라우트가 private인 경우
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">userId</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">requiresAuth</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Clerk의 sign-in 페이지로 리다이렉트
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    window.<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">href</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`/sign-in?redirect_url=</span><span style="color:#e6db74">${</span>encodeURIComponent(<span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">fullPath</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 온보딩이 완료되지 않은 사용자를 /onboarding으로 리다이렉트
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">userId</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">!</span><span style="color:#a6e22e">sessionClaims</span>.<span style="color:#a6e22e">value</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">metadata</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">onboardingComplete</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">path</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#39;/onboarding&#39;</span>
+</span></span><span style="display:flex;"><span>  ) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next</span>(<span style="color:#e6db74">&#39;/onboarding&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 온보딩을 완료한 사용자가 /onboarding에 접근하려는 경우
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">if</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">userId</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">sessionClaims</span>.<span style="color:#a6e22e">value</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">metadata</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">onboardingComplete</span> <span style="color:#f92672">&amp;&amp;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">to</span>.<span style="color:#a6e22e">path</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;/onboarding&#39;</span>
+</span></span><span style="display:flex;"><span>  ) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next</span>(<span style="color:#e6db74">&#39;/dashboard&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 그 외의 경우 정상 진행
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">next</span>()
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">export</span> <span style="color:#66d9ef">default</span> <span style="color:#a6e22e">router</span>
+</span></span></code></pre></div><h1 id="백엔드-api-엔드포인트-추가-fastapi">백엔드 API 엔드포인트 추가 (FastAPI)</h1>
+<p>먼저 필요한 패키지를 설치:
+<strong>requirements.txt</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>fastapi==0.109.0
+</span></span><span style="display:flex;"><span>uvicorn[standard]==0.27.0
+</span></span><span style="display:flex;"><span>clerk-backend-api==1.0.0
+</span></span><span style="display:flex;"><span>python-dotenv==1.0.0
+</span></span><span style="display:flex;"><span>pydantic==2.5.0
+</span></span><span style="display:flex;"><span>pydantic-settings==2.1.0
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>uv pip install -r requirements.txt
+</span></span></code></pre></div><p><strong>.env</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>CLERK_SECRET_KEY<span style="color:#f92672">=</span>your_clerk_secret_key
+</span></span><span style="display:flex;"><span>CLERK_PUBLISHABLE_KEY<span style="color:#f92672">=</span>your_clerk_publishable_key
+</span></span></code></pre></div><p>(잊지 말자 <code>.gitignore</code>)</p>
+<h2 id="fastapi-온보딩-엔드포인트-구현">FastAPI 온보딩 엔드포인트 구현</h2>
+<p><strong>backend/app/routers/onboarding.py</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> fastapi <span style="color:#f92672">import</span> APIRouter, HTTPException, Depends, Header
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, Field
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Optional
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> clerk_backend_api <span style="color:#f92672">import</span> Clerk
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>router <span style="color:#f92672">=</span> APIRouter(prefix<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/api&#34;</span>, tags<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;onboarding&#34;</span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Clerk 클라이언트 초기화</span>
+</span></span><span style="display:flex;"><span>clerk_client <span style="color:#f92672">=</span> Clerk(bearer_auth<span style="color:#f92672">=</span>os<span style="color:#f92672">.</span>getenv(<span style="color:#e6db74">&#34;CLERK_SECRET_KEY&#34;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OnboardingRequest</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    applicationName: str <span style="color:#f92672">=</span> Field(<span style="color:#f92672">...</span>, min_length<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>    applicationType: str <span style="color:#f92672">=</span> Field(<span style="color:#f92672">...</span>, min_length<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OnboardingResponse</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    message: str
+</span></span><span style="display:flex;"><span>    success: bool
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">verify_clerk_session</span>(authorization: str <span style="color:#f92672">=</span> Header(<span style="color:#f92672">...</span>)) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Clerk 세션 토큰을 검증하고 userId를 반환합니다.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Bearer 토큰에서 실제 토큰 추출</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> authorization<span style="color:#f92672">.</span>startswith(<span style="color:#e6db74">&#34;Bearer &#34;</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> HTTPException(
+</span></span><span style="display:flex;"><span>                status_code<span style="color:#f92672">=</span><span style="color:#ae81ff">401</span>, 
+</span></span><span style="display:flex;"><span>                detail<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Invalid authorization header format&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        token <span style="color:#f92672">=</span> authorization<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#34;Bearer &#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Clerk 세션 검증</span>
+</span></span><span style="display:flex;"><span>        session <span style="color:#f92672">=</span> clerk_client<span style="color:#f92672">.</span>sessions<span style="color:#f92672">.</span>verify_session(
+</span></span><span style="display:flex;"><span>            session_id<span style="color:#f92672">=</span>token,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> session <span style="color:#f92672">or</span> <span style="color:#f92672">not</span> session<span style="color:#f92672">.</span>user_id:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> HTTPException(status_code<span style="color:#f92672">=</span><span style="color:#ae81ff">401</span>, detail<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Invalid session&#34;</span>)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> session<span style="color:#f92672">.</span>user_id
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Session verification error: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> HTTPException(status_code<span style="color:#f92672">=</span><span style="color:#ae81ff">401</span>, detail<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Unauthorized&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@router.post</span>(<span style="color:#e6db74">&#34;/complete-onboarding&#34;</span>, response_model<span style="color:#f92672">=</span>OnboardingResponse)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">complete_onboarding</span>(
+</span></span><span style="display:flex;"><span>    request: OnboardingRequest,
+</span></span><span style="display:flex;"><span>    user_id: str <span style="color:#f92672">=</span> Depends(verify_clerk_session)
+</span></span><span style="display:flex;"><span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    사용자의 온보딩을 완료하고 publicMetadata를 업데이트합니다.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Clerk 사용자 메타데이터 업데이트</span>
+</span></span><span style="display:flex;"><span>        clerk_client<span style="color:#f92672">.</span>users<span style="color:#f92672">.</span>update(
+</span></span><span style="display:flex;"><span>            user_id<span style="color:#f92672">=</span>user_id,
+</span></span><span style="display:flex;"><span>            public_metadata<span style="color:#f92672">=</span>{
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;onboardingComplete&#34;</span>: <span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;applicationName&#34;</span>: request<span style="color:#f92672">.</span>applicationName,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;applicationType&#34;</span>: request<span style="color:#f92672">.</span>applicationType,
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> OnboardingResponse(
+</span></span><span style="display:flex;"><span>            message<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;User metadata updated successfully&#34;</span>,
+</span></span><span style="display:flex;"><span>            success<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Error updating user metadata: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> HTTPException(
+</span></span><span style="display:flex;"><span>            status_code<span style="color:#f92672">=</span><span style="color:#ae81ff">500</span>,
+</span></span><span style="display:flex;"><span>            detail<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Error updating user metadata&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@router.get</span>(<span style="color:#e6db74">&#34;/onboarding-status&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_onboarding_status</span>(
+</span></span><span style="display:flex;"><span>    user_id: str <span style="color:#f92672">=</span> Depends(verify_clerk_session)
+</span></span><span style="display:flex;"><span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    사용자의 온보딩 상태를 확인합니다.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        user <span style="color:#f92672">=</span> clerk_client<span style="color:#f92672">.</span>users<span style="color:#f92672">.</span>get(user_id<span style="color:#f92672">=</span>user_id)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        public_metadata <span style="color:#f92672">=</span> user<span style="color:#f92672">.</span>public_metadata <span style="color:#f92672">or</span> {}
+</span></span><span style="display:flex;"><span>        onboarding_complete <span style="color:#f92672">=</span> public_metadata<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;onboardingComplete&#34;</span>, <span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;onboardingComplete&#34;</span>: onboarding_complete,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;applicationName&#34;</span>: public_metadata<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;applicationName&#34;</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;applicationType&#34;</span>: public_metadata<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;applicationType&#34;</span>)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Error fetching user data: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> HTTPException(
+</span></span><span style="display:flex;"><span>            status_code<span style="color:#f92672">=</span><span style="color:#ae81ff">500</span>,
+</span></span><span style="display:flex;"><span>            detail<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Error fetching user data&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span></code></pre></div><h2 id="gcp-cloud-run-배포설정">GCP Cloud Run 배포설정</h2>
+<p><strong>Dockerfile</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> <span style="color:#e6db74">python:3.11-slim</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">WORKDIR</span> <span style="color:#e6db74">/app</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># 의존성 설치</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> requirements.txt .<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> pip install --no-cache-dir -r requirements.txt<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># 애플리케이션 코드 복사</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> ./app /app/app<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># 포트 노출</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">EXPOSE</span> <span style="color:#e6db74">8080</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Uvicorn 서버 실행</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">CMD</span> [<span style="color:#e6db74">&#34;uvicorn&#34;</span>, <span style="color:#e6db74">&#34;app.main:app&#34;</span>, <span style="color:#e6db74">&#34;--host&#34;</span>, <span style="color:#e6db74">&#34;0.0.0.0&#34;</span>, <span style="color:#e6db74">&#34;--port&#34;</span>, <span style="color:#e6db74">&#34;8080&#34;</span>]<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p><strong>cloudbuild.yaml</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">steps</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Docker 이미지 빌드</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;gcr.io/cloud-builders/docker&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">args</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;build&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;-t&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:$SHORT_SHA&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;-t&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:latest&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;.&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Container Registry에 푸시</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;gcr.io/cloud-builders/docker&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">args</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;push&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:$SHORT_SHA&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;gcr.io/cloud-builders/docker&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">args</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;push&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:latest&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Cloud Run에 배포</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;gcr.io/cloud-builders/gcloud&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">args</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;run&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;deploy&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;onboarding-api&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;--image&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:$SHORT_SHA&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;--region&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;asia-northeast3&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;--platform&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;managed&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;--allow-unauthenticated&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;--set-env-vars&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#39;CLERK_SECRET_KEY=${_CLERK_SECRET_KEY},FRONTEND_URL=${_FRONTEND_URL}&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">images</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:$SHORT_SHA&#39;</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#39;gcr.io/$PROJECT_ID/onboarding-api:latest&#39;</span>
+</span></span></code></pre></div><h1 id="프론트엔드-onboarding-컴포넌트">프론트엔드 Onboarding 컴포넌트</h1>
+<p><strong>src/views/Onboarding.vue</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-vue" data-lang="vue"><span style="display:flex;"><span>&lt;<span style="color:#f92672">template</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;px-8 py-12 sm:py-16 md:px-20&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;mx-auto max-w-sm overflow-hidden rounded-lg bg-white shadow-lg&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>      &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;p-8&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">h3</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text-xl font-semibold text-gray-900&#34;</span>&gt;<span style="color:#a6e22e">환영합니다</span><span style="color:#f92672">!</span>&lt;/<span style="color:#f92672">h3</span>&gt;
+</span></span><span style="display:flex;"><span>      &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span>      &lt;<span style="color:#f92672">form</span> <span style="color:#f92672">@submit.prevent</span><span style="color:#e6db74">=&#34;handleSubmit&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;space-y-4 px-8 pb-8&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>          &lt;<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>            &lt;<span style="color:#f92672">label</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;block text-sm font-semibold text-gray-700&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">Application</span> <span style="color:#a6e22e">Name</span>
+</span></span><span style="display:flex;"><span>            &lt;/<span style="color:#f92672">label</span>&gt;
+</span></span><span style="display:flex;"><span>            &lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text-xs text-gray-500&#34;</span>&gt;<span style="color:#a6e22e">애플리케이션의</span> <span style="color:#a6e22e">이름을</span> <span style="color:#a6e22e">입력하세요</span>.&lt;/<span style="color:#f92672">p</span>&gt;
+</span></span><span style="display:flex;"><span>            &lt;<span style="color:#f92672">input</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">v-model</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;formData.applicationName&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;applicationName&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;mt-1 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">required</span>
+</span></span><span style="display:flex;"><span>            /&gt;
+</span></span><span style="display:flex;"><span>          &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          &lt;<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>            &lt;<span style="color:#f92672">label</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;block text-sm font-semibold text-gray-700&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">Application</span> <span style="color:#a6e22e">Type</span>
+</span></span><span style="display:flex;"><span>            &lt;/<span style="color:#f92672">label</span>&gt;
+</span></span><span style="display:flex;"><span>            &lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text-xs text-gray-500&#34;</span>&gt;<span style="color:#a6e22e">애플리케이션의</span> <span style="color:#a6e22e">타입을</span> <span style="color:#a6e22e">설명하세요</span>.&lt;/<span style="color:#f92672">p</span>&gt;
+</span></span><span style="display:flex;"><span>            &lt;<span style="color:#f92672">input</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">v-model</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;formData.applicationType&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;applicationType&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;mt-1 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#a6e22e">required</span>
+</span></span><span style="display:flex;"><span>            /&gt;
+</span></span><span style="display:flex;"><span>          &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;bg-gray-50 px-8 py-4&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>          &lt;<span style="color:#f92672">button</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;submit&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">:disabled</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;isSubmitting&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-400&#34;</span>
+</span></span><span style="display:flex;"><span>          &gt;
+</span></span><span style="display:flex;"><span>            {{ <span style="color:#a6e22e">isSubmitting</span> <span style="color:#f92672">?</span> <span style="color:#e6db74">&#39;처리 중...&#39;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;제출&#39;</span> }}
+</span></span><span style="display:flex;"><span>          &lt;/<span style="color:#f92672">button</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>      &lt;/<span style="color:#f92672">form</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">template</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">setup</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ts&#34;</span>&gt;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">ref</span>, <span style="color:#a6e22e">reactive</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#39;vue&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">useRouter</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#39;vue-router&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">useAuth</span>, <span style="color:#a6e22e">useUser</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#39;@clerk/vue&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">router</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">useRouter</span>()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> { <span style="color:#a6e22e">getToken</span> } <span style="color:#f92672">=</span> <span style="color:#a6e22e">useAuth</span>()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> { <span style="color:#a6e22e">user</span> } <span style="color:#f92672">=</span> <span style="color:#a6e22e">useUser</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">isSubmitting</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">ref</span>(<span style="color:#66d9ef">false</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">formData</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">reactive</span>({
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">applicationName</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;&#39;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">applicationType</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">handleSubmit</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">async</span> () =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">isSubmitting</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Clerk session 토큰 가져오기
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">token</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">await</span> <span style="color:#a6e22e">getToken</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 백엔드 API 호출
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">response</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">await</span> <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;/api/complete-onboarding&#39;</span>, {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">method</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;POST&#39;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Content-Type&#39;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;application/json&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Authorization&#39;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">`Bearer </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">token</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">applicationName</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">formData</span>.<span style="color:#a6e22e">applicationName</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">applicationType</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">formData</span>.<span style="color:#a6e22e">applicationType</span>
+</span></span><span style="display:flex;"><span>      })
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">ok</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error(<span style="color:#e6db74">&#39;Failed to update user metadata&#39;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 사용자 정보 새로고침
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">await</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">value</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">reload</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 대시보드로 리다이렉트
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">router</span>.<span style="color:#a6e22e">push</span>(<span style="color:#e6db74">&#39;/dashboard&#39;</span>)
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#e6db74">&#39;Error completing onboarding:&#39;</span>, <span style="color:#a6e22e">error</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">alert</span>(<span style="color:#e6db74">&#39;온보딩 완료 중 오류가 발생했습니다. 다시 시도해주세요.&#39;</span>)
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">isSubmitting</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span></code></pre></div>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/authentification/" rel="tag">Authentification</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-factory/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/clerkauth-1/">Clerk 로그인 화면을 나의 앱에 도입하기</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-factory/">Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-observer/">Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/resources/judithbutler-humanitystudy/">Judith Butler - 공공에서의 인문학의 미래</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-composite/">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pinia/" title="Pinia">Pinia (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vue.js/" title="Vue.js">Vue.js (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

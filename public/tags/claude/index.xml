@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Claude on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/claude/</link>
+    <description>Recent content in Claude on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 14 Oct 2025 12:55:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/claude/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cursor 제대로 사용하기 - CLAUDE.md</title>
+      <link>http://localhost:1313/posts/code-tools/claude-md/</link>
+      <pubDate>Tue, 14 Oct 2025 12:55:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-tools/claude-md/</guid>
+      <description>&lt;h1 id=&#34;용도&#34;&gt;용도&lt;/h1&gt;&#xA;&lt;p&gt;&lt;code&gt;CLAUDE.md&lt;/code&gt;는 본래 Claude Code를 사용할 때 지침을 커스텀하기 위한 제어영역이다. Claude 모델이 알지 못하는 프로젝트 고유의 지침, 가령:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;사용되는 기술 스택&lt;/li&gt;&#xA;&lt;li&gt;프로젝트 구조&lt;/li&gt;&#xA;&lt;li&gt;MSA 구조 상에서 상호작용하는 컴포넌트의 인터페이스&#xA;등등&amp;hellip;&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
+    </item>
+  </channel>
+</rss>
