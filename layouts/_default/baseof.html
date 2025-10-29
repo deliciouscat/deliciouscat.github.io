@@ -59,6 +59,7 @@
 	{{- if not $server }}
 		{{ template "_internal/google_analytics.html" . }}
 	{{- end }}
+	{{- partial "mermaid.html" . }}
 </head>
 <body class="body">
 	<div class="container container--outer">

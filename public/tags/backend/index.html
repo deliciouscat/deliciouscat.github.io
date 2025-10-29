@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Composite - 잡부를 지향합니다.</title>
+	<title>Backend - 잡부를 지향합니다.</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
 	<meta name="description" content="">
-		<meta property="og:url" content="http://localhost:1313/tags/composite/">
+		<meta property="og:url" content="http://localhost:1313/tags/backend/">
   <meta property="og:site_name" content="잡부를 지향합니다.">
-  <meta property="og:title" content="Composite">
+  <meta property="og:title" content="Backend">
   <meta property="og:description" content="deliciouscat의 개발 블로그">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
@@ -20,7 +20,7 @@
 
 	<link rel="stylesheet" href="/css/style.css">
 	<link rel="stylesheet" href="/css/custom.css">
-	<link rel="alternate" type="application/rss+xml" href="/tags/composite/index.xml" title="잡부를 지향합니다.">
+	<link rel="alternate" type="application/rss+xml" href="/tags/backend/index.xml" title="잡부를 지향합니다.">
 
 	
 	<link rel="shortcut icon" href="/favicon.ico">
@@ -85,46 +85,61 @@
 			
 <main class="main list" role="main">
 	<header class="main__header">
-		<h1 class="main__title">Composite</h1>
+		<h1 class="main__title">Backend</h1>
 	</header><article class="list__item post">
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-composite/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)
+			<a href="/posts/api-manuals/convexbackend-1/" rel="bookmark">
+			Convex 튜토리얼
 			</a>
 		</h2>
 		<div class="list__meta meta">
 <div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-20T18:00:00&#43;09:00">September 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-10-26T16:45:00&#43;09:00">October 26, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
 	</span>
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		<p>Composite Pattern(복합체 패턴)은 객체들을 트리 구조로 구성하여 부분과 전체로 계층을 표현하는 디자인 패턴이다.
-클라이언트가 <strong>개별 객체</strong>와 <strong>복합 객체</strong>를 동일한 방식으로 다룰 수 있다.</p>
-<p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Component</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">pass</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Leaf</span>(Component):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Composite</span>(Component):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self): self<span style="color:#f92672">.</span>children <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, c): self<span style="color:#f92672">.</span>children<span style="color:#f92672">.</span>append(c)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">execute</span>(self): <span style="color:#66d9ef">return</span> sum(c<span style="color:#f92672">.</span>execute() <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>children)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 Leaf와 Composite를 구분하지 않음</span>
-</span></span><span style="display:flex;"><span>items <span style="color:#f92672">=</span> [Leaf(), Composite(), Leaf()]  <span style="color:#75715e"># 모두 Component</span>
-</span></span><span style="display:flex;"><span>items[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>add(Leaf())    <span style="color:#75715e"># Composite에 Leaf 추가: children = [leaf1]</span>
-</span></span><span style="display:flex;"><span>items[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>add(Leaf())    <span style="color:#75715e"># Composite에 Leaf 추가: children = [leaf1, leaf2]</span>
-</span></span><span style="display:flex;"><span>total <span style="color:#f92672">=</span> sum(item<span style="color:#f92672">.</span>execute() <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> items)
-</span></span><span style="display:flex;"><span>print(total)  <span style="color:#75715e"># 1 + 2 + 1 = 4</span>
-</span></span></code></pre></div><p>-&gt; <code>Leaf</code>와 <code>Composite</code>는 둘 다 <code>Component</code>(execute 메서드를 가진)를 상속해서 <code>execute</code> 메서드를 호출할 수 있고, 위계에 상관없이 메서드를 호출 가능하다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-composite/">Read more…</a>
+		<h1 id="convex-개요">Convex 개요</h1>
+<p>Backend-as-a-Service로, JWT 방식으로 통신하여 사용할 수 있다. 서버리스/비동기처리가 기본인 서비스이기 때문에 Supabase등의 대안보다 관리가 용이하다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph LR
+    subgraph webapp_a[&#34;web app: user a&#34;]
+        client_a[&#34;client library&#34;]
+    end
+    
+    subgraph webapp_b[&#34;web app: user b&#34;]
+        client_b[&#34;client library&#34;]
+    end
+    
+    subgraph convex[&#34;convex backend&#34;]
+        subgraph sync[&#34;sync engine&#34;]
+            mutation[&#34;mutation&#34;]
+            query[&#34;query&#34;]
+            db[(&#34;database&#34;)]
+        end
+    end
+    
+    client_a --&gt;|&#34;mutation request&#34;| mutation
+    client_b --&gt;|&#34;mutation request&#34;| mutation
+    mutation --&gt; db
+    db --&gt; query
+    query --&gt;|&#34;real-time updates&#34;| client_a
+    query --&gt;|&#34;real-time updates&#34;| client_b
+
+style webapp_a fill:#8b3a8b
+style webapp_b fill:#8b3a8b
+style convex fill:#f5a623
+style sync fill:#f07d3e
+style client_a fill:#f5a623
+style client_b fill:#f5a623
+</code></pre><pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TD
+    A[시작] --&gt; B{결정}
+    B --&gt;|Yes| C[프로세스 A]
+    B --&gt;|No| D[프로세스 B]
+    C --&gt; E[종료]
+    D --&gt; E
+</code></pre>
 	</div>
 </article>
 </main>

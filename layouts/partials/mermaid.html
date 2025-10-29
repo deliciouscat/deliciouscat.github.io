@@ -1,0 +1,30 @@
+<!-- Mermaid Diagram Support -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    // Find all mermaid code blocks
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    // Render all mermaid diagrams
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+

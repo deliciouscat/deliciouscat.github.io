@@ -33,6 +33,36 @@
 	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
 	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
 		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
 </head>
 <body class="body">
 	<div class="container container--outer">
@@ -204,11 +234,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/convexbackend-1/">Convex 튜토리얼</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/clerkauth-1/">Clerk 로그인 화면을 나의 앱에 도입하기</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-factory/">Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-observer/">Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/resources/judithbutler-humanitystudy/">Judith Butler - 공공에서의 인문학의 미래</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-composite/">Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)</a></li>
 		</ul>
 	</div>
 </div>
@@ -231,6 +261,8 @@
 	<h4 class="widget__title">Tags</h4>
 	<div class="widget__content">
 		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>

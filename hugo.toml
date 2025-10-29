@@ -43,3 +43,14 @@ theme = 'Mainroad'
 # 댓글 시스템 설정 (utterances)
 [Params.comments]
   enable = true
+
+# 마크다운 렌더링 설정
+[markup.goldmark.renderer]
+  unsafe = true
+
+[markup.goldmark.parser.attribute]
+  block = true
+
+[markup.highlight]
+  style = "monokai"
+  lineNos = false

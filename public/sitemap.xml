@@ -9,19 +9,28 @@
     <lastmod>2099-10-14T12:55:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/api-manuals/</loc>
-    <lastmod>2025-10-25T12:55:00+09:00</lastmod>
+    <lastmod>2025-10-26T16:45:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/authentification/</loc>
-    <lastmod>2025-10-25T12:55:00+09:00</lastmod>
+    <loc>http://localhost:1313/tags/baas/</loc>
+    <lastmod>2025-10-26T16:45:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/backend/</loc>
+    <lastmod>2025-10-26T16:45:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2025-10-25T12:55:00+09:00</lastmod>
+    <lastmod>2025-10-26T16:45:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/api-manuals/clerkauth-1/</loc>
-    <lastmod>2025-10-25T12:55:00+09:00</lastmod>
+    <loc>http://localhost:1313/posts/api-manuals/convexbackend-1/</loc>
+    <lastmod>2025-10-26T16:45:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-10-25T12:55:00+09:00</lastmod>
+    <lastmod>2025-10-26T16:45:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/authentification/</loc>
+    <lastmod>2025-10-25T16:45:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/api-manuals/clerkauth-1/</loc>
+    <lastmod>2025-10-25T16:45:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/computer-science/</loc>
     <lastmod>2025-09-27T16:55:00+09:00</lastmod>
