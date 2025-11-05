@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Authentification - 잡부를 지향합니다.</title>
+	<title>Full Stack - 잡부를 지향합니다.</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
 	<meta name="description" content="">
-		<meta property="og:url" content="http://localhost:1313/tags/authentification/">
+		<meta property="og:url" content="http://localhost:1313/tags/full-stack/">
   <meta property="og:site_name" content="잡부를 지향합니다.">
-  <meta property="og:title" content="Authentification">
+  <meta property="og:title" content="Full Stack">
   <meta property="og:description" content="deliciouscat의 개발 블로그">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
@@ -20,7 +20,7 @@
 
 	<link rel="stylesheet" href="/css/style.css">
 	<link rel="stylesheet" href="/css/custom.css">
-	<link rel="alternate" type="application/rss+xml" href="/tags/authentification/index.xml" title="잡부를 지향합니다.">
+	<link rel="alternate" type="application/rss+xml" href="/tags/full-stack/index.xml" title="잡부를 지향합니다.">
 
 	
 	<link rel="shortcut icon" href="/favicon.ico">
@@ -85,45 +85,54 @@
 			
 <main class="main list" role="main">
 	<header class="main__header">
-		<h1 class="main__title">Authentification</h1>
+		<h1 class="main__title">Full Stack</h1>
 	</header><article class="list__item post">
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
-			<a href="/posts/api-manuals/clerkauth-1/" rel="bookmark">
-			Clerk 로그인 화면을 나의 앱에 도입하기
+			<a href="/posts/api-manuals/vueconvexclerk-1/" rel="bookmark">
+			Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1
 			</a>
 		</h2>
 		<div class="list__meta meta">
 <div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-10-25T16:45:00&#43;09:00">October 25, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-04T18:05:00&#43;09:00">November 04, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
 	</span>
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		<h1 id="session-token-추가하기">Session token 추가하기</h1>
-<p>Clerk Dashboard에 단 하나의 JSON 스니펫을 추가하면 사용자 메타데이터가 JWT 세션 토큰에 직접 포함되고, Vue Router의 네비게이션 가드를 사용해서 해당 토큰을 읽고 라우팅을 제어할 수 있다.</p>
-<p>Clerk Console의 <a href="http://dashboard.clerk.com/apps/app_34Mrxw8lQUzyaKDJvgZJ6JUDKGn/instances/ins_34Mrxs1f4zHBE4EUiNQW9nzVL3g/sessions">Sessions 메뉴</a> 중 <code>Customize session token</code>을 다음과 같이 수정하자.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&#34;metadata&#34;</span>: <span style="color:#e6db74">&#34;{{user.public_metadata}}&#34;</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>그 다음, 내 프로젝트의 <code>src/types/globals.d.ts</code>에 다음의 스크립트를 작성하여 애플리케이션에서 메타데이터 접근이 가능하게 한다.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">export</span> {}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">declare</span> <span style="color:#66d9ef">global</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">CustomJwtSessionClaims</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">metadata</span><span style="color:#f92672">:</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">onboardingComplete?</span>: <span style="color:#66d9ef">boolean</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">applicationName?</span>: <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">applicationType?</span>: <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">firstName?</span>: <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>이제 Clerk Dashboard에 session token에 custom 데이터를 추가했고, 이러한 claims를 앱에서 접근할 수 있게 만들었다.</p>
+		<p>Vue로 작성된 프론트엔드 코드에 완성도 높은 서버리스 Backend-as-a-Service인 Convex, 그리고 Authentification 관리 SaaS인 Clerk를 연동하여, 실제로 서비스 할 수 있는 웹앱을 구현해보자.</p>
+<h1 id="모노레포로-관리-가능">모노레포로 관리 가능</h1>
+<p>서버리스 백엔드를 사용하기 때문에 별도의 클라우드 VM을 개통할 필요가 없고 단일 레포에서 코드 작업을 해도 무방하다.
+레포는 프론트와 백엔드 코드 모두 포함하고 있지만, 빌드 시에는 서로 격리됨.</p>
+<ul>
+<li><code>src</code>에 Vue로 작성된 클라이언트 코드</li>
+<li><code>convex</code>에 백엔드 configuration과 DB 스킴 정의, Mutation/Query/Action 함수 작성</li>
+</ul>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
+    A[Git 레포지토리&lt;br/&gt;vue-convex-clerk-auth/&lt;br/&gt;├── src/ 클라이언트 소스&lt;br/&gt;├── convex/ 서버 소스 _&lt;br/&gt;└── package.json __ __]
+    
+    A --&gt; B[npm run build]
+    A --&gt; C[npx convex dev]
+    
+    B --&gt; D[dist/&lt;br/&gt;src만 번들]
+    C --&gt; E[Convex Cloud&lt;br/&gt;convex만 업로드]
+    
+    D --&gt; F[브라우저&lt;br/&gt;HTML+JS+CSS]
+    E --&gt; G[Convex 서버&lt;br/&gt;API+DB]
+    
+    G --&gt;|통신| F
+    
+    style A fill:#e1f5ff,color:#000000
+    style D fill:#fff4e1,color:#000000
+    style E fill:#fff4e1,color:#000000
+    style F fill:#e8f5e9,color:#000000
+    style G fill:#e8f5e9,color:#000000
+</code></pre><h1 id="환경설정">환경설정</h1>
+<p><code>.env</code>에 다음 항목들을 추가하자.</p>
 	</div>
 	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/api-manuals/clerkauth-1/">Read more…</a>
+		<a class="list__footer-readmore btn" href="/posts/api-manuals/vueconvexclerk-1/">Read more…</a>
 	</div>
 </article>
 </main>

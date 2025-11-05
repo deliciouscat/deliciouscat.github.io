@@ -6,19 +6,26 @@
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 26 Oct 2025 16:45:00 +0900</lastBuildDate>
+    <lastBuildDate>Tue, 04 Nov 2025 18:05:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Full Stack</title>
+      <link>http://localhost:1313/tags/full-stack/</link>
+      <pubDate>Tue, 04 Nov 2025 18:05:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/full-stack/</guid>
+      <description></description>
+    </item>
     <item>
       <title>BaaS</title>
       <link>http://localhost:1313/tags/baas/</link>
-      <pubDate>Sun, 26 Oct 2025 16:45:00 +0900</pubDate>
+      <pubDate>Wed, 29 Oct 2025 17:45:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/baas/</guid>
       <description></description>
     </item>
     <item>
       <title>Backend</title>
       <link>http://localhost:1313/tags/backend/</link>
-      <pubDate>Sun, 26 Oct 2025 16:45:00 +0900</pubDate>
+      <pubDate>Wed, 29 Oct 2025 17:45:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/backend/</guid>
       <description></description>
     </item>

@@ -89,6 +89,54 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/api-manuals/vueconvexclerk-1/" rel="bookmark">
+			Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-04T18:05:00&#43;09:00">November 04, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p>Vue로 작성된 프론트엔드 코드에 완성도 높은 서버리스 Backend-as-a-Service인 Convex, 그리고 Authentification 관리 SaaS인 Clerk를 연동하여, 실제로 서비스 할 수 있는 웹앱을 구현해보자.</p>
+<h1 id="모노레포로-관리-가능">모노레포로 관리 가능</h1>
+<p>서버리스 백엔드를 사용하기 때문에 별도의 클라우드 VM을 개통할 필요가 없고 단일 레포에서 코드 작업을 해도 무방하다.
+레포는 프론트와 백엔드 코드 모두 포함하고 있지만, 빌드 시에는 서로 격리됨.</p>
+<ul>
+<li><code>src</code>에 Vue로 작성된 클라이언트 코드</li>
+<li><code>convex</code>에 백엔드 configuration과 DB 스킴 정의, Mutation/Query/Action 함수 작성</li>
+</ul>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
+    A[Git 레포지토리&lt;br/&gt;vue-convex-clerk-auth/&lt;br/&gt;├── src/ 클라이언트 소스&lt;br/&gt;├── convex/ 서버 소스 _&lt;br/&gt;└── package.json __ __]
+    
+    A --&gt; B[npm run build]
+    A --&gt; C[npx convex dev]
+    
+    B --&gt; D[dist/&lt;br/&gt;src만 번들]
+    C --&gt; E[Convex Cloud&lt;br/&gt;convex만 업로드]
+    
+    D --&gt; F[브라우저&lt;br/&gt;HTML+JS+CSS]
+    E --&gt; G[Convex 서버&lt;br/&gt;API+DB]
+    
+    G --&gt;|통신| F
+    
+    style A fill:#e1f5ff,color:#000000
+    style D fill:#fff4e1,color:#000000
+    style E fill:#fff4e1,color:#000000
+    style F fill:#e8f5e9,color:#000000
+    style G fill:#e8f5e9,color:#000000
+</code></pre><h1 id="환경설정">환경설정</h1>
+<p><code>.env</code>에 다음 항목들을 추가하자.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/api-manuals/vueconvexclerk-1/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/api-manuals/convexbackend-1/" rel="bookmark">
 			Convex 튜토리얼
 			</a>
@@ -375,11 +423,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/vueconvexclerk-1/">Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/convexbackend-1/">Convex 튜토리얼</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/clerkauth-1/">Clerk 로그인 화면을 나의 앱에 도입하기</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-factory/">Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-observer/">Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/resources/judithbutler-humanitystudy/">Judith Butler - 공공에서의 인문학의 미래</a></li>
 		</ul>
 	</div>
 </div>
@@ -406,6 +454,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/pinia/" title="Pinia">Pinia (1)</a>

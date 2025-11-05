@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Full Stack on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/full-stack/</link>
+    <description>Recent content in Full Stack on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 04 Nov 2025 18:05:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/full-stack/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1</title>
+      <link>http://localhost:1313/posts/api-manuals/vueconvexclerk-1/</link>
+      <pubDate>Tue, 04 Nov 2025 18:05:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/api-manuals/vueconvexclerk-1/</guid>
+      <description>&lt;p&gt;Vue로 작성된 프론트엔드 코드에 완성도 높은 서버리스 Backend-as-a-Service인 Convex, 그리고 Authentification 관리 SaaS인 Clerk를 연동하여, 실제로 서비스 할 수 있는 웹앱을 구현해보자.&lt;/p&gt;&#xA;&lt;h1 id=&#34;모노레포로-관리-가능&#34;&gt;모노레포로 관리 가능&lt;/h1&gt;&#xA;&lt;p&gt;서버리스 백엔드를 사용하기 때문에 별도의 클라우드 VM을 개통할 필요가 없고 단일 레포에서 코드 작업을 해도 무방하다.&#xA;레포는 프론트와 백엔드 코드 모두 포함하고 있지만, 빌드 시에는 서로 격리됨.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;code&gt;src&lt;/code&gt;에 Vue로 작성된 클라이언트 코드&lt;/li&gt;&#xA;&lt;li&gt;&lt;code&gt;convex&lt;/code&gt;에 백엔드 configuration과 DB 스킴 정의, Mutation/Query/Action 함수 작성&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-mermaid&#34; data-lang=&#34;mermaid&#34;&gt;flowchart TD&#xA;    A[Git 레포지토리&amp;lt;br/&amp;gt;vue-convex-clerk-auth/&amp;lt;br/&amp;gt;├── src/ 클라이언트 소스&amp;lt;br/&amp;gt;├── convex/ 서버 소스 _&amp;lt;br/&amp;gt;└── package.json __ __]&#xA;    &#xA;    A --&amp;gt; B[npm run build]&#xA;    A --&amp;gt; C[npx convex dev]&#xA;    &#xA;    B --&amp;gt; D[dist/&amp;lt;br/&amp;gt;src만 번들]&#xA;    C --&amp;gt; E[Convex Cloud&amp;lt;br/&amp;gt;convex만 업로드]&#xA;    &#xA;    D --&amp;gt; F[브라우저&amp;lt;br/&amp;gt;HTML+JS+CSS]&#xA;    E --&amp;gt; G[Convex 서버&amp;lt;br/&amp;gt;API+DB]&#xA;    &#xA;    G --&amp;gt;|통신| F&#xA;    &#xA;    style A fill:#e1f5ff,color:#000000&#xA;    style D fill:#fff4e1,color:#000000&#xA;    style E fill:#fff4e1,color:#000000&#xA;    style F fill:#e8f5e9,color:#000000&#xA;    style G fill:#e8f5e9,color:#000000&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;환경설정&#34;&gt;환경설정&lt;/h1&gt;&#xA;&lt;p&gt;&lt;code&gt;.env&lt;/code&gt;에 다음 항목들을 추가하자.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
