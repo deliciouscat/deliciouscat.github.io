@@ -47,8 +47,8 @@ Clerk dashboard -> 해당하는 application 선택 -> Overview에서 Vue 선택 
 프로젝트 이름: Convex 콘솔 상단의 초록색 영역에 적혀있음. ex) `goat-ocelot-727`
 
 ### CLERK_JWT_ISSUER_DOMAIN
- 
-`https://dashboard.convex.dev/d/{프로젝트 이름}/settings/environment-variables?var=CLERK_JWT_ISSUER_DOMAIN`에서 설정
+**Clerk 콘솔 -> Configure -> API keys**  
+여기서 오른쪽에 **Frontend API URL**이라고 적힌 URL을 copy한다.
 
 ```bash
 # Clerk 설정
@@ -58,6 +58,7 @@ VITE_CONVEX_URL=https://{프로젝트 이름}.convex.cloud
 # Convex 백엔드용
 CLERK_JWT_ISSUER_DOMAIN=https://clerk.your-domain.com
 ```
+그 다음 Clerk 콘솔의 **JWT template** 메뉴에서 새로운 탬플릿을 생성(*Add new template* 버튼)한다. 템플릿 중 Convex를 선택하면 됨.
 
 이 설정을 완료한 후 `npx convex dev`를 실행하여 연동.
 

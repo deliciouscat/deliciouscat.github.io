@@ -6,8 +6,15 @@
     <description>Recent content on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 06 Nov 2025 17:45:00 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 12 Nov 2025 22:50:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Alex Karp의 &#34;서구 문명&#34; 개념</title>
+      <link>http://localhost:1313/posts/resources/alexkarp-westerncivil/</link>
+      <pubDate>Wed, 12 Nov 2025 22:50:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/resources/alexkarp-westerncivil/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://app.liner.com/ko/search/s/18821459/t/89903816?msg-entry-type=main&#34;&gt;&lt;strong&gt;Liner를 통해 정리된 내용임&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;&#xA;&lt;details&gt;&#xA;&lt;summary&gt;주요 개념&lt;/summary&gt;&#xA;&lt;div markdown=&#34;1&#34;&gt;&#xA;&lt;p&gt;&lt;strong&gt;철학/이론적 배경&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;프랑크푸르트 학파/비판 이론(Critical Theory)&lt;/strong&gt; - 카프가 박사과정을 밟은 곳이면서도 동시에 비판하는 사상&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;신고전주의 사회 이론&lt;/strong&gt; - 카프의 박사 학위 분야&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;문화 상대주의(Cultural Relativism)&lt;/strong&gt; - 카프가 강하게 반대하는 입장&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;사무엘 헌팅턴(Samuel P. Huntington)&lt;/strong&gt; - &amp;ldquo;문명의 충돌&amp;rdquo; 저자, 카프가 인용하는 학자&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;탈콧 파슨스(Talcott Parsons)&lt;/strong&gt; - 카프 박사논문에서 다룬 사회학자&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;&lt;strong&gt;기업/조직&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;팔란티어 테크놀로지스(Palantir Technologies)&lt;/strong&gt; - 데이터 분석 기업의 구체적 역할과 제품&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;인큐텔(In-Q-Tel)&lt;/strong&gt; - CIA 벤처캐피털, 팔란티어 초기 투자자&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;ICE(미국 이민세관집행국)&lt;/strong&gt; - 논란이 된 팔란티어 고객&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;&lt;strong&gt;정치/군사 개념&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Vibe Coding을 위한 디자인 패턴 - 장식자(Decorator)</title>
       <link>http://localhost:1313/posts/design-pattern/designpattern-decorator/</link>

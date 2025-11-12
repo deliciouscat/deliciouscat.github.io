@@ -3,7 +3,7 @@ title: "Judith Butler - 공공에서의 인문학의 미래"
 date: 2025-09-21T21:20:00+09:00
 draft: false
 categories: ["Resources"]
-tags: ["Vue.js", "Pinia"]
+tags: ["Humanity"]
 ---
 
 [유튜브](https://youtu.be/EaF4ODAon6o?si=Tev74FEJNBMotous)에서의 언급을 통해 접한 자료입니다.  
