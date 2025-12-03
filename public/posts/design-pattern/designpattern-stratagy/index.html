@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-stratagy/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)">
+  <meta property="og:description" content="Strategy Pattern (전략 패턴) Strategy Pattern은 알고리즘군을 정의하고 각각을 캡슐화하여 교환 가능하게 만드는 디자인 패턴이다. 클라이언트는 알고리즘의 구체적인 구현과 독립적으로 런타임에 알고리즘을 선택할 수 있다.
+예를 들어:
+class PaymentStrategy: def pay(self, amount): pass class CreditCard(PaymentStrategy): def pay(self, amount): return f&#34;Paid {amount} with Credit Card&#34; class PayPal(PaymentStrategy): def pay(self, amount): return f&#34;Paid {amount} with PayPal&#34; class ShoppingCart: def __init__(self, strategy: PaymentStrategy): self.strategy = strategy def set_strategy(self, strategy: PaymentStrategy): self.strategy = strategy def checkout(self, amount): return self.strategy.pay(amount) # 런타임에 전략 변경 cart = ShoppingCart(CreditCard()) print(cart.checkout(100)) # Paid 100 with Credit Card cart.set_strategy(PayPal()) print(cart.checkout(200)) # Paid 200 with PayPal → ShoppingCart는 구체적인 결제 방식을 알 필요 없이, PaymentStrategy 인터페이스만 알면 된다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-11-20T18:00:00+09:00">
+    <meta property="article:modified_time" content="2025-11-20T18:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="전략패턴">
+    <meta property="article:tag" content="Strategy">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-20T18:00:00&#43;09:00">November 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="strategy-pattern-전략-패턴">Strategy Pattern (전략 패턴)</h1>
+<p>Strategy Pattern은 <strong>알고리즘군을 정의하고 각각을 캡슐화하여 교환 가능하게 만드는</strong> 디자인 패턴이다.
+클라이언트는 알고리즘의 구체적인 구현과 독립적으로 <strong>런타임에 알고리즘을 선택</strong>할 수 있다.</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CreditCard</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with Credit Card&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayPal</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with PayPal&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy: PaymentStrategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_strategy</span>(self, strategy: PaymentStrategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checkout</span>(self, amount):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>pay(amount)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 런타임에 전략 변경</span>
+</span></span><span style="display:flex;"><span>cart <span style="color:#f92672">=</span> ShoppingCart(CreditCard())
+</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">100</span>))  <span style="color:#75715e"># Paid 100 with Credit Card</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cart<span style="color:#f92672">.</span>set_strategy(PayPal())
+</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">200</span>))  <span style="color:#75715e"># Paid 200 with PayPal</span>
+</span></span></code></pre></div><p>→ <code>ShoppingCart</code>는 구체적인 결제 방식을 알 필요 없이, <code>PaymentStrategy</code> 인터페이스만 알면 된다.</p>
+<h2 id="의존성-역전-원칙-dependency-inversion-principle-dip">의존성 역전 원칙 (Dependency Inversion Principle; DIP)</h2>
+<p>Strategy Pattern의 핵심은 **&ldquo;구체적인 구현이 아닌 추상화에 의존&rdquo;**하는 것이다.</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, payment_type):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>payment_type <span style="color:#f92672">=</span> payment_type
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checkout</span>(self, amount):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>payment_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;credit&#34;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Credit card: </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> self<span style="color:#f92672">.</span>payment_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;paypal&#34;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;PayPal: </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> self<span style="color:#f92672">.</span>payment_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;crypto&#34;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Crypto: </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 새 결제 수단 추가시 이 메서드를 계속 수정해야 함!</span>
+</span></span></code></pre></div><p>→ 구체적인 결제 로직이 <code>ShoppingCart</code>에 강하게 결합되어 있어, 새로운 결제 수단 추가 시 기존 코드를 수정해야 한다.</p>
+<p><strong>잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CreditCard</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, number, cvv):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>number, self<span style="color:#f92672">.</span>cvv <span style="color:#f92672">=</span> number, cvv
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): 
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Credit </span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>number<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayPal</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, email):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>email <span style="color:#f92672">=</span> email
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;PayPal </span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>email<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy: PaymentStrategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checkout</span>(self, amount):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>pay(amount)  <span style="color:#75715e"># 추상화에만 의존</span>
+</span></span></code></pre></div><p>→ <code>ShoppingCart</code>는 <code>PaymentStrategy</code> 추상 인터페이스에만 의존하고, 구체적인 결제 수단(<code>CreditCard</code>, <code>PayPal</code>)의 구현 세부사항을 알지 못한다.</p>
+<h2 id="컨텍스트-전략-분리-context-strategy-decoupling">컨텍스트-전략 분리 (Context-Strategy Decoupling)</h2>
+<p>Strategy Pattern의 중요한 특징은 <strong>알고리즘의 사용(Context)과 구현(Strategy)을 분리</strong>하는 것이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 컨텍스트: 알고리즘을 &#34;사용&#34;하는 객체</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DataCompressor</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compress_file</span>(self, file):
+</span></span><span style="display:flex;"><span>        data <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>read_file(file)
+</span></span><span style="display:flex;"><span>        compressed <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>compress(data)  <span style="color:#75715e"># 전략에 위임</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> compressed
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">read_file</span>(self, file):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;data from </span><span style="color:#e6db74">{</span>file<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 전략: 알고리즘을 &#34;구현&#34;하는 객체들</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ZipStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compress</span>(self, data): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Zipped: </span><span style="color:#e6db74">{</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RarStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compress</span>(self, data): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Rared: </span><span style="color:#e6db74">{</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LzmaStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compress</span>(self, data): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Lzma: </span><span style="color:#e6db74">{</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 사용</span>
+</span></span><span style="display:flex;"><span>compressor <span style="color:#f92672">=</span> DataCompressor(ZipStrategy())
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> compressor<span style="color:#f92672">.</span>compress_file(<span style="color:#e6db74">&#34;test.txt&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 전략 교체</span>
+</span></span><span style="display:flex;"><span>compressor<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> RarStrategy()
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> compressor<span style="color:#f92672">.</span>compress_file(<span style="color:#e6db74">&#34;test.txt&#34;</span>)
+</span></span></code></pre></div><p>→ <code>DataCompressor</code>는 파일 읽기 등의 공통 로직을 처리하고, 압축 알고리즘은 전략 객체에 위임한다.</p>
+<h2 id="상속-vs-구성-inheritance-vs-composition">상속 vs 구성 (Inheritance vs Composition)</h2>
+<p>Strategy Pattern은 <strong>&ldquo;상속보다 구성(Composition over Inheritance)&rdquo;</strong> 원칙의 좋은 예시다.</p>
+<p><strong>상속을 사용한 잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Sorter</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sort</span>(self, data): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BubbleSorter</span>(Sorter):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sort</span>(self, data): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;bubble sorted&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">QuickSorter</span>(Sorter):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sort</span>(self, data): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;quick sorted&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 문제: 런타임에 정렬 방식을 변경할 수 없음</span>
+</span></span><span style="display:flex;"><span>sorter <span style="color:#f92672">=</span> BubbleSorter()
+</span></span><span style="display:flex;"><span>sorter<span style="color:#f92672">.</span>sort([<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>])
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># QuickSort로 바꾸려면? 새 객체를 생성해야 함!</span>
+</span></span></code></pre></div><p><strong>구성을 사용한 잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SortStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sort</span>(self, data): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BubbleSort</span>(SortStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sort</span>(self, data): <span style="color:#66d9ef">return</span> sorted(data)  <span style="color:#75715e"># 간단 예시</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">QuickSort</span>(SortStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sort</span>(self, data): <span style="color:#66d9ef">return</span> sorted(data, reverse<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DataProcessor</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy: SortStrategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_strategy</span>(self, strategy: SortStrategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(self, data):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 전처리</span>
+</span></span><span style="display:flex;"><span>        cleaned <span style="color:#f92672">=</span> [x <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> data <span style="color:#66d9ef">if</span> x <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 전략 실행</span>
+</span></span><span style="display:flex;"><span>        sorted_data <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>sort(cleaned)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 후처리</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> sorted_data
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 런타임에 전략 교체 가능!</span>
+</span></span><span style="display:flex;"><span>processor <span style="color:#f92672">=</span> DataProcessor(BubbleSort())
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> processor<span style="color:#f92672">.</span>process([<span style="color:#ae81ff">3</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">5</span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>processor<span style="color:#f92672">.</span>set_strategy(QuickSort())  <span style="color:#75715e"># 같은 객체로 전략만 변경</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> processor<span style="color:#f92672">.</span>process([<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">9</span>])
+</span></span></code></pre></div><h2 id="strategy-pattern의-재귀적-특성">Strategy Pattern의 재귀적 특성?</h2>
+<p>Composite Pattern과 달리, Strategy Pattern은 <strong>재귀적 구조를 가지지 않는다</strong>. 대신:</p>
+<ul>
+<li><strong>단일 책임</strong>: 각 전략은 하나의 알고리즘만 구현</li>
+<li><strong>수평적 관계</strong>: 전략들은 계층 구조가 아닌 대등한 관계</li>
+<li><strong>교환 가능성</strong>: 같은 인터페이스를 구현하므로 서로 교체 가능</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Strategy는 서로를 포함하지 않음 (재귀 X)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EncryptionStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">encrypt</span>(self, text): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AES</span>(EncryptionStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">encrypt</span>(self, text): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;AES(</span><span style="color:#e6db74">{</span>text<span style="color:#e6db74">}</span><span style="color:#e6db74">)&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RSA</span>(EncryptionStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">encrypt</span>(self, text): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;RSA(</span><span style="color:#e6db74">{</span>text<span style="color:#e6db74">}</span><span style="color:#e6db74">)&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 전략들은 독립적이고 수평적</span>
+</span></span><span style="display:flex;"><span>strategies <span style="color:#f92672">=</span> [AES(), RSA()]  <span style="color:#75715e"># 서로를 포함하지 않음</span>
+</span></span></code></pre></div><p><strong>단, 전략을 조합하는 패턴은 가능:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CompositeStrategy</span>(EncryptionStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, <span style="color:#f92672">*</span>strategies):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategies <span style="color:#f92672">=</span> strategies
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">encrypt</span>(self, text):
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> text
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> strategy <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>strategies:
+</span></span><span style="display:flex;"><span>            result <span style="color:#f92672">=</span> strategy<span style="color:#f92672">.</span>encrypt(result)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 여러 전략을 순차적으로 적용</span>
+</span></span><span style="display:flex;"><span>multi_encrypt <span style="color:#f92672">=</span> CompositeStrategy(AES(), RSA())
+</span></span><span style="display:flex;"><span>encrypted <span style="color:#f92672">=</span> multi_encrypt<span style="color:#f92672">.</span>encrypt(<span style="color:#e6db74">&#34;secret&#34;</span>)  <span style="color:#75715e"># RSA(AES(secret))</span>
+</span></span></code></pre></div><h2 id="strategy-pattern은-다음과-같은-상황에서-유용하다">Strategy Pattern은 다음과 같은 상황에서 유용하다:</h2>
+<ol>
+<li>
+<p><strong>같은 작업을 다양한 방식으로 수행해야 할 때</strong></p>
+<ul>
+<li>정렬 알고리즘 (버블, 퀵, 머지 등)</li>
+<li>압축 방식 (ZIP, RAR, 7z 등)</li>
+<li>결제 수단 (카드, 페이팔, 암호화폐 등)</li>
+</ul>
+</li>
+<li>
+<p><strong>런타임에 알고리즘을 선택/변경해야 할 때</strong></p>
+<ul>
+<li>사용자 설정에 따른 동작 변경</li>
+<li>데이터 크기에 따른 최적 알고리즘 선택</li>
+<li>A/B 테스트</li>
+</ul>
+</li>
+<li>
+<p><strong>복잡한 조건문을 제거하고 싶을 때</strong></p>
+<ul>
+<li>많은 <code>if-elif-else</code> 분기를 전략 객체로 대체</li>
+<li>코드 가독성과 유지보수성 향상</li>
+</ul>
+</li>
+</ol>
+<h2 id="용어-정리">용어 정리</h2>
+<p><strong>Strategy (전략 인터페이스)</strong>: 모든 구체적 전략이 구현해야 하는 공통 인터페이스<br>
+<strong>ConcreteStrategy (구체적 전략)</strong>: 실제 알고리즘을 구현하는 클래스들<br>
+<strong>Context (컨텍스트)</strong>: 전략을 사용하는 객체, 전략 객체를 참조하고 필요시 교체</p>
+<ol>
+<li>
+<p>결제 시스템 예시:</p>
+<ul>
+<li>Strategy → PaymentStrategy</li>
+<li>ConcreteStrategy → CreditCard, PayPal, Crypto</li>
+<li>Context → ShoppingCart</li>
+</ul>
+</li>
+<li>
+<p>압축 시스템 예시:</p>
+<ul>
+<li>Strategy → CompressionStrategy</li>
+<li>ConcreteStrategy → ZipStrategy, RarStrategy, LzmaStrategy</li>
+<li>Context → DataCompressor</li>
+</ul>
+</li>
+</ol>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" rel="tag">전략패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/strategy/" rel="tag">Strategy</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/resources/alexkarp-westerncivil/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Alex Karp의 &#34;서구 문명&#34; 개념</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-stratagy/">Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/resources/alexkarp-westerncivil/">Alex Karp의 &#34;서구 문명&#34; 개념</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-decorator/">Vibe Coding을 위한 디자인 패턴 - 장식자(Decorator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/vueconvexclerk-1/">Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/convexbackend-1/">Convex 튜토리얼</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (5)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2025 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

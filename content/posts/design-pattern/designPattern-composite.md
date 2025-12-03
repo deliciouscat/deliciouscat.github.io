@@ -3,7 +3,7 @@ title: "Vibe Coding을 위한 디자인 패턴 - 복합체(Composite)"
 date: 2025-09-20T18:00:00+09:00
 draft: false
 categories: ["Computer Science"]
-tags: ["디자인패턴", "Vibe Coding", "복합체", "Composite"]
+tags: ["디자인패턴", "복합체", "Composite"]
 ---
 
 Composite Pattern(복합체 패턴)은 객체들을 트리 구조로 구성하여 부분과 전체로 계층을 표현하는 디자인 패턴이다.
@@ -141,8 +141,3 @@ Composite (복합 객체): Leaf 객체나 다른 Composite 객체를 자식으�
 - Component (추상 인터페이스) → Shape
 - Leaf (단일 객체) → Circle, Rectangle
 - Composite (복합 객체) → ShapeGroup
-
-
---------
-원래는 pseudo coding을 통한 vibe coding 예시를 보이고 싶었으나.. 분량이 넘쳐 의도치 않게 vibe coding은 어그로가 되어버렸네요,, 
-2편으로 찾아뵙는 것으로..!

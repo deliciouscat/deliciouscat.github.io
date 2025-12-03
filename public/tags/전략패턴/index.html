@@ -3,12 +3,12 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Humanity - 잡부를 지향합니다.</title>
+	<title>전략패턴 - 잡부를 지향합니다.</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
 	<meta name="description" content="">
-		<meta property="og:url" content="http://localhost:1313/tags/humanity/">
+		<meta property="og:url" content="http://localhost:1313/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/">
   <meta property="og:site_name" content="잡부를 지향합니다.">
-  <meta property="og:title" content="Humanity">
+  <meta property="og:title" content="전략패턴">
   <meta property="og:description" content="deliciouscat의 개발 블로그">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
@@ -20,7 +20,7 @@
 
 	<link rel="stylesheet" href="/css/style.css">
 	<link rel="stylesheet" href="/css/custom.css">
-	<link rel="alternate" type="application/rss+xml" href="/tags/humanity/index.xml" title="잡부를 지향합니다.">
+	<link rel="alternate" type="application/rss+xml" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/index.xml" title="잡부를 지향합니다.">
 
 	
 	<link rel="shortcut icon" href="/favicon.ico">
@@ -85,68 +85,58 @@
 			
 <main class="main list" role="main">
 	<header class="main__header">
-		<h1 class="main__title">Humanity</h1>
+		<h1 class="main__title">전략패턴</h1>
 	</header><article class="list__item post">
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
-			<a href="/posts/resources/alexkarp-westerncivil/" rel="bookmark">
-			Alex Karp의 &#34;서구 문명&#34; 개념
+			<a href="/posts/design-pattern/designpattern-stratagy/" rel="bookmark">
+			Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)
 			</a>
 		</h2>
 		<div class="list__meta meta">
 <div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-12T22:50:00&#43;09:00">November 12, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/resources/" rel="category">Resources</a>
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-20T18:00:00&#43;09:00">September 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
 	</span>
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		<p><a href="https://app.liner.com/ko/search/s/18821459/t/89903816?msg-entry-type=main"><strong>Liner를 통해 정리된 내용임</strong></a></p>
-<details>
-<summary>주요 개념</summary>
-<div markdown="1">
-<p><strong>철학/이론적 배경</strong></p>
-<ul>
-<li><strong>프랑크푸르트 학파/비판 이론(Critical Theory)</strong> - 카프가 박사과정을 밟은 곳이면서도 동시에 비판하는 사상</li>
-<li><strong>신고전주의 사회 이론</strong> - 카프의 박사 학위 분야</li>
-<li><strong>문화 상대주의(Cultural Relativism)</strong> - 카프가 강하게 반대하는 입장</li>
-<li><strong>사무엘 헌팅턴(Samuel P. Huntington)</strong> - &ldquo;문명의 충돌&rdquo; 저자, 카프가 인용하는 학자</li>
-<li><strong>탈콧 파슨스(Talcott Parsons)</strong> - 카프 박사논문에서 다룬 사회학자</li>
-</ul>
-<p><strong>기업/조직</strong></p>
-<ul>
-<li><strong>팔란티어 테크놀로지스(Palantir Technologies)</strong> - 데이터 분석 기업의 구체적 역할과 제품</li>
-<li><strong>인큐텔(In-Q-Tel)</strong> - CIA 벤처캐피털, 팔란티어 초기 투자자</li>
-<li><strong>ICE(미국 이민세관집행국)</strong> - 논란이 된 팔란티어 고객</li>
-</ul>
-<p><strong>정치/군사 개념</strong></p>
+		<h1 id="strategy-pattern-전략-패턴">Strategy Pattern (전략 패턴)</h1>
+<p>Strategy Pattern은 알고리즘군을 정의하고 각각을 캡슐화하여 <strong>상호 교환 가능</strong>하게 만드는 디자인 패턴이다.
+클라이언트와 독립적으로 알고리즘을 변경할 수 있다.</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CreditCard</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with Credit Card&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayPal</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with PayPal&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Crypto</span>(PaymentStrategy):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with Crypto&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_strategy</span>(self, strategy):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checkout</span>(self, amount):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>pay(amount)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 전략을 자유롭게 교체 가능</span>
+</span></span><span style="display:flex;"><span>cart <span style="color:#f92672">=</span> ShoppingCart(CreditCard())
+</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">100</span>))  <span style="color:#75715e"># Paid 100 with Credit Card</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cart<span style="color:#f92672">.</span>set_strategy(PayPal())
+</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">100</span>))  <span style="color:#75715e"># Paid 100 with PayPal</span>
+</span></span></code></pre></div><p>→ <code>CreditCard</code>, <code>PayPal</code>, <code>Crypto</code>는 모두 <code>PaymentStrategy</code>를 상속해서 <code>pay</code> 메서드를 구현하고, 실행 중에 전략을 교체할 수 있다.</p>
 	</div>
 	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/resources/alexkarp-westerncivil/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/resources/judithbutler-humanitystudy/" rel="bookmark">
-			Judith Butler - 공공에서의 인문학의 미래
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-21T21:20:00&#43;09:00">September 21, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/resources/" rel="category">Resources</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p><a href="https://youtu.be/EaF4ODAon6o?si=Tev74FEJNBMotous">유튜브</a>에서의 언급을 통해 접한 자료입니다.<br>
-<a href="https://direct.mit.edu/daed/article/151/3/40/112684/The-Public-Futures-of-the-Humanities">영어원문</a></p>
-<p>중간의 소제목은 가독성을 위해 임의로 삽입함.</p>
-<hr>
-<p>인문학의 가치를 입증하려는 도전은 인문학이 다른 학문 분야에 기여한다는 점을 보여주는 것만으로는 완전히 달성될 수 없다. 이러한 논리는 다른 학문 분야, 특히 STEM 분야의 가치를 전제로 하며, 인문학을 기껏해야 도구적 가치만을 지닌 부차적 지위로 격하시킨다. 진정한 과제는 도구성과 수익성 모두에 환원될 수 없는 가치들을 살아있게 유지함으로써 인문학이 모든 지식 분야에 기여할 수 있는 고유한 측면을 보여주는 것이다. 공공인문학은 이러한 과제를 성취할 수 있는 최고의 기회를 제공한다. 공공인문학은 인문학이 공론장에 무엇을 제공할 수 있는지 보여줄 뿐만 아니라, 다양한 공중들이 대학 내에서 인문학의 역할을 어떻게 규정하고 있는지도 드러내기 때문이다. 더 나아가, 공공인문학은 대학의 사명을 재정향시킬 잠재력을 가지고 있다. 인문학이 재정적 지원을 받지 못하는 이유 중 하나는 인문학이 신자유주의의 헤게모니와 그 시장 지표들 및 금융적 합리성에 도전할 힘을 지니고 있기 때문이다. 대학들은 문학 및 예술 행사를 포함한 공공예술과 더욱 적극적으로 관계를 맺어야 하며, 공중을 위한 열린 토론을 통해 공중이 왜 인문학을 필요로 하는지, 그리고 이미 인문학의 실천에 참여하고 있는지를 보여주어야 한다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/resources/judithbutler-humanitystudy/">Read more…</a>
+		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-stratagy/">Read more…</a>
 	</div>
 </article>
 </main>
