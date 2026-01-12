@@ -6,8 +6,36 @@
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 12 Nov 2025 22:50:00 +0900</lastBuildDate>
+    <lastBuildDate>Mon, 12 Jan 2026 18:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>프로젝트</title>
+      <link>http://localhost:1313/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/</link>
+      <pubDate>Mon, 12 Jan 2026 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Strategy</title>
+      <link>http://localhost:1313/tags/strategy/</link>
+      <pubDate>Thu, 20 Nov 2025 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/strategy/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>디자인패턴</title>
+      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
+      <pubDate>Thu, 20 Nov 2025 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>전략패턴</title>
+      <link>http://localhost:1313/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/</link>
+      <pubDate>Thu, 20 Nov 2025 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Humanity</title>
       <link>http://localhost:1313/tags/humanity/</link>
@@ -34,13 +62,6 @@
       <link>http://localhost:1313/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/</link>
       <pubDate>Thu, 06 Nov 2025 17:45:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>디자인패턴</title>
-      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
-      <pubDate>Thu, 06 Nov 2025 17:45:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
       <description></description>
     </item>
     <item>
@@ -107,24 +128,10 @@
       <description></description>
     </item>
     <item>
-      <title>Strategy</title>
-      <link>http://localhost:1313/tags/strategy/</link>
-      <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/strategy/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>복합체</title>
       <link>http://localhost:1313/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</link>
       <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>전략패턴</title>
-      <link>http://localhost:1313/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/</link>
-      <pubDate>Sat, 20 Sep 2025 18:00:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/</guid>
       <description></description>
     </item>
     <item>
