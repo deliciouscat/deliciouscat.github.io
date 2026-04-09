@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-registry/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)">
+  <meta property="og:description" content="Registry Pattern (레지스트리 패턴) Registry Pattern은 객체나 서비스를 중앙 저장소에 등록(register)하고, 이름(키)으로 조회(lookup)할 수 있도록 하는 디자인 패턴이다. 클라이언트는 구체적인 클래스를 직접 import하거나 생성하는 대신, 레지스트리에 이름을 물어보면 원하는 객체를 얻는다.
+예를 들어:
+class Registry: _registry = {} @classmethod def register(cls, name, obj): cls._registry[name] = obj @classmethod def get(cls, name): return cls._registry[name] # 등록 Registry.register(&#34;email&#34;, EmailService()) Registry.register(&#34;sms&#34;, SmsService()) # 조회 (클라이언트는 EmailService를 import하지 않아도 됨) service = Registry.get(&#34;email&#34;) service.send(&#34;Hello!&#34;) → 클라이언트는 EmailService가 어떤 클래스인지, 어디에 있는지 알 필요가 없다. 이름만 알면 된다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-04-08T18:00:00+09:00">
+    <meta property="article:modified_time" content="2026-04-08T18:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="레지스트리">
+    <meta property="article:tag" content="Registry">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-04-08T18:00:00&#43;09:00">April 08, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="registry-pattern-레지스트리-패턴">Registry Pattern (레지스트리 패턴)</h1>
+<p>Registry Pattern은 <strong>객체나 서비스를 중앙 저장소에 등록(register)하고, 이름(키)으로 조회(lookup)할 수 있도록</strong> 하는 디자인 패턴이다.
+클라이언트는 구체적인 클래스를 직접 <code>import</code>하거나 생성하는 대신, <strong>레지스트리에 이름을 물어보면</strong> 원하는 객체를 얻는다.</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Registry</span>:
+</span></span><span style="display:flex;"><span>    _registry <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, name, obj):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_registry[name] <span style="color:#f92672">=</span> obj
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(cls, name):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_registry[name]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 등록</span>
+</span></span><span style="display:flex;"><span>Registry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;email&#34;</span>, EmailService())
+</span></span><span style="display:flex;"><span>Registry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;sms&#34;</span>, SmsService())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 조회 (클라이언트는 EmailService를 import하지 않아도 됨)</span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> Registry<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span><span style="display:flex;"><span>service<span style="color:#f92672">.</span>send(<span style="color:#e6db74">&#34;Hello!&#34;</span>)
+</span></span></code></pre></div><p>→ 클라이언트는 <code>EmailService</code>가 어떤 클래스인지, 어디에 있는지 알 필요가 없다. <strong>이름만 알면 된다.</strong></p>
+<h2 id="문제-if-elif-분기의-폭발">문제: if-elif 분기의 폭발</h2>
+<p>레지스트리 없이 여러 구현체를 다루면 흔히 이런 코드가 생긴다.</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NotificationManager</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send</span>(self, channel, message):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> channel <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;email&#34;</span>:
+</span></span><span style="display:flex;"><span>            EmailService()<span style="color:#f92672">.</span>send(message)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> channel <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;sms&#34;</span>:
+</span></span><span style="display:flex;"><span>            SmsService()<span style="color:#f92672">.</span>send(message)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> channel <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;push&#34;</span>:
+</span></span><span style="display:flex;"><span>            PushService()<span style="color:#f92672">.</span>send(message)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> channel <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;slack&#34;</span>:
+</span></span><span style="display:flex;"><span>            SlackService()<span style="color:#f92672">.</span>send(message)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 새로운 채널 추가 때마다 이 메서드를 수정해야 함!</span>
+</span></span></code></pre></div><p>위 코드의 문제점:</p>
+<ol>
+<li>채널이 추가될 때마다 <code>NotificationManager</code>를 직접 수정해야 한다. (개방-폐쇄 원칙 위반)</li>
+<li><code>NotificationManager</code>가 모든 서비스 클래스를 알고 있어야 한다. (의존성 역전 원칙 위반)</li>
+<li>테스트 시 Mock 서비스를 끼워 넣기 어렵다.</li>
+</ol>
+<p><strong>Registry Pattern을 적용한 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NotificationRegistry</span>:
+</span></span><span style="display:flex;"><span>    _services <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, name, service):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_services[name] <span style="color:#f92672">=</span> service
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(cls, name):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> name <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> cls<span style="color:#f92672">.</span>_services:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">KeyError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;&#39;</span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39; 채널은 등록되어 있지 않습니다.&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_services[name]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NotificationManager</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send</span>(self, channel, message):
+</span></span><span style="display:flex;"><span>        service <span style="color:#f92672">=</span> NotificationRegistry<span style="color:#f92672">.</span>get(channel)  <span style="color:#75715e"># if-elif 전부 삭제!</span>
+</span></span><span style="display:flex;"><span>        service<span style="color:#f92672">.</span>send(message)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 등록은 애플리케이션 초기화 시 한 번만</span>
+</span></span><span style="display:flex;"><span>NotificationRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;email&#34;</span>, EmailService())
+</span></span><span style="display:flex;"><span>NotificationRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;sms&#34;</span>, SmsService())
+</span></span><span style="display:flex;"><span>NotificationRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;push&#34;</span>, PushService())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 이제 새 채널 추가 = 한 줄 추가 (기존 코드 수정 없음)</span>
+</span></span><span style="display:flex;"><span>NotificationRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;slack&#34;</span>, SlackService())
+</span></span></code></pre></div><p><code>NotificationManager</code>는 더 이상 채널 목록을 알 필요가 없다. 새로운 채널이 추가돼도 <code>NotificationManager</code>를 건드리지 않는다.</p>
+<h2 id="개방-폐쇄-원칙-open-closed-principle-ocp">개방-폐쇄 원칙 (Open-Closed Principle; OCP)</h2>
+<p>Registry Pattern은 OCP를 자연스럽게 실현한다. 새 구현체를 <strong>등록</strong>하는 것이 곧 확장이고, 기존 코드는 수정하지 않는다.</p>
+<p><strong>플러그인 시스템 예시:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ParserRegistry</span>:
+</span></span><span style="display:flex;"><span>    _parsers <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, extension, parser_class):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_parsers[extension] <span style="color:#f92672">=</span> parser_class
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">parse</span>(cls, filename, content):
+</span></span><span style="display:flex;"><span>        ext <span style="color:#f92672">=</span> filename<span style="color:#f92672">.</span>rsplit(<span style="color:#e6db74">&#34;.&#34;</span>, <span style="color:#ae81ff">1</span>)[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ext <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> cls<span style="color:#f92672">.</span>_parsers:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;.</span><span style="color:#e6db74">{</span>ext<span style="color:#e6db74">}</span><span style="color:#e6db74"> 파일은 지원하지 않습니다.&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_parsers[ext]()<span style="color:#f92672">.</span>parse(content)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JsonParser</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">parse</span>(self, content): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[JSON] </span><span style="color:#e6db74">{</span>content<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CsvParser</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">parse</span>(self, content): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[CSV] </span><span style="color:#e6db74">{</span>content<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">YamlParser</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">parse</span>(self, content): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[YAML] </span><span style="color:#e6db74">{</span>content<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 기존 코드를 수정하지 않고 파서를 추가</span>
+</span></span><span style="display:flex;"><span>ParserRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;json&#34;</span>, JsonParser)
+</span></span><span style="display:flex;"><span>ParserRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;csv&#34;</span>, CsvParser)
+</span></span><span style="display:flex;"><span>ParserRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;yaml&#34;</span>, YamlParser)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(ParserRegistry<span style="color:#f92672">.</span>parse(<span style="color:#e6db74">&#34;data.json&#34;</span>, <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>))   <span style="color:#75715e"># [JSON] {}</span>
+</span></span><span style="display:flex;"><span>print(ParserRegistry<span style="color:#f92672">.</span>parse(<span style="color:#e6db74">&#34;users.csv&#34;</span>, <span style="color:#e6db74">&#34;a,b&#34;</span>))  <span style="color:#75715e"># [CSV] a,b</span>
+</span></span></code></pre></div><p>내일 XML 파서가 필요해지면? <code>ParserRegistry.register(&quot;xml&quot;, XmlParser)</code> 한 줄이면 끝이다.</p>
+<h2 id="클래스타입-레지스트리-vs-인스턴스-레지스트리">클래스(타입) 레지스트리 vs 인스턴스 레지스트리</h2>
+<p>레지스트리에는 <strong>클래스(생성자)를 등록</strong>하는 방식과 <strong>인스턴스를 등록</strong>하는 방식 두 가지가 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ServiceRegistry</span>:
+</span></span><span style="display:flex;"><span>    _classes <span style="color:#f92672">=</span> {}      <span style="color:#75715e"># 클래스 등록: 매 요청마다 새 인스턴스</span>
+</span></span><span style="display:flex;"><span>    _singletons <span style="color:#f92672">=</span> {}   <span style="color:#75715e"># 인스턴스 등록: 하나의 인스턴스를 공유</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register_class</span>(cls, name, klass):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_classes[name] <span style="color:#f92672">=</span> klass
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register_instance</span>(cls, name, instance):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_singletons[name] <span style="color:#f92672">=</span> instance
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_new</span>(cls, name, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;호출 때마다 새 인스턴스 생성&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_classes[name](<span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(cls, name):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;항상 같은 인스턴스 반환 (싱글턴처럼)&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_singletons[name]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클래스 등록: 매번 새 Connection 생성</span>
+</span></span><span style="display:flex;"><span>ServiceRegistry<span style="color:#f92672">.</span>register_class(<span style="color:#e6db74">&#34;db_connection&#34;</span>, DatabaseConnection)
+</span></span><span style="display:flex;"><span>conn1 <span style="color:#f92672">=</span> ServiceRegistry<span style="color:#f92672">.</span>get_new(<span style="color:#e6db74">&#34;db_connection&#34;</span>, host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>)
+</span></span><span style="display:flex;"><span>conn2 <span style="color:#f92672">=</span> ServiceRegistry<span style="color:#f92672">.</span>get_new(<span style="color:#e6db74">&#34;db_connection&#34;</span>, host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># conn1 is conn2 → False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 인스턴스 등록: 공유 캐시</span>
+</span></span><span style="display:flex;"><span>ServiceRegistry<span style="color:#f92672">.</span>register_instance(<span style="color:#e6db74">&#34;cache&#34;</span>, RedisCache(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>))
+</span></span><span style="display:flex;"><span>cache <span style="color:#f92672">=</span> ServiceRegistry<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;cache&#34;</span>)  <span style="color:#75715e"># 항상 같은 객체</span>
+</span></span></code></pre></div><p><strong>규칙:</strong></p>
+<ul>
+<li>상태가 없거나(stateless) 매 요청마다 새로 만들어야 하면 → <strong>클래스 등록</strong></li>
+<li>DB 커넥션 풀, 캐시처럼 공유해야 하면 → <strong>인스턴스 등록</strong></li>
+</ul>
+<h2 id="데코레이터로-등록-자동화하기">데코레이터로 등록 자동화하기</h2>
+<p>Python에서는 <code>@</code> 데코레이터 문법으로 등록을 더 깔끔하게 할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandlerRegistry</span>:
+</span></span><span style="display:flex;"><span>    _handlers <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, event_type):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">decorator</span>(handler_class):
+</span></span><span style="display:flex;"><span>            cls<span style="color:#f92672">.</span>_handlers[event_type] <span style="color:#f92672">=</span> handler_class
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> handler_class
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> decorator
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle</span>(cls, event_type, payload):
+</span></span><span style="display:flex;"><span>        handler <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span>_handlers[event_type]()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> handler<span style="color:#f92672">.</span>process(payload)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerRegistry.register</span>(<span style="color:#e6db74">&#34;user.created&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserCreatedHandler</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(self, payload):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;새 유저 환영 이메일 발송: </span><span style="color:#e6db74">{</span>payload[<span style="color:#e6db74">&#39;email&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerRegistry.register</span>(<span style="color:#e6db74">&#34;order.placed&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderPlacedHandler</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(self, payload):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;주문 확인 알림: </span><span style="color:#e6db74">{</span>payload[<span style="color:#e6db74">&#39;order_id&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클래스를 선언하는 것만으로 자동 등록됨</span>
+</span></span><span style="display:flex;"><span>print(HandlerRegistry<span style="color:#f92672">.</span>handle(<span style="color:#e6db74">&#34;user.created&#34;</span>, {<span style="color:#e6db74">&#34;email&#34;</span>: <span style="color:#e6db74">&#34;a@b.com&#34;</span>}))
+</span></span><span style="display:flex;"><span>print(HandlerRegistry<span style="color:#f92672">.</span>handle(<span style="color:#e6db74">&#34;order.placed&#34;</span>, {<span style="color:#e6db74">&#34;order_id&#34;</span>: <span style="color:#ae81ff">42</span>}))
+</span></span></code></pre></div><p>파일이 <code>import</code>되는 순간 <code>@register</code> 데코레이터가 실행되어 레지스트리에 자동 등록된다. 수동 <code>register()</code> 호출조차 필요 없다.</p>
+<h2 id="facade-pattern과의-차이">Facade Pattern과의 차이</h2>
+<p>이 두 패턴은 &ldquo;복잡한 것을 감춘다&quot;는 점에서 비슷해 보이지만, <strong>목적과 구조가 완전히 다르다.</strong></p>
+<h3 id="facade-pattern">Facade Pattern</h3>
+<p>Facade는 <strong>복잡한 서브시스템을 단순한 인터페이스로 감싸는</strong> 패턴이다. 내부 구조를 알고 있으며, 여러 컴포넌트를 <strong>직접 조율</strong>한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Facade: 내부가 어떻게 돌아가는지 안다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">VideoConverterFacade</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">convert</span>(self, filename, format):
+</span></span><span style="display:flex;"><span>        file <span style="color:#f92672">=</span> VideoFile(filename)
+</span></span><span style="display:flex;"><span>        codec <span style="color:#f92672">=</span> CodecFactory<span style="color:#f92672">.</span>extract(file)          <span style="color:#75715e"># 내부 컴포넌트를 직접 알고</span>
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> BitrateReader<span style="color:#f92672">.</span>read(file, codec)    <span style="color:#75715e"># 순서를 직접 조율하고</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> AudioMixer<span style="color:#f92672">.</span>fix(result)               <span style="color:#75715e"># 최종 결과를 조립해 반환</span>
+</span></span></code></pre></div><h3 id="registry-pattern">Registry Pattern</h3>
+<p>Registry는 <strong>무엇이 등록되는지 모른다</strong>. 그냥 키-값을 저장하고 돌려줄 뿐이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Registry: 내부가 어떻게 돌아가는지 모른다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConverterRegistry</span>:
+</span></span><span style="display:flex;"><span>    _converters <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, format, converter):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_converters[format] <span style="color:#f92672">=</span> converter  <span style="color:#75715e"># 그냥 저장</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(cls, format):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_converters[format]       <span style="color:#75715e"># 그냥 반환</span>
+</span></span></code></pre></div><h3 id="핵심-차이-요약">핵심 차이 요약</h3>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>Registry</th>
+          <th>Facade</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>목적</strong></td>
+          <td>객체 조회 (lookup)</td>
+          <td>복잡성 은닉 (simplify)</td>
+      </tr>
+      <tr>
+          <td><strong>내부 구조 인지</strong></td>
+          <td>모름 (무지)</td>
+          <td>알고 있음 (조율)</td>
+      </tr>
+      <tr>
+          <td><strong>관계</strong></td>
+          <td>클라이언트 ↔ 레지스트리 ↔ 구현체</td>
+          <td>클라이언트 ↔ 파사드 → 서브시스템</td>
+      </tr>
+      <tr>
+          <td><strong>변경 방식</strong></td>
+          <td>런타임에 등록/교체 가능</td>
+          <td>파사드 내부 수정 필요</td>
+      </tr>
+      <tr>
+          <td><strong>주요 관심사</strong></td>
+          <td>&ldquo;이 이름에 해당하는 게 뭐야?&rdquo;</td>
+          <td>&ldquo;이 복잡한 일을 대신 처리해줘&rdquo;</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="함께-쓰는-경우">함께 쓰는 경우</h3>
+<p>두 패턴은 함께 쓰이기도 한다. Facade가 내부적으로 Registry를 활용하면, 서브시스템의 확장성과 단순성을 동시에 얻을 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NotificationFacade</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;클라이언트는 이것만 알면 된다&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Facade가 Registry를 통해 서비스를 조회</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_registry <span style="color:#f92672">=</span> NotificationRegistry
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">notify_user</span>(self, user, event_type, message):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 복잡한 조율 로직은 Facade가 담당</span>
+</span></span><span style="display:flex;"><span>        channel <span style="color:#f92672">=</span> user<span style="color:#f92672">.</span>preferred_channel
+</span></span><span style="display:flex;"><span>        service <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>_registry<span style="color:#f92672">.</span>get(channel)   <span style="color:#75715e"># 조회는 Registry가 담당</span>
+</span></span><span style="display:flex;"><span>        log(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Sending </span><span style="color:#e6db74">{</span>event_type<span style="color:#e6db74">}</span><span style="color:#e6db74"> to </span><span style="color:#e6db74">{</span>user<span style="color:#f92672">.</span>id<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> service<span style="color:#f92672">.</span>send(message)
+</span></span></code></pre></div><p>→ <code>NotificationFacade</code>가 복잡한 흐름을 조율하되, 실제 서비스 조회는 <code>NotificationRegistry</code>에 위임한다.</p>
+<h2 id="registry-pattern은-다음과-같은-상황에서-유용하다">Registry Pattern은 다음과 같은 상황에서 유용하다:</h2>
+<ol>
+<li>
+<p><strong>런타임에 구현체를 동적으로 교체해야 할 때</strong></p>
+<ul>
+<li>A/B 테스트: &ldquo;이 사용자에겐 v2 알고리즘을 써&rdquo;</li>
+<li>환경별 다른 구현체 (개발/스테이징/프로덕션)</li>
+</ul>
+</li>
+<li>
+<p><strong>플러그인/확장 포인트를 제공할 때</strong></p>
+<ul>
+<li>파일 포맷 파서 (json, csv, yaml, &hellip;)</li>
+<li>이벤트 핸들러, 미들웨어 체인</li>
+</ul>
+</li>
+<li>
+<p><strong>if-elif 분기를 제거하고 싶을 때</strong></p>
+<ul>
+<li>분기가 늘어날수록 레지스트리의 가치가 커진다</li>
+</ul>
+</li>
+<li>
+<p><strong>의존성 주입 컨테이너(DI Container)가 필요할 때</strong></p>
+<ul>
+<li>간단한 IoC 컨테이너를 직접 구현할 때 Registry가 핵심 자료구조가 된다</li>
+</ul>
+</li>
+</ol>
+<h2 id="장단점">장단점</h2>
+<h3 id="장점">장점</h3>
+<p>✅ <strong>개방-폐쇄 원칙 준수</strong>: 새 구현체 추가 = <code>register()</code> 한 줄, 기존 코드 수정 없음</p>
+<p>✅ <strong>테스트 용이성</strong>: 테스트 시 Mock 객체를 레지스트리에 등록하면 된다</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 테스트에서 실제 EmailService 대신 Mock으로 교체</span>
+</span></span><span style="display:flex;"><span>NotificationRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;email&#34;</span>, MockEmailService())
+</span></span></code></pre></div><p>✅ <strong>느슨한 결합</strong>: 클라이언트는 구체 클래스를 <code>import</code>하지 않아도 됨</p>
+<p>✅ <strong>중앙 관리</strong>: 어떤 구현체가 사용 가능한지 레지스트리만 보면 파악 가능</p>
+<h3 id="단점">단점</h3>
+<p>❌ <strong>전역 상태</strong>: 레지스트리가 싱글턴처럼 동작하면, 테스트 간 격리가 어려울 수 있다. (테스트마다 레지스트리를 초기화해야 함)</p>
+<p>❌ <strong>런타임 에러</strong>: 존재하지 않는 키를 조회하면 컴파일 타임이 아닌 런타임에 오류가 발생한다.</p>
+<p>❌ <strong>등록 누락</strong>: 사용하기 전에 반드시 등록해야 하는데, 초기화 순서가 잘못되면 찾기 어려운 버그가 생길 수 있다.</p>
+<h2 id="용어-정리">용어 정리</h2>
+<p><strong>Registry (레지스트리)</strong>: 이름(키)과 객체(값)를 관리하는 중앙 저장소<br>
+<strong>Key (키)</strong>: 객체를 식별하는 이름 또는 타입<br>
+<strong>Entry (항목)</strong>: 레지스트리에 등록된 개별 객체 또는 클래스</p>
+<ol>
+<li>
+<p>알림 서비스 예시:</p>
+<ul>
+<li>Registry → <code>NotificationRegistry</code></li>
+<li>Key → <code>&quot;email&quot;</code>, <code>&quot;sms&quot;</code>, <code>&quot;push&quot;</code></li>
+<li>Entry → <code>EmailService</code>, <code>SmsService</code>, <code>PushService</code></li>
+</ul>
+</li>
+<li>
+<p>파일 파서 예시:</p>
+<ul>
+<li>Registry → <code>ParserRegistry</code></li>
+<li>Key → <code>&quot;json&quot;</code>, <code>&quot;csv&quot;</code>, <code>&quot;yaml&quot;</code></li>
+<li>Entry → <code>JsonParser</code>, <code>CsvParser</code>, <code>YamlParser</code></li>
+</ul>
+</li>
+</ol>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" rel="tag">레지스트리</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/registry/" rel="tag">Registry</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/agents/05_3_retry/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>
