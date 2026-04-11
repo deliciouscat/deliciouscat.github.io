@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Pydantic-AI 07-1: 지식 베이스와 Agent 연결하기 (RAG &#43; Tools) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/agents/07_1_rag/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Pydantic-AI 07-1: 지식 베이스와 Agent 연결하기 (RAG &#43; Tools)">
+  <meta property="og:description" content="시리즈: 07. 지식 베이스 — Agent 지식 공유 — 1/4
+개요 검색 도구(Retrieval Tool)를 통해 Agent가 외부 지식 베이스에 접근하는 RAG(Retrieval-Augmented Generation) 패턴을 Pydantic-AI에서 구현하는 방법을 다룬다.
+세부 목차 1. RAG의 기본 개념 Retrieval-Augmented Generation이란? LLM의 지식 한계와 RAG의 필요성 RAG의 기본 흐름: 질문 → 검색 → 컨텍스트 주입 → 생성 2. Pydantic-AI에서 RAG 구현하기 검색 기능을 도구(Tool)로 등록하는 패턴 @agent.tool로 검색 함수 정의 검색 결과를 LLM이 활용하는 방식 3. 벡터 검색 도구 구현 임베딩 생성과 유사도 검색 기본 원리 검색 도구의 인터페이스 설계 검색 결과 포매팅: LLM이 이해하기 쉬운 형태로 반환 4. 검색 파라미터 설계 검색 쿼리를 LLM이 생성하도록 설계 필터 조건(날짜, 카테고리 등)을 파라미터로 노출 Top-K, 유사도 임계값 등 검색 옵션 5. 의존성으로 검색 클라이언트 주입 RunContext[DepsType]를 통해 벡터 DB 클라이언트 주입 테스트 시 Mock 검색 클라이언트 교체 환경별 검색 엔진 전환 6. 실전 예제 문서 QA Agent: PDF 문서 검색 → 답변 생성 제품 추천 Agent: 상품 DB 검색 → 맞춤 추천">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-02-13T15:00:00+09:00">
+    <meta property="article:modified_time" content="2026-02-13T15:00:00+09:00">
+    <meta property="article:tag" content="PydanticAI">
+    <meta property="article:tag" content="RAG">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Pydantic-AI 07-1: 지식 베이스와 Agent 연결하기 (RAG &#43; Tools)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T15:00:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p><strong>시리즈</strong>: 07. 지식 베이스 — Agent 지식 공유 — 1/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>검색 도구(Retrieval Tool)를 통해 Agent가 외부 지식 베이스에 접근하는 RAG(Retrieval-Augmented Generation) 패턴을 Pydantic-AI에서 구현하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-rag의-기본-개념">1. RAG의 기본 개념</h3>
+<ul>
+<li>Retrieval-Augmented Generation이란?</li>
+<li>LLM의 지식 한계와 RAG의 필요성</li>
+<li>RAG의 기본 흐름: 질문 → 검색 → 컨텍스트 주입 → 생성</li>
+</ul>
+<h3 id="2-pydantic-ai에서-rag-구현하기">2. Pydantic-AI에서 RAG 구현하기</h3>
+<ul>
+<li>검색 기능을 도구(Tool)로 등록하는 패턴</li>
+<li><code>@agent.tool</code>로 검색 함수 정의</li>
+<li>검색 결과를 LLM이 활용하는 방식</li>
+</ul>
+<h3 id="3-벡터-검색-도구-구현">3. 벡터 검색 도구 구현</h3>
+<ul>
+<li>임베딩 생성과 유사도 검색 기본 원리</li>
+<li>검색 도구의 인터페이스 설계</li>
+<li>검색 결과 포매팅: LLM이 이해하기 쉬운 형태로 반환</li>
+</ul>
+<h3 id="4-검색-파라미터-설계">4. 검색 파라미터 설계</h3>
+<ul>
+<li>검색 쿼리를 LLM이 생성하도록 설계</li>
+<li>필터 조건(날짜, 카테고리 등)을 파라미터로 노출</li>
+<li>Top-K, 유사도 임계값 등 검색 옵션</li>
+</ul>
+<h3 id="5-의존성으로-검색-클라이언트-주입">5. 의존성으로 검색 클라이언트 주입</h3>
+<ul>
+<li><code>RunContext[DepsType]</code>를 통해 벡터 DB 클라이언트 주입</li>
+<li>테스트 시 Mock 검색 클라이언트 교체</li>
+<li>환경별 검색 엔진 전환</li>
+</ul>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<ul>
+<li>문서 QA Agent: PDF 문서 검색 → 답변 생성</li>
+<li>제품 추천 Agent: 상품 DB 검색 → 맞춤 추천</li>
+</ul>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/pydanticai/" rel="tag">PydanticAI</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/rag/" rel="tag">RAG</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/agents/06_4_parallel/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Pydantic-AI 06-4: 병렬 Agent 실행 (Parallel Execution)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/agents/07_2_db-deps/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Pydantic-AI 07-2: DB를 의존성으로 주입하기 (Database Dependencies)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

@@ -89,434 +89,468 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
-			<a href="/posts/introduce/myproject-260112/" rel="bookmark">
-			프로젝트 소개: WizPerch - Chrome Extention 기반 SNS engine
+			<a href="/posts/design-pattern/designpattern-registry/" rel="bookmark">
+			Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)
 			</a>
 		</h2>
 		<div class="list__meta meta">
 <div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-01-12T18:00:00&#43;09:00">January 12, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/who-am-i/" rel="category">Who Am I</a>
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-04-08T18:00:00&#43;09:00">April 08, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
 	</span>
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		<h1 id="wizperch-프로젝트">WizPerch 프로젝트</h1>
-<h3 id="문제의식">문제의식</h3>
-<p>개인적으로 인터넷 환경에서의 toxic한 의사소통 경험, 필터버블, 컨텐츠의 플랫폼 종속성 등에 문제의식을 가지고 있습니다. 소셜미디어 구축 엔진을 오픈소스화하여 서비스 운영자가 추천 시스템 운영권을 가질 수 있도록 하는 것을 목표로 합니다. (Semi-Decentralization)</p>
-<h3 id="프로젝트로-다음과-같은-방법으로-이-문제를-해결해보고자-했습니다">프로젝트로 다음과 같은 방법으로 이 문제를 해결해보고자 했습니다.</h3>
-<ul>
-<li>Chrome Extention 형태의 온라인 커뮤니티를 만들어 컨텐츠 생산자가 ownership을 가질 수 있게 한다.</li>
-<li>Agentic AI + Knowledge Tracing 기반의 웹페이지 추천으로 motivated reasoning(본인의 기존 입장에 맞는 근거자료를 편취하게 되는 것)을 막는다.</li>
-<li>누구나 추천 Agent 설계를 쉽게 할 수 있도록 극도로 추상화된 프레임워크를 만든다.</li>
-</ul>
-<h3 id="사용자-유입을-위한-utility-기능">사용자 유입을 위한 utility 기능</h3>
-<p>위의 개발 동기는 사용자 관점이 아니기 때문에, 시너지가 있는 다른 기능으로 유저를 끌어모으고자 합니다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/introduce/myproject-260112/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-stratagy/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-20T18:00:00&#43;09:00">November 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="strategy-pattern-전략-패턴">Strategy Pattern (전략 패턴)</h1>
-<p>Strategy Pattern은 <strong>알고리즘군을 정의하고 각각을 캡슐화하여 교환 가능하게 만드는</strong> 디자인 패턴이다.
-클라이언트는 알고리즘의 구체적인 구현과 독립적으로 <strong>런타임에 알고리즘을 선택</strong>할 수 있다.</p>
+		<h1 id="registry-pattern-레지스트리-패턴">Registry Pattern (레지스트리 패턴)</h1>
+<p>Registry Pattern은 <strong>객체나 서비스를 중앙 저장소에 등록(register)하고, 이름(키)으로 조회(lookup)할 수 있도록</strong> 하는 디자인 패턴이다.
+클라이언트는 구체적인 클래스를 직접 <code>import</code>하거나 생성하는 대신, <strong>레지스트리에 이름을 물어보면</strong> 원하는 객체를 얻는다.</p>
 <p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentStrategy</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">pass</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Registry</span>:
+</span></span><span style="display:flex;"><span>    _registry <span style="color:#f92672">=</span> {}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CreditCard</span>(PaymentStrategy):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with Credit Card&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, name, obj):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_registry[name] <span style="color:#f92672">=</span> obj
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayPal</span>(PaymentStrategy):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with PayPal&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(cls, name):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_registry[name]
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy: PaymentStrategy):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_strategy</span>(self, strategy: PaymentStrategy):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checkout</span>(self, amount):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>pay(amount)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 등록</span>
+</span></span><span style="display:flex;"><span>Registry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;email&#34;</span>, EmailService())
+</span></span><span style="display:flex;"><span>Registry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;sms&#34;</span>, SmsService())
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 런타임에 전략 변경</span>
-</span></span><span style="display:flex;"><span>cart <span style="color:#f92672">=</span> ShoppingCart(CreditCard())
-</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">100</span>))  <span style="color:#75715e"># Paid 100 with Credit Card</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>cart<span style="color:#f92672">.</span>set_strategy(PayPal())
-</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">200</span>))  <span style="color:#75715e"># Paid 200 with PayPal</span>
-</span></span></code></pre></div><p>→ <code>ShoppingCart</code>는 구체적인 결제 방식을 알 필요 없이, <code>PaymentStrategy</code> 인터페이스만 알면 된다.</p>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 조회 (클라이언트는 EmailService를 import하지 않아도 됨)</span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> Registry<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span><span style="display:flex;"><span>service<span style="color:#f92672">.</span>send(<span style="color:#e6db74">&#34;Hello!&#34;</span>)
+</span></span></code></pre></div><p>→ 클라이언트는 <code>EmailService</code>가 어떤 클래스인지, 어디에 있는지 알 필요가 없다. <strong>이름만 알면 된다.</strong></p>
 	</div>
 	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-stratagy/">Read more…</a>
+		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-registry/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
-			<a href="/posts/resources/alexkarp-westerncivil/" rel="bookmark">
-			Alex Karp의 &#34;서구 문명&#34; 개념
+			<a href="/posts/agents/05_3_retry/" rel="bookmark">
+			Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)
 			</a>
 		</h2>
 		<div class="list__meta meta">
 <div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-12T22:50:00&#43;09:00">November 12, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/resources/" rel="category">Resources</a>
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T13:20:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
 	</span>
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		<p><a href="https://app.liner.com/ko/search/s/18821459/t/89903816?msg-entry-type=main"><strong>Liner를 통해 정리된 내용임</strong></a></p>
-<details>
-<summary>주요 개념</summary>
-<div markdown="1">
-<p><strong>철학/이론적 배경</strong></p>
-<ul>
-<li><strong>프랑크푸르트 학파/비판 이론(Critical Theory)</strong> - 카프가 박사과정을 밟은 곳이면서도 동시에 비판하는 사상</li>
-<li><strong>신고전주의 사회 이론</strong> - 카프의 박사 학위 분야</li>
-<li><strong>문화 상대주의(Cultural Relativism)</strong> - 카프가 강하게 반대하는 입장</li>
-<li><strong>사무엘 헌팅턴(Samuel P. Huntington)</strong> - &ldquo;문명의 충돌&rdquo; 저자, 카프가 인용하는 학자</li>
-<li><strong>탈콧 파슨스(Talcott Parsons)</strong> - 카프 박사논문에서 다룬 사회학자</li>
-</ul>
-<p><strong>기업/조직</strong></p>
-<ul>
-<li><strong>팔란티어 테크놀로지스(Palantir Technologies)</strong> - 데이터 분석 기업의 구체적 역할과 제품</li>
-<li><strong>인큐텔(In-Q-Tel)</strong> - CIA 벤처캐피털, 팔란티어 초기 투자자</li>
-<li><strong>ICE(미국 이민세관집행국)</strong> - 논란이 된 팔란티어 고객</li>
-</ul>
-<p><strong>정치/군사 개념</strong></p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/resources/alexkarp-westerncivil/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-decorator/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 장식자(Decorator)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-06T17:45:00&#43;09:00">November 06, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="decorator-pattern-장식자-패턴">Decorator Pattern (장식자 패턴)</h1>
-<p>Decorator Pattern(장식자 패턴)은 객체에 <strong>동적으로 새로운 책임(기능)을 추가</strong>할 수 있게 해주는 구조 디자인 패턴이다.
-클라이언트가 <strong>기본 객체</strong>와 <strong>장식된 객체</strong>를 동일한 방식으로 다룰 수 있다.</p>
-<p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Component</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">operation</span>(self): <span style="color:#66d9ef">pass</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcreteComponent</span>(Component):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">operation</span>(self): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;기본 기능&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Decorator</span>(Component):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, component):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>component <span style="color:#f92672">=</span> component
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">operation</span>(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>component<span style="color:#f92672">.</span>operation()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcreteDecorator</span>(Decorator):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">operation</span>(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>component<span style="color:#f92672">.</span>operation()<span style="color:#e6db74">}</span><span style="color:#e6db74"> + 추가 기능&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 기본 객체와 장식된 객체를 구분하지 않음</span>
-</span></span><span style="display:flex;"><span>basic <span style="color:#f92672">=</span> ConcreteComponent()
-</span></span><span style="display:flex;"><span>decorated <span style="color:#f92672">=</span> ConcreteDecorator(basic)
-</span></span><span style="display:flex;"><span>double_decorated <span style="color:#f92672">=</span> ConcreteDecorator(decorated)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>print(basic<span style="color:#f92672">.</span>operation())           <span style="color:#75715e"># 기본 기능</span>
-</span></span><span style="display:flex;"><span>print(decorated<span style="color:#f92672">.</span>operation())        <span style="color:#75715e"># 기본 기능 + 추가 기능  </span>
-</span></span><span style="display:flex;"><span>print(double_decorated<span style="color:#f92672">.</span>operation()) <span style="color:#75715e"># 기본 기능 + 추가 기능 + 추가 기능</span>
-</span></span></code></pre></div><p>→ <code>ConcreteComponent</code>와 <code>Decorator</code> 모두 <code>Component</code> 인터페이스를 구현해서 <code>operation</code> 메서드를 호출할 수 있고, <strong>런타임에 기능을 조합</strong>할 수 있다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-decorator/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/api-manuals/vueconvexclerk-1/" rel="bookmark">
-			Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-04T18:05:00&#43;09:00">November 04, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p>Vue로 작성된 프론트엔드 코드에 완성도 높은 서버리스 Backend-as-a-Service인 Convex, 그리고 Authentification 관리 SaaS인 Clerk를 연동하여, 실제로 서비스 할 수 있는 웹앱을 구현해보자.</p>
-<h1 id="모노레포로-관리-가능">모노레포로 관리 가능</h1>
-<p>서버리스 백엔드를 사용하기 때문에 별도의 클라우드 VM을 개통할 필요가 없고 단일 레포에서 코드 작업을 해도 무방하다.
-레포는 프론트와 백엔드 코드 모두 포함하고 있지만, 빌드 시에는 서로 격리됨.</p>
-<ul>
-<li><code>src</code>에 Vue로 작성된 클라이언트 코드</li>
-<li><code>convex</code>에 백엔드 configuration과 DB 스킴 정의, Mutation/Query/Action 함수 작성</li>
-</ul>
-<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
-    A[Git 레포지토리&lt;br/&gt;vue-convex-clerk-auth/&lt;br/&gt;├── src/ 클라이언트 소스&lt;br/&gt;├── convex/ 서버 소스 _&lt;br/&gt;└── package.json __ __]
-    
-    A --&gt; B[npm run build]
-    A --&gt; C[npx convex dev]
-    
-    B --&gt; D[dist/&lt;br/&gt;src만 번들]
-    C --&gt; E[Convex Cloud&lt;br/&gt;convex만 업로드]
-    
-    D --&gt; F[브라우저&lt;br/&gt;HTML+JS+CSS]
-    E --&gt; G[Convex 서버&lt;br/&gt;API+DB]
-    
-    G --&gt;|통신| F
-    
-    style A fill:#e1f5ff,color:#000000
-    style D fill:#fff4e1,color:#000000
-    style E fill:#fff4e1,color:#000000
-    style F fill:#e8f5e9,color:#000000
-    style G fill:#e8f5e9,color:#000000
-</code></pre><h1 id="환경설정">환경설정</h1>
-<p><code>.env</code>에 다음 항목들을 추가하자.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/api-manuals/vueconvexclerk-1/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/api-manuals/convexbackend-1/" rel="bookmark">
-			Convex 튜토리얼
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-10-29T17:45:00&#43;09:00">October 29, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="convex-개요">Convex 개요</h1>
-<p>Backend-as-a-Service로, JWT 방식으로 통신하여 사용할 수 있다. 서버리스/비동기처리가 기본인 서비스이기 때문에 Supabase등의 대안보다 관리가 용이하다.</p>
-<h1 id="구조">구조</h1>
-<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TB
-    subgraph convex[&#34;Convex Backend&#34;]
-        subgraph sync[&#34;Sync Engine&#34;]
-            subgraph operations[&#34; &#34;]
-                direction LR
-                mutation[&#34;Mutation&#34;]
-                query[&#34;Query&#34;]
-            end
-            db[(&#34;Database&#34;)]
-        end
-    end
-    
-    subgraph users[&#34; &#34;]
-        direction LR
-        subgraph user_a[&#34;Web App: User A&#34;]
-            client_a[&#34;Client Library&#34;]
-        end
-        
-        subgraph user_b[&#34;Web App: User B&#34;]
-            client_b[&#34;Client Library&#34;]
-        end
-    end
-    
-    client_a --&gt; mutation
-    mutation --&gt; db
-    db --&gt; query
-    query --&gt; client_a
-    query --&gt; client_b
-    
-    style users fill:none,stroke:none
-    style operations fill:none,stroke:none
-    style db fill:#F1FF18
-    style client_a fill:#f5a623
-    style client_b fill:#f5a623
-    
-</code></pre><h2 id="database">Database:</h2>
-<p>Document-Relation DB라는, DocDB와 RDB가 혼합된 형태의 DB를 사용한다. 즉, RDB 테이블에 JSON-like한 구조의 데이터를 저장한다는 말.<br>
-<code>_id</code>는 자동으로 할당되는데, 이것들 통해 RDB처럼 관계를 생성할 수 있으면서도 DocDB의 장점을 살리고 싶었던 듯.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/api-manuals/convexbackend-1/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/api-manuals/clerkauth-1/" rel="bookmark">
-			Clerk 로그인 화면을 나의 앱에 도입하기
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-10-25T16:45:00&#43;09:00">October 25, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="session-token-추가하기">Session token 추가하기</h1>
-<p>Clerk Dashboard에 단 하나의 JSON 스니펫을 추가하면 사용자 메타데이터가 JWT 세션 토큰에 직접 포함되고, Vue Router의 네비게이션 가드를 사용해서 해당 토큰을 읽고 라우팅을 제어할 수 있다.</p>
-<p>Clerk Console의 <a href="http://dashboard.clerk.com/apps/app_34Mrxw8lQUzyaKDJvgZJ6JUDKGn/instances/ins_34Mrxs1f4zHBE4EUiNQW9nzVL3g/sessions">Sessions 메뉴</a> 중 <code>Customize session token</code>을 다음과 같이 수정하자.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>	<span style="color:#f92672">&#34;metadata&#34;</span>: <span style="color:#e6db74">&#34;{{user.public_metadata}}&#34;</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>그 다음, 내 프로젝트의 <code>src/types/globals.d.ts</code>에 다음의 스크립트를 작성하여 애플리케이션에서 메타데이터 접근이 가능하게 한다.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-typescript" data-lang="typescript"><span style="display:flex;"><span><span style="color:#66d9ef">export</span> {}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">declare</span> <span style="color:#66d9ef">global</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">CustomJwtSessionClaims</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">metadata</span><span style="color:#f92672">:</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">onboardingComplete?</span>: <span style="color:#66d9ef">boolean</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">applicationName?</span>: <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">applicationType?</span>: <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">firstName?</span>: <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>이제 Clerk Dashboard에 session token에 custom 데이터를 추가했고, 이러한 claims를 앱에서 접근할 수 있게 만들었다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/api-manuals/clerkauth-1/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-factory/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-27T16:55:00&#43;09:00">September 27, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p>Factory Method Pattern은 객체 생성을 위한 인터페이스를 정의하되, 어떤 클래스의 인스턴스를 생성할지는 서브클래스가 결정하도록 하는 생성 디자인 패턴이다.
-클라이언트 코드가 <strong>구체적인 클래스를 알 필요 없이</strong> 객체를 생성할 수 있다.</p>
-<h2 id="의존성-역전-원칙-dependency-inversion-principle">의존성 역전 원칙 (Dependency Inversion Principle)</h2>
-<p>DIP는 &ldquo;고수준 모듈은 저수준 모듈에 의존해서는 안 되며, 둘 다 추상화에 의존해야 한다&quot;는 원칙이다.</p>
-<p><strong>문제가 있는 예시:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_document</span>(self, doc_type):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> doc_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;pdf&#34;</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> PDFDocument()
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> doc_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;word&#34;</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> WordDocument()
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> doc_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;excel&#34;</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> ExcelDocument()
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 새로운 문서 타입 추가시 이 메서드를 수정해야 함</span>
-</span></span></code></pre></div><p>위 코드의 문제점:</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-factory/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-observer/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 관찰자(Observer)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-25T17:00:00&#43;09:00">September 25, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="observer-pattern-관찰자-패턴">Observer Pattern (관찰자 패턴)</h1>
-<p>Observer Pattern(관찰자 패턴)은 객체 간의 <strong>일대다(one-to-many) 의존 관계</strong>를 정의하여, 한 객체의 상태가 변경되면 그에 의존하는 모든 객체들에게 <strong>자동으로 알림을 전달</strong>하고 업데이트하는 행동 디자인 패턴이다.</p>
-<p>클라이언트가 <strong>Subject</strong>(관찰 대상)과 <strong>Observer</strong>(관찰자)를 느슨하게 결합된 방식으로 상호작용할 수 있게 한다.</p>
-<p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Subject</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>observers <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">attach</span>(self, observer): self<span style="color:#f92672">.</span>observers<span style="color:#f92672">.</span>append(observer)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">notify</span>(self): 
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> observer <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>observers:
-</span></span><span style="display:flex;"><span>            observer<span style="color:#f92672">.</span>update(self)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Observer</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject): <span style="color:#66d9ef">pass</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcreteSubject</span>(Subject):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self): 
-</span></span><span style="display:flex;"><span>        super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>()
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>state <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_state</span>(self, state): 
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>state <span style="color:#f92672">=</span> state
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>notify()  <span style="color:#75715e"># 상태 변경 시 자동 알림</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConcreteObserver</span>(Observer):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name): self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">update</span>(self, subject): 
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">: 상태가 </span><span style="color:#e6db74">{</span>subject<span style="color:#f92672">.</span>state<span style="color:#e6db74">}</span><span style="color:#e6db74">로 변경됨&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 Subject와 Observer를 구분하지 않음</span>
-</span></span><span style="display:flex;"><span>stock <span style="color:#f92672">=</span> ConcreteSubject()
-</span></span><span style="display:flex;"><span>investor1 <span style="color:#f92672">=</span> ConcreteObserver(<span style="color:#e6db74">&#34;투자자A&#34;</span>)
-</span></span><span style="display:flex;"><span>investor2 <span style="color:#f92672">=</span> ConcreteObserver(<span style="color:#e6db74">&#34;투자자B&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor1)  <span style="color:#75715e"># 관찰자 등록(투자자A가 주식을 관찰)</span>
-</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>attach(investor2)  <span style="color:#75715e"># 관찰자 등록</span>
-</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>set_state(<span style="color:#ae81ff">100</span>)     <span style="color:#75715e"># 투자자A: 상태가 100으로 변경됨</span>
-</span></span><span style="display:flex;"><span>                         <span style="color:#75715e"># 투자자B: 상태가 100으로 변경됨</span>
-</span></span></code></pre></div><p>→ <code>ConcreteSubject</code>와 <code>ConcreteObserver</code>는 모두 각각 <code>Subject</code>, <code>Observer</code> 인터페이스를 구현해서 <strong>발행-구독 메커니즘</strong>을 통해 느슨하게 결합된다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-observer/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/resources/judithbutler-humanitystudy/" rel="bookmark">
-			Judith Butler - 공공에서의 인문학의 미래
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-09-21T21:20:00&#43;09:00">September 21, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/resources/" rel="category">Resources</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p><a href="https://youtu.be/EaF4ODAon6o?si=Tev74FEJNBMotous">유튜브</a>에서의 언급을 통해 접한 자료입니다.<br>
-<a href="https://direct.mit.edu/daed/article/151/3/40/112684/The-Public-Futures-of-the-Humanities">영어원문</a></p>
-<p>중간의 소제목은 가독성을 위해 임의로 삽입함.</p>
+		<blockquote>
+<p><strong>시리즈</strong>: 05. Agent 실행 흐름 설계 — 3/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>검증 실패 시 자동 재시도 메커니즘은 Pydantic-AI의 핵심 오류 처리 전략이다. 도구 레벨과 결과 레벨의 재시도를 통합적으로 이해한다.</p>
 <hr>
-<p>인문학의 가치를 입증하려는 도전은 인문학이 다른 학문 분야에 기여한다는 점을 보여주는 것만으로는 완전히 달성될 수 없다. 이러한 논리는 다른 학문 분야, 특히 STEM 분야의 가치를 전제로 하며, 인문학을 기껏해야 도구적 가치만을 지닌 부차적 지위로 격하시킨다. 진정한 과제는 도구성과 수익성 모두에 환원될 수 없는 가치들을 살아있게 유지함으로써 인문학이 모든 지식 분야에 기여할 수 있는 고유한 측면을 보여주는 것이다. 공공인문학은 이러한 과제를 성취할 수 있는 최고의 기회를 제공한다. 공공인문학은 인문학이 공론장에 무엇을 제공할 수 있는지 보여줄 뿐만 아니라, 다양한 공중들이 대학 내에서 인문학의 역할을 어떻게 규정하고 있는지도 드러내기 때문이다. 더 나아가, 공공인문학은 대학의 사명을 재정향시킬 잠재력을 가지고 있다. 인문학이 재정적 지원을 받지 못하는 이유 중 하나는 인문학이 신자유주의의 헤게모니와 그 시장 지표들 및 금융적 합리성에 도전할 힘을 지니고 있기 때문이다. 대학들은 문학 및 예술 행사를 포함한 공공예술과 더욱 적극적으로 관계를 맺어야 하며, 공중을 위한 열린 토론을 통해 공중이 왜 인문학을 필요로 하는지, 그리고 이미 인문학의 실천에 참여하고 있는지를 보여주어야 한다.</p>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-오류-처리의-두-계층">1. 오류 처리의 두 계층</h3>
+<p>Pydantic-AI는 오류를 처리하는 두 가지 계층을 제공한다.</p>
+<p><strong>도구 레벨 재시도</strong>: 도구 함수 내에서 <code>ModelRetry</code> 발생</p>
+<p>도구 실행 중 문제가 발생하면 도구 함수 안에서 <code>ModelRetry</code>를 발생시킬 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, RunContext, ModelRetry
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> httpx
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_url</span>(ctx: RunContext, url: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;웹 페이지 내용 가져오기&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>            response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> client<span style="color:#f92672">.</span>get(url, timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> response<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">404</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;URL </span><span style="color:#e6db74">{</span>url<span style="color:#e6db74">}</span><span style="color:#e6db74">을 찾을 수 없습니다 (404). &#34;</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 URL을 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>                )
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> httpx<span style="color:#f92672">.</span>TimeoutException:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>url<span style="color:#e6db74">}</span><span style="color:#e6db74"> 응답이 너무 느립니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 URL을 시도하거나 나중에 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 시:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM이 잘못된 URL 제공 → 404 오류</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → ModelRetry 발생</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → LLM에게 피드백 전달</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → LLM이 다른 URL로 재시도</span>
+</span></span></code></pre></div><p><strong>결과 레벨 재시도</strong>: <code>@agent.result_validator</code>에서 <code>ModelRetry</code> 발생</p>
 	</div>
 	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/resources/judithbutler-humanitystudy/">Read more…</a>
+		<a class="list__footer-readmore btn" href="/posts/agents/05_3_retry/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/05_1_run-loop/" rel="bookmark">
+			Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T13:00:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 05. Agent 실행 흐름 설계 — 1/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI Agent의 내부 실행 루프 구조를 이해한다. Graph 기반이 아닌 <code>run → tool call → retry → result</code>의 선형 루프로 동작하는 방식을 깊이 있게 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-agent-실행-루프-전체-구조">1. Agent 실행 루프 전체 구조</h3>
+<p><strong><code>agent.run()</code> 호출 시 내부에서 일어나는 일</strong></p>
+<p>Pydantic-AI Agent의 실행은 단일 진입점 <code>agent.run()</code>으로 시작된다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;사용자 질문&#34;</span>,
+</span></span><span style="display:flex;"><span>    deps<span style="color:#f92672">=</span>my_dependencies,
+</span></span><span style="display:flex;"><span>    message_history<span style="color:#f92672">=</span>previous_messages,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>내부적으로는 다음과 같은 순서로 진행된다:</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/05_1_run-loop/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/03_3_result-validator/" rel="bookmark">
+			Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T11:20:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 3/5</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>@agent.result_validator</code>를 사용하면 Agent가 반환한 결과를 가로채서 추가 검증을 수행하고, 기준에 미달하면 재시도를 요청할 수 있다. Pydantic-AI의 품질 보증 메커니즘이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-result-validator란">1. Result Validator란?</h3>
+<p>Pydantic-AI의 <code>result_validator</code>는 Agent가 반환한 결과를 검증하는 2차 방어선이다.</p>
+<p><strong>Pydantic 모델 검증 vs Result Validator</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, Field
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, ModelRetry, RunContext
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookingRequest</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    hotel_name: str
+</span></span><span style="display:flex;"><span>    check_in: str  <span style="color:#75715e"># 1차: Pydantic이 str 타입 검증</span>
+</span></span><span style="display:flex;"><span>    check_out: str
+</span></span><span style="display:flex;"><span>    guests: int <span style="color:#f92672">=</span> Field(ge<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)  <span style="color:#75715e"># 1차: 1명 이상 검증</span>
+</span></span></code></pre></div><p>Pydantic 스키마 검증만으로는 다음과 같은 비즈니스 로직을 검증할 수 없다:</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/03_3_result-validator/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/02_3_run-context/" rel="bookmark">
+			Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T10:40:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 02. Agent에게 도구 쥐어주기 — 3/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>RunContext[DepsType]</code>는 Pydantic-AI의 의존성 주입(DI) 시스템의 핵심이다. 도구 함수에 데이터베이스 연결, API 클라이언트 등 외부 의존성을 안전하게 전달하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-의존성-주입이란">1. 의존성 주입이란?</h3>
+<p><strong>전통적인 DI 패턴과 Pydantic-AI의 접근법 비교</strong></p>
+<p>전통적인 의존성 주입 프레임워크(Spring, FastAPI Depends 등)는 생성자나 함수 파라미터를 통해 의존성을 주입한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 전통적 DI (FastAPI 스타일)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> fastapi <span style="color:#f92672">import</span> Depends
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_db_session</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> DatabaseSession()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.get</span>(<span style="color:#e6db74">&#34;/users&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">list_users</span>(db: DatabaseSession <span style="color:#f92672">=</span> Depends(get_db_session)):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> db<span style="color:#f92672">.</span>query(User)<span style="color:#f92672">.</span>all()
+</span></span></code></pre></div><p>Pydantic-AI는 이와 유사하지만, <strong>Agent 실행 시점</strong>에 의존성을 전달하는 방식을 사용한다:</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/02_3_run-context/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/01_2_structured-result/" rel="bookmark">
+			Pydantic-AI 01-2: Agent의 출력을 검증하기 (Structured Result)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T10:10:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 01. Agent의 기본 구조 — 2/3</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI의 핵심 강점은 Agent 응답을 Pydantic <code>BaseModel</code>로 타입 안전하게 검증할 수 있다는 점이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-왜-구조화된-결과가-필요한가">1. 왜 구조화된 결과가 필요한가?</h3>
+<p><strong>자유 텍스트 응답의 한계</strong></p>
+<p>LLM이 자유 텍스트로만 응답하면 파싱과 검증이 어렵다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 자유 텍스트 응답 예시</span>
+</span></span><span style="display:flex;"><span>response <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;사용자 정보: 이름은 홍길동이고, 나이는 30세, 이메일은 hong@example.com입니다.&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 파싱 필요</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>name <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;이름은 (.+?)이고&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)  <span style="color:#75715e"># 불안정</span>
+</span></span><span style="display:flex;"><span>age <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;나이는 (\d+)세&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>email <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;이메일은 (.+?)입니다&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>문제점:</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/01_2_structured-result/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/01_3_message/" rel="bookmark">
+			Pydantic-AI로 에이전트 구축하기: Message Type 사용하기
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T16:45:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p>Pydantic-AI에서는 모델에서 처리되었는가/외부에서 입력받았는가를 기준으로 <code>Request</code>와 <code>Response</code>로 구분한다.</p>
+<p><strong>ModelRequest</strong>: 모델에 보내는 것 (system, user, tool return)<br>
+<strong>ModelResponse</strong>: 모델이 보낸 것 (텍스트, tool call)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    ModelRequest,
+</span></span><span style="display:flex;"><span>    ModelResponse,
+</span></span><span style="display:flex;"><span>    SystemPromptPart,
+</span></span><span style="display:flex;"><span>    UserPromptPart,
+</span></span><span style="display:flex;"><span>    ToolReturnPart,
+</span></span><span style="display:flex;"><span>    TextPart,
+</span></span><span style="display:flex;"><span>    ToolCallPart,
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 에이전트의 대화 기억(Memory)</span>
+</span></span><span style="display:flex;"><span>messages <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>    ModelRequest(
+</span></span><span style="display:flex;"><span>        parts<span style="color:#f92672">=</span>[
+</span></span><span style="display:flex;"><span>            SystemPromptPart(content<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;너는 사실에 의거하여 응답하는 비서 에이전트야.&#34;</span>),
+</span></span><span style="display:flex;"><span>            UserPromptPart(content<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;내일 비와?&#34;</span>),
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>    ),
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 에이전트의 반응</span>
+</span></span><span style="display:flex;"><span>    ModelResponse(
+</span></span><span style="display:flex;"><span>        parts<span style="color:#f92672">=</span>[
+</span></span><span style="display:flex;"><span>            TextPart(content<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;기상청에서 예보를 알아보겠습니다.&#34;</span>),      <span style="color:#75715e"># 모델의 생각</span>
+</span></span><span style="display:flex;"><span>            ToolCallPart(                                       <span style="color:#75715e"># 모델의 행동</span>
+</span></span><span style="display:flex;"><span>                tool_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;search_weather&#34;</span>,
+</span></span><span style="display:flex;"><span>                args<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;date&#34;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;tomorrow&#34;</span>},
+</span></span><span style="display:flex;"><span>                tool_call_id<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;search_weather_318&#34;</span>,  <span style="color:#75715e"># ToolReturnPart와 매칭용 ID</span>
+</span></span><span style="display:flex;"><span>            ),
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>    ),
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. 외부 도구 실행 결과</span>
+</span></span><span style="display:flex;"><span>    ModelRequest(
+</span></span><span style="display:flex;"><span>        parts<span style="color:#f92672">=</span>[
+</span></span><span style="display:flex;"><span>            ToolReturnPart(
+</span></span><span style="display:flex;"><span>                tool_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;search_weather&#34;</span>,
+</span></span><span style="display:flex;"><span>                content<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;temparature: 8°C, foggy (Seoul, 12:00)&#34;</span>,
+</span></span><span style="display:flex;"><span>                tool_call_id<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;search_wearher_318&#34;</span>,  <span style="color:#75715e"># ToolResponsePart와 매칭용 ID</span>
+</span></span><span style="display:flex;"><span>            ),
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>    ),
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4. 최종 답변</span>
+</span></span><span style="display:flex;"><span>    ModelResponse(
+</span></span><span style="display:flex;"><span>        parts<span style="color:#f92672">=</span>[
+</span></span><span style="display:flex;"><span>            TextPart(content<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;서울 정오 기준, 섭씨 8도로 비교적 따듯하지만 안개로 인해 운전 시 각별한 주의가 필요합니다.&#34;</span>),
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>    ),
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>이렇게 만들어진 가상의 과거 대화 이력을 반영하여, 후속 질문을 처리하는 에이전트에게 명령할 수 있다.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/01_3_message/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/02_1_tools/" rel="bookmark">
+			Pydantic-AI로 에이전트 구축하기: Tools 정의하기
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T16:45:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<h2 id="도구tools란-무엇인가">도구(Tools)란 무엇인가?</h2>
+<p>에이전트에게 **도구(Tools)**는 에이전트가 실제로 작업을 수행할 수 있게 해주는 핵심 요소이다.</p>
+<p>기본적으로 LLM(대규모 언어 모델)은 텍스트를 생성하는 것만 잘한다. 하지만 현실의 문제들은 텍스트 생성 이상의 기능이 필요한 경우가 많다:</p>
+<ul>
+<li><strong>데이터베이스 조회</strong>: 사용자 정보, 주문 내역 등을 검색해야 함</li>
+<li><strong>외부 API 호출</strong>: 날씨, 뉴스, 결제 시스템 등과 연동</li>
+<li><strong>파일 시스템 접근</strong>: 문서 저장, 읽기, 분석</li>
+<li><strong>계산 및 데이터 처리</strong>: 복잡한 로직 실행</li>
+<li><strong>상태 변경</strong>: 데이터베이스 업데이트, 주문 생성 등</li>
+</ul>
+<p>도구를 정의하면 에이전트는 필요한 순간에 이러한 기능들을 <strong>자율적으로 선택하여 실행</strong>할 수 있다. 이것이 단순한 <code>챗봇</code>과 <code>AI 에이전트</code>의 차이이다.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/02_1_tools/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/07_4_grounding/" rel="bookmark">
+			Pydantic-AI 07-4: 근거 기반 응답 설계 (Grounding &amp; Citation)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T15:30:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 07. 지식 베이스 — Agent 지식 공유 — 4/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>검색 결과를 구조화된 응답에 반영하여, Agent가 근거 있는 답변을 생성하도록 설계하는 방법을 다룬다. 환각(Hallucination)을 줄이고 신뢰도를 높이는 핵심 기법이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-grounding이란">1. Grounding이란?</h3>
+<ul>
+<li>LLM 환각(Hallucination)의 문제</li>
+<li>근거 기반 응답의 정의와 중요성</li>
+<li>&ldquo;출처 없는 주장&quot;을 방지하는 설계 원칙</li>
+</ul>
+<h3 id="2-구조화된-응답에-출처-포함하기">2. 구조화된 응답에 출처 포함하기</h3>
+<ul>
+<li><code>result_type</code>에 <code>source</code> / <code>citation</code> 필드 정의</li>
+<li>Pydantic <code>BaseModel</code>로 응답 + 출처 구조 설계</li>
+<li>LLM이 검색 결과를 인용하도록 유도하는 프롬프트</li>
+</ul>
+<h3 id="3-citation-패턴">3. Citation 패턴</h3>
+<ul>
+<li>인라인 인용: 문장별 출처 태깅</li>
+<li>참조 목록: 응답 하단에 출처 모음</li>
+<li>신뢰도 점수: 각 주장에 대한 근거 강도 표시</li>
+</ul>
+<h3 id="4-result-validator로-근거-검증">4. Result Validator로 근거 검증</h3>
+<ul>
+<li>응답에 출처가 포함되어 있는지 검증</li>
+<li>인용된 출처가 실제 검색 결과에 있는지 확인</li>
+<li>근거 없는 주장이 포함된 경우 <code>ModelRetry</code>로 재생성 요청</li>
+</ul>
+<h3 id="5-환각-방지-전략">5. 환각 방지 전략</h3>
+<ul>
+<li>System Prompt에서 &ldquo;모르면 모른다고 답하라&rdquo; 지시</li>
+<li>검색 결과에 없는 정보는 생성하지 않도록 제약</li>
+<li>검색 결과 없을 때의 Fallback 응답 설계</li>
+</ul>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<ul>
+<li>법률 자문 Agent: 판례/법조항 인용 포함 응답</li>
+<li>학술 Q&amp;A Agent: 논문/문서 출처 태깅</li>
+<li>의료 정보 Agent: 가이드라인 기반 근거 제시</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/07_3_retrieval/" rel="bookmark">
+			Pydantic-AI 07-3: Agent 노트 꺼내기 (Retrieval Tool)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T15:20:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 07. 지식 베이스 — Agent 지식 공유 — 3/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>벡터 DB 또는 그래프 DB를 활용한 검색 도구를 구현하고, Agent가 필요에 따라 지식을 꺼내 쓸 수 있게 하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-retrieval-tool의-역할">1. Retrieval Tool의 역할</h3>
+<ul>
+<li>Agent가 &ldquo;필요할 때&rdquo; 지식을 검색하는 능동적 RAG</li>
+<li>사전 검색(Pre-retrieval) vs 능동 검색(Active Retrieval)</li>
+<li>검색 도구가 다른 도구와 조합되는 패턴</li>
+</ul>
+<h3 id="2-벡터-검색-도구-구현">2. 벡터 검색 도구 구현</h3>
+<ul>
+<li>임베딩 모델을 의존성으로 주입</li>
+<li>유사도 검색 함수를 <code>@agent.tool</code>로 등록</li>
+<li>검색 쿼리 생성: LLM이 적절한 검색어를 만드는 방식</li>
+</ul>
+<h3 id="3-그래프-db-검색-도구-구현">3. 그래프 DB 검색 도구 구현</h3>
+<ul>
+<li>엔티티 관계 탐색을 도구로 제공</li>
+<li>Cypher 쿼리 생성 패턴</li>
+<li>관계 기반 추론을 위한 도구 설계</li>
+</ul>
+<h3 id="4-하이브리드-검색">4. 하이브리드 검색</h3>
+<ul>
+<li>키워드 검색 + 의미 검색 결합</li>
+<li>여러 검색 도구를 동시에 제공하여 LLM이 선택</li>
+<li>검색 결과 랭킹과 중복 제거</li>
+</ul>
+<h3 id="5-검색-결과-후처리">5. 검색 결과 후처리</h3>
+<ul>
+<li>검색 결과 요약/필터링</li>
+<li>관련성 점수 기반 결과 선별</li>
+<li>청크(Chunk) 결합: 인접 문단 함께 반환</li>
+</ul>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<ul>
+<li>사내 문서 검색 Agent</li>
+<li>코드베이스 검색 Agent</li>
+<li>FAQ 자동 응답 Agent</li>
+</ul>
 	</div>
 </article>
 </main>
 
 <div class="pagination">
-	<span class="pagination__item pagination__item--current">1/2</span>
+	<span class="pagination__item pagination__item--current">1/4</span>
 	<a class="pagination__item pagination__item--next btn" href="/page/2/">»</a>
 </div>
 
@@ -532,11 +566,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
-			<li class="widget__item"><a class="widget__link" href="/posts/introduce/myproject-260112/">프로젝트 소개: WizPerch - Chrome Extention 기반 SNS engine</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-stratagy/">Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/resources/alexkarp-westerncivil/">Alex Karp의 &#34;서구 문명&#34; 개념</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-decorator/">Vibe Coding을 위한 디자인 패턴 - 장식자(Decorator)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/api-manuals/vueconvexclerk-1/">Vue/Convex/Clerk 연동하여 서비스 기반 구현하기 - 1</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
 		</ul>
 	</div>
 </div>
@@ -544,6 +578,8 @@
 	<h4 class="widget__title">Categories</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
 			<li class="widget__item">
 				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
 			<li class="widget__item">
@@ -569,12 +605,18 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (5)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>

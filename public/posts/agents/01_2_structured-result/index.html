@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Pydantic-AI 01-2: Agent의 출력을 검증하기 (Structured Result) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/agents/01_2_structured-result/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Pydantic-AI 01-2: Agent의 출력을 검증하기 (Structured Result)">
+  <meta property="og:description" content="시리즈: 01. Agent의 기본 구조 — 2/3
+개요 Pydantic-AI의 핵심 강점은 Agent 응답을 Pydantic BaseModel로 타입 안전하게 검증할 수 있다는 점이다.
+세부 목차 1. 왜 구조화된 결과가 필요한가? 자유 텍스트 응답의 한계
+LLM이 자유 텍스트로만 응답하면 파싱과 검증이 어렵다:
+# 자유 텍스트 응답 예시 response = &#34;사용자 정보: 이름은 홍길동이고, 나이는 30세, 이메일은 hong@example.com입니다.&#34; # 파싱 필요 import re name = re.search(r&#39;이름은 (.&#43;?)이고&#39;, response).group(1) # 불안정 age = int(re.search(r&#39;나이는 (\d&#43;)세&#39;, response).group(1)) email = re.search(r&#39;이메일은 (.&#43;?)입니다&#39;, response).group(1) 문제점:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-02-14T10:10:00+09:00">
+    <meta property="article:modified_time" content="2026-02-14T10:10:00+09:00">
+    <meta property="article:tag" content="PydanticAI">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Pydantic-AI 01-2: Agent의 출력을 검증하기 (Structured Result)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T10:10:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p><strong>시리즈</strong>: 01. Agent의 기본 구조 — 2/3</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI의 핵심 강점은 Agent 응답을 Pydantic <code>BaseModel</code>로 타입 안전하게 검증할 수 있다는 점이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-왜-구조화된-결과가-필요한가">1. 왜 구조화된 결과가 필요한가?</h3>
+<p><strong>자유 텍스트 응답의 한계</strong></p>
+<p>LLM이 자유 텍스트로만 응답하면 파싱과 검증이 어렵다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 자유 텍스트 응답 예시</span>
+</span></span><span style="display:flex;"><span>response <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;사용자 정보: 이름은 홍길동이고, 나이는 30세, 이메일은 hong@example.com입니다.&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 파싱 필요</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>name <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;이름은 (.+?)이고&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)  <span style="color:#75715e"># 불안정</span>
+</span></span><span style="display:flex;"><span>age <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;나이는 (\d+)세&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>))
+</span></span><span style="display:flex;"><span>email <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;이메일은 (.+?)입니다&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>문제점:</p>
+<ul>
+<li><strong>파싱 오류</strong>: 응답 형식이 조금만 달라져도 실패</li>
+<li><strong>타입 불안정</strong>: <code>age</code>가 숫자인지 보장 불가</li>
+<li><strong>검증 불가</strong>: 이메일 형식이 올바른지 확인 어려움</li>
+</ul>
+<p><strong>타입 안전성이 프로덕션 코드에 주는 이점</strong></p>
+<p>구조화된 결과를 사용하면:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, EmailStr, Field
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserInfo</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    name: str <span style="color:#f92672">=</span> Field(min_length<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    age: int <span style="color:#f92672">=</span> Field(ge<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>, le<span style="color:#f92672">=</span><span style="color:#ae81ff">150</span>)
+</span></span><span style="display:flex;"><span>    email: EmailStr  <span style="color:#75715e"># 이메일 형식 자동 검증</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>UserInfo)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;홍길동의 정보 조회&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 타입 안전한 접근</span>
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>name)  <span style="color:#75715e"># str 타입 보장</span>
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>age <span style="color:#f92672">+</span> <span style="color:#ae81ff">10</span>)  <span style="color:#75715e"># int 연산 가능</span>
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>email)  <span style="color:#75715e"># 유효한 이메일 보장</span>
+</span></span></code></pre></div><p>이점:</p>
+<ul>
+<li><strong>IDE 자동완성</strong>: <code>result.data.</code> 입력 시 필드 목록 표시</li>
+<li><strong>타입 체크</strong>: mypy, pyright로 정적 타입 검증</li>
+<li><strong>런타임 검증</strong>: Pydantic이 자동으로 형식 확인</li>
+<li><strong>리팩토링 안전</strong>: 필드명 변경 시 IDE가 모든 사용처 추적</li>
+</ul>
+<hr>
+<h3 id="2-result_type-파라미터">2. <code>result_type</code> 파라미터</h3>
+<p><strong><code>Agent(result_type=MyModel)</code>로 응답 스키마 지정</strong></p>
+<p>Agent 생성 시 <code>result_type</code>을 지정하면 LLM 응답이 해당 타입으로 파싱된다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WeatherReport</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    city: str
+</span></span><span style="display:flex;"><span>    temperature: float
+</span></span><span style="display:flex;"><span>    condition: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    result_type<span style="color:#f92672">=</span>WeatherReport,  <span style="color:#75715e"># 응답 스키마 지정</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;서울 날씨 알려줘&#34;</span>)
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>temperature)  <span style="color:#75715e"># float 타입</span>
+</span></span></code></pre></div><p><strong>Pydantic <code>BaseModel</code>을 활용한 응답 구조 정의</strong></p>
+<p>Pydantic의 모든 기능을 활용할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, Field, validator
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Literal
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookRecommendation</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    title: str <span style="color:#f92672">=</span> Field(description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;책 제목&#34;</span>)
+</span></span><span style="display:flex;"><span>    author: str <span style="color:#f92672">=</span> Field(description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;저자명&#34;</span>)
+</span></span><span style="display:flex;"><span>    genre: Literal[<span style="color:#e6db74">&#34;소설&#34;</span>, <span style="color:#e6db74">&#34;에세이&#34;</span>, <span style="color:#e6db74">&#34;자기계발&#34;</span>, <span style="color:#e6db74">&#34;과학&#34;</span>]
+</span></span><span style="display:flex;"><span>    rating: float <span style="color:#f92672">=</span> Field(ge<span style="color:#f92672">=</span><span style="color:#ae81ff">1.0</span>, le<span style="color:#f92672">=</span><span style="color:#ae81ff">5.0</span>, description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;평점 (1-5)&#34;</span>)
+</span></span><span style="display:flex;"><span>    summary: str <span style="color:#f92672">=</span> Field(max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">200</span>, description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;200자 이내 요약&#34;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@validator</span>(<span style="color:#e6db74">&#39;title&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">title_not_empty</span>(cls, v):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> v<span style="color:#f92672">.</span>strip():
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">&#39;제목은 비어있을 수 없습니다&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> v<span style="color:#f92672">.</span>strip()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>BookRecommendation)
+</span></span></code></pre></div><hr>
+<h3 id="3-기본-타입-결과">3. 기본 타입 결과</h3>
+<p><strong><code>str</code>, <code>int</code>, <code>bool</code> 등 기본 타입을 <code>result_type</code>으로 사용</strong></p>
+<p>복잡한 모델이 필요 없으면 기본 타입 사용 가능:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 문자열 결과</span>
+</span></span><span style="display:flex;"><span>agent_str <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>str)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent_str<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;파이썬을 한 문장으로 설명해줘&#34;</span>)
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data)  <span style="color:#75715e"># str: &#34;파이썬은 읽기 쉽고 강력한 프로그래밍 언어입니다.&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 정수 결과</span>
+</span></span><span style="display:flex;"><span>agent_int <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>int)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent_int<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;2024년에서 2000년을 빼면?&#34;</span>)
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data <span style="color:#f92672">+</span> <span style="color:#ae81ff">100</span>)  <span style="color:#75715e"># int: 124</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 불리언 결과</span>
+</span></span><span style="display:flex;"><span>agent_bool <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>bool)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent_bool<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;파이썬은 인터프리터 언어인가?&#34;</span>)
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data)  <span style="color:#75715e"># bool: True</span>
+</span></span></code></pre></div><p><strong><code>Union</code> 타입을 통한 다중 결과 타입</strong></p>
+<p>상황에 따라 다른 타입을 반환해야 하면 <code>Union</code> 사용:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Union
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SuccessResult</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    status: Literal[<span style="color:#e6db74">&#34;success&#34;</span>]
+</span></span><span style="display:flex;"><span>    data: dict
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ErrorResult</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    status: Literal[<span style="color:#e6db74">&#34;error&#34;</span>]
+</span></span><span style="display:flex;"><span>    message: str
+</span></span><span style="display:flex;"><span>    code: int
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    result_type<span style="color:#f92672">=</span>Union[SuccessResult, ErrorResult],
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;데이터 조회&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 타입 가드로 분기</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> isinstance(result<span style="color:#f92672">.</span>data, SuccessResult):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;성공: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">elif</span> isinstance(result<span style="color:#f92672">.</span>data, ErrorResult):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;오류 </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>code<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>message<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><hr>
+<h3 id="4-복합-모델-결과">4. 복합 모델 결과</h3>
+<p><strong>중첩된 BaseModel 구조</strong></p>
+<p>복잡한 데이터는 중첩 모델로 표현:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> List
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Address</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    street: str
+</span></span><span style="display:flex;"><span>    city: str
+</span></span><span style="display:flex;"><span>    zipcode: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContactInfo</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    email: EmailStr
+</span></span><span style="display:flex;"><span>    phone: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Person</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    name: str
+</span></span><span style="display:flex;"><span>    age: int
+</span></span><span style="display:flex;"><span>    address: Address  <span style="color:#75715e"># 중첩 모델</span>
+</span></span><span style="display:flex;"><span>    contacts: ContactInfo
+</span></span><span style="display:flex;"><span>    tags: List[str]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>Person)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;홍길동 정보 생성&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 중첩 접근</span>
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>address<span style="color:#f92672">.</span>city)  <span style="color:#75715e"># &#34;서울&#34;</span>
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>contacts<span style="color:#f92672">.</span>email)  <span style="color:#75715e"># &#34;hong@example.com&#34;</span>
+</span></span></code></pre></div><p><strong><code>Field(description=...)</code>로 LLM에게 필드 의미 전달</strong></p>
+<p><code>description</code>은 LLM에게 필드의 의미를 설명하는 힌트가 된다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> Field
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ProductReview</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    product_name: str <span style="color:#f92672">=</span> Field(description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;리뷰 대상 제품명&#34;</span>)
+</span></span><span style="display:flex;"><span>    rating: int <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        ge<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>        le<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1(최악)부터 5(최고)까지의 평점&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    pros: List[str] <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;제품의 장점 목록 (최소 2개 이상)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    cons: List[str] <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;제품의 단점 목록 (최소 1개 이상)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    would_recommend: bool <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;다른 사람에게 추천할 의향이 있는지 여부&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    summary: str <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;리뷰 핵심 내용을 100자 이내로 요약&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>ProductReview)
+</span></span></code></pre></div><p>LLM은 이 <code>description</code>을 보고 각 필드에 적절한 값을 생성한다.</p>
+<p><strong><code>Optional</code> 필드와 기본값 처리</strong></p>
+<p>필수가 아닌 필드는 <code>Optional</code>로 표시:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Optional
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ArticleSummary</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    title: str
+</span></span><span style="display:flex;"><span>    author: str
+</span></span><span style="display:flex;"><span>    published_date: Optional[str] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>  <span style="color:#75715e"># 선택 필드</span>
+</span></span><span style="display:flex;"><span>    summary: str
+</span></span><span style="display:flex;"><span>    tags: List[str] <span style="color:#f92672">=</span> []  <span style="color:#75715e"># 기본값: 빈 리스트</span>
+</span></span><span style="display:flex;"><span>    reading_time_minutes: Optional[int] <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        default<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;예상 읽기 시간 (분), 알 수 없으면 비워두기&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>ArticleSummary)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;기사 요약 생성&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Optional 필드 안전하게 접근</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>published_date:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;발행일: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>published_date<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;발행일 정보 없음&#34;</span>)
+</span></span></code></pre></div><hr>
+<h3 id="5-결과-검증-흐름">5. 결과 검증 흐름</h3>
+<p><strong>Pydantic 검증 실패 시 자동 재시도 메커니즘</strong></p>
+<p>LLM이 잘못된 형식으로 응답하면 Pydantic 검증이 실패하고, Pydantic-AI는 자동으로 재시도를 요청한다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StrictData</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    age: int <span style="color:#f92672">=</span> Field(ge<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>, le<span style="color:#f92672">=</span><span style="color:#ae81ff">150</span>)  <span style="color:#75715e"># 0~150 범위</span>
+</span></span><span style="display:flex;"><span>    email: EmailStr  <span style="color:#75715e"># 이메일 형식</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>StrictData)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 시나리오:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 1차 시도: LLM이 {&#34;age&#34;: -5, &#34;email&#34;: &#34;invalid&#34;} 반환</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   → Pydantic 검증 실패 (age &lt; 0, email 형식 오류)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   → Pydantic-AI가 LLM에게 오류 메시지 전달</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2차 시도: LLM이 {&#34;age&#34;: 25, &#34;email&#34;: &#34;user@example.com&#34;} 반환</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   → 검증 통과 → 최종 결과 반환</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;사용자 데이터 생성&#34;</span>)
+</span></span></code></pre></div><p>내부 프로세스:</p>
+<pre tabindex="0"><code>[1차 시도]
+LLM → {&#34;age&#34;: -5, &#34;email&#34;: &#34;invalid&#34;}
+
+[Pydantic 검증]
+❌ age: -5는 0 이상이어야 함
+❌ email: 유효한 이메일 형식이 아님
+
+[시스템 피드백]
+&#34;검증 오류:
+- age: ensure this value is greater than or equal to 0
+- email: value is not a valid email address&#34;
+
+[2차 시도]
+LLM → {&#34;age&#34;: 25, &#34;email&#34;: &#34;user@example.com&#34;}
+
+[Pydantic 검증]
+✅ 통과 → 결과 반환
+</code></pre><p><strong><code>result_retries</code> 파라미터로 재시도 횟수 제어</strong></p>
+<p>기본적으로 재시도 횟수 제한이 있으며, 필요 시 조정 가능:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    result_type<span style="color:#f92672">=</span>StrictData,
+</span></span><span style="display:flex;"><span>    result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,  <span style="color:#75715e"># 최대 5번까지 재시도</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 또는 실행 시 오버라이드</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;데이터 생성&#34;</span>,
+</span></span><span style="display:flex;"><span>    result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>,  <span style="color:#75715e"># 이번 실행만 3번으로 제한</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>재시도 초과 시 <code>UnexpectedModelBehavior</code> 예외 발생:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai.exceptions <span style="color:#f92672">import</span> UnexpectedModelBehavior
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;생성&#34;</span>, result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">except</span> UnexpectedModelBehavior <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;검증 실패 (2회 재시도 후): </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Fallback 로직 실행</span>
+</span></span></code></pre></div><hr>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<p><strong>API 응답을 구조화된 객체로 변환하는 Agent</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, HttpUrl
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> List, Optional
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApiResponse</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    status_code: int
+</span></span><span style="display:flex;"><span>    headers: dict[str, str]
+</span></span><span style="display:flex;"><span>    body: dict
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ParsedApiData</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    user_id: int
+</span></span><span style="display:flex;"><span>    username: str
+</span></span><span style="display:flex;"><span>    email: EmailStr
+</span></span><span style="display:flex;"><span>    created_at: str
+</span></span><span style="display:flex;"><span>    is_active: bool
+</span></span><span style="display:flex;"><span>    profile_url: Optional[HttpUrl] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>ParsedApiData)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_api_data</span>(user_id: int) <span style="color:#f92672">-&gt;</span> ApiResponse:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;외부 API에서 사용자 데이터 가져오기&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> httpx
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> client<span style="color:#f92672">.</span>get(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;https://api.example.com/users/</span><span style="color:#e6db74">{</span>user_id<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ApiResponse(
+</span></span><span style="display:flex;"><span>            status_code<span style="color:#f92672">=</span>response<span style="color:#f92672">.</span>status_code,
+</span></span><span style="display:flex;"><span>            headers<span style="color:#f92672">=</span>dict(response<span style="color:#f92672">.</span>headers),
+</span></span><span style="display:flex;"><span>            body<span style="color:#f92672">=</span>response<span style="color:#f92672">.</span>json()
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Agent가 API 응답을 파싱하여 구조화된 객체로 변환</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;user_id 123의 데이터를 가져와서 ParsedApiData 형식으로 파싱해줘&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 타입 안전한 접근</span>
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>username)
+</span></span><span style="display:flex;"><span>print(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>email)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>profile_url:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;프로필: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>profile_url<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p><strong>여러 필드를 가진 분석 결과 반환</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, Field
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> List, Literal
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SentimentAnalysis</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;텍스트 감성 분석 결과&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    sentiment: Literal[<span style="color:#e6db74">&#34;positive&#34;</span>, <span style="color:#e6db74">&#34;negative&#34;</span>, <span style="color:#e6db74">&#34;neutral&#34;</span>] <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;전체적인 감성 (긍정/부정/중립)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    confidence: float <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        ge<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>,
+</span></span><span style="display:flex;"><span>        le<span style="color:#f92672">=</span><span style="color:#ae81ff">1.0</span>,
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;분석 신뢰도 (0~1)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    key_phrases: List[str] <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;핵심 감성 표현 문구 (3~5개)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    emotions: dict[str, float] <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;세부 감정 점수 (기쁨, 슬픔, 분노, 놀람 등)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    summary: str <span style="color:#f92672">=</span> Field(
+</span></span><span style="display:flex;"><span>        max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">150</span>,
+</span></span><span style="display:flex;"><span>        description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;분석 결과 요약 (150자 이내)&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>SentimentAnalysis)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">오늘 새로 오픈한 레스토랑에 다녀왔는데, 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">음식은 정말 맛있었지만 서비스가 너무 느려서 실망스러웠습니다.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">특히 파스타는 훌륭했어요!
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다음 리뷰를 분석해줘: </span><span style="color:#e6db74">{</span>text<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 구조화된 결과 활용</span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;감성: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>sentiment<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;신뢰도: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>confidence<span style="color:#e6db74">:</span><span style="color:#e6db74">.2%</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;핵심 문구: </span><span style="color:#e6db74">{</span><span style="color:#e6db74">&#39;, &#39;</span><span style="color:#f92672">.</span>join(result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>key_phrases)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;감정 분석:&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> emotion, score <span style="color:#f92672">in</span> result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>emotions<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;  </span><span style="color:#e6db74">{</span>emotion<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>score<span style="color:#e6db74">:</span><span style="color:#e6db74">.2f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">요약: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>summary<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>출력 예시:</p>
+<pre tabindex="0"><code>감성: neutral
+신뢰도: 87.50%
+핵심 문구: 정말 맛있었지만, 서비스가 너무 느려서, 훌륭했어요
+감정 분석:
+  기쁨: 0.65
+  실망: 0.45
+  만족: 0.70
+  불만: 0.40
+
+요약: 음식 품질은 우수하나 서비스 속도 개선 필요. 전체적으로 중립적 평가.
+</code></pre><hr>
+<h2 id="마무리">마무리</h2>
+<p>구조화된 결과는 Pydantic-AI의 핵심 기능이다:</p>
+<ol>
+<li><strong>타입 안전성</strong>: Pydantic으로 런타임 검증</li>
+<li><strong>자동 재시도</strong>: 검증 실패 시 LLM이 자동으로 수정</li>
+<li><strong>IDE 지원</strong>: 자동완성과 타입 체크로 개발 생산성 향상</li>
+</ol>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/pydanticai/" rel="tag">PydanticAI</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/agents/01_3_message/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Pydantic-AI로 에이전트 구축하기: Message Type 사용하기</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/agents/02_3_run-context/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

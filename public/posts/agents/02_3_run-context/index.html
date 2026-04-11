@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/agents/02_3_run-context/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext & Dependencies)">
+  <meta property="og:description" content="시리즈: 02. Agent에게 도구 쥐어주기 — 3/4
+개요 RunContext[DepsType]는 Pydantic-AI의 의존성 주입(DI) 시스템의 핵심이다. 도구 함수에 데이터베이스 연결, API 클라이언트 등 외부 의존성을 안전하게 전달하는 방법을 다룬다.
+세부 목차 1. 의존성 주입이란? 전통적인 DI 패턴과 Pydantic-AI의 접근법 비교
+전통적인 의존성 주입 프레임워크(Spring, FastAPI Depends 등)는 생성자나 함수 파라미터를 통해 의존성을 주입한다.
+# 전통적 DI (FastAPI 스타일) from fastapi import Depends def get_db_session(): return DatabaseSession() @app.get(&#34;/users&#34;) async def list_users(db: DatabaseSession = Depends(get_db_session)): return db.query(User).all() Pydantic-AI는 이와 유사하지만, Agent 실행 시점에 의존성을 전달하는 방식을 사용한다:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-02-14T10:40:00+09:00">
+    <meta property="article:modified_time" content="2026-02-14T10:40:00+09:00">
+    <meta property="article:tag" content="PydanticAI">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T10:40:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p><strong>시리즈</strong>: 02. Agent에게 도구 쥐어주기 — 3/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>RunContext[DepsType]</code>는 Pydantic-AI의 의존성 주입(DI) 시스템의 핵심이다. 도구 함수에 데이터베이스 연결, API 클라이언트 등 외부 의존성을 안전하게 전달하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-의존성-주입이란">1. 의존성 주입이란?</h3>
+<p><strong>전통적인 DI 패턴과 Pydantic-AI의 접근법 비교</strong></p>
+<p>전통적인 의존성 주입 프레임워크(Spring, FastAPI Depends 등)는 생성자나 함수 파라미터를 통해 의존성을 주입한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 전통적 DI (FastAPI 스타일)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> fastapi <span style="color:#f92672">import</span> Depends
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_db_session</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> DatabaseSession()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.get</span>(<span style="color:#e6db74">&#34;/users&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">list_users</span>(db: DatabaseSession <span style="color:#f92672">=</span> Depends(get_db_session)):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> db<span style="color:#f92672">.</span>query(User)<span style="color:#f92672">.</span>all()
+</span></span></code></pre></div><p>Pydantic-AI는 이와 유사하지만, <strong>Agent 실행 시점</strong>에 의존성을 전달하는 방식을 사용한다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, RunContext
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">query_database</span>(ctx: RunContext[DatabaseSession], query: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;데이터베이스 쿼리 실행&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    db <span style="color:#f92672">=</span> ctx<span style="color:#f92672">.</span>deps  <span style="color:#75715e"># 실행 시 전달된 의존성</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> db<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> str(result)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 시 의존성 주입</span>
+</span></span><span style="display:flex;"><span>db_session <span style="color:#f92672">=</span> DatabaseSession()
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;사용자 목록 조회&#34;</span>, deps<span style="color:#f92672">=</span>db_session)
+</span></span></code></pre></div><p><strong>왜 글로벌 변수 대신 DI를 사용해야 하는가</strong></p>
+<p>❌ <strong>글로벌 변수 사용 (안티패턴)</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 전역 DB 클라이언트</span>
+</span></span><span style="display:flex;"><span>DB_CLIENT <span style="color:#f92672">=</span> DatabaseClient()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_user</span>(user_id: int) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 전역 변수 직접 참조</span>
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> DB_CLIENT<span style="color:#f92672">.</span>fetch_user(user_id)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> user<span style="color:#f92672">.</span>name
+</span></span></code></pre></div><p>문제점:</p>
+<ul>
+<li><strong>테스트 불가능</strong>: Mock 주입이 어려움</li>
+<li><strong>동시성 문제</strong>: 여러 요청이 동일 전역 객체 공유</li>
+<li><strong>상태 관리 어려움</strong>: 연결 풀 관리, 트랜잭션 경계 설정 불가</li>
+</ul>
+<p>✅ <strong>의존성 주입 사용</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> dataclasses <span style="color:#f92672">import</span> dataclass
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDeps</span>:
+</span></span><span style="display:flex;"><span>    db: DatabaseClient
+</span></span><span style="display:flex;"><span>    user_id: str  <span style="color:#75715e"># 현재 요청 사용자 ID</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[AppDeps, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_user</span>(ctx: RunContext[AppDeps]) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>db<span style="color:#f92672">.</span>fetch_user(ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>user_id)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> user<span style="color:#f92672">.</span>name
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 요청마다 독립적인 의존성 주입</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle_request</span>(user_id: str):
+</span></span><span style="display:flex;"><span>    deps <span style="color:#f92672">=</span> AppDeps(db<span style="color:#f92672">=</span>DatabaseClient(), user_id<span style="color:#f92672">=</span>user_id)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;내 정보 조회&#34;</span>, deps<span style="color:#f92672">=</span>deps)
+</span></span></code></pre></div><p>장점:</p>
+<ul>
+<li><strong>테스트 가능</strong>: Mock 객체 주입 가능</li>
+<li><strong>요청별 격리</strong>: 각 실행이 독립적인 의존성 사용</li>
+<li><strong>명시적 의존성</strong>: 함수 시그니처에서 의존성 확인 가능</li>
+</ul>
+<hr>
+<h3 id="2-depstype-정의하기">2. <code>DepsType</code> 정의하기</h3>
+<p><strong><code>Agent[DepsType, ResultType]</code> 제네릭 파라미터</strong></p>
+<p>Agent는 두 개의 타입 파라미터를 받는다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># DepsType: 의존성 타입</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ResultType: 반환 결과 타입</span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[MyDepsType, MyResultType](
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    result_type<span style="color:#f92672">=</span>MyResultType,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p><strong><code>dataclass</code> / <code>BaseModel</code> / <code>NamedTuple</code>로 의존성 타입 정의</strong></p>
+<p>세 가지 방식 모두 지원된다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 방법 1: dataclass (추천)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> dataclasses <span style="color:#f92672">import</span> dataclass
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> httpx
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HttpDeps</span>:
+</span></span><span style="display:flex;"><span>    client: httpx<span style="color:#f92672">.</span>AsyncClient
+</span></span><span style="display:flex;"><span>    api_key: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 방법 2: Pydantic BaseModel</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConfigDeps</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    api_key: str
+</span></span><span style="display:flex;"><span>    timeout: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 방법 3: NamedTuple</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> NamedTuple
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleDeps</span>(NamedTuple):
+</span></span><span style="display:flex;"><span>    api_key: str
+</span></span></code></pre></div><p><strong>단일 의존성 vs 복합 의존성 구조</strong></p>
+<p>단일 의존성 (간단한 경우):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 의존성이 하나면 타입 자체를 사용</span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[httpx<span style="color:#f92672">.</span>AsyncClient, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_data</span>(ctx: RunContext[httpx<span style="color:#f92672">.</span>AsyncClient], url: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>get(url)  <span style="color:#75715e"># deps가 곧 클라이언트</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;데이터 가져오기&#34;</span>, deps<span style="color:#f92672">=</span>client)
+</span></span></code></pre></div><p>복합 의존성 (실전에서 일반적):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDeps</span>:
+</span></span><span style="display:flex;"><span>    http_client: httpx<span style="color:#f92672">.</span>AsyncClient
+</span></span><span style="display:flex;"><span>    db_session: AsyncSession
+</span></span><span style="display:flex;"><span>    redis_client: Redis
+</span></span><span style="display:flex;"><span>    config: AppConfig
+</span></span><span style="display:flex;"><span>    current_user_id: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[AppDeps, QueryResult](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">complex_query</span>(ctx: RunContext[AppDeps], query: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 여러 의존성 동시 활용</span>
+</span></span><span style="display:flex;"><span>    cache_key <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;query:</span><span style="color:#e6db74">{</span>query<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Redis 캐시 확인</span>
+</span></span><span style="display:flex;"><span>    cached <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>redis_client<span style="color:#f92672">.</span>get(cache_key)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> cached:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cached
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># DB 조회</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>db_session<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 외부 API 호출</span>
+</span></span><span style="display:flex;"><span>    enriched <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>http_client<span style="color:#f92672">.</span>post(
+</span></span><span style="display:flex;"><span>        ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>api_url,
+</span></span><span style="display:flex;"><span>        json<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;data&#34;</span>: result}
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 캐시 저장</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>redis_client<span style="color:#f92672">.</span>set(cache_key, enriched<span style="color:#f92672">.</span>text)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> enriched<span style="color:#f92672">.</span>text
+</span></span></code></pre></div><hr>
+<h3 id="3-runcontext-활용하기">3. <code>RunContext</code> 활용하기</h3>
+<p><strong><code>@agent.tool</code> 데코레이터와 <code>RunContext</code> 첫 번째 인자</strong></p>
+<p>도구 함수의 첫 번째 파라미터로 <code>RunContext</code>를 받으면 의존성에 접근할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, RunContext
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[DatabaseClient, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">search_users</span>(
+</span></span><span style="display:flex;"><span>    ctx: RunContext[DatabaseClient],  <span style="color:#75715e"># 첫 번째 인자</span>
+</span></span><span style="display:flex;"><span>    name: str,  <span style="color:#75715e"># LLM이 제공하는 파라미터</span>
+</span></span><span style="display:flex;"><span>    limit: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> list[str]:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;사용자 이름으로 검색&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    db <span style="color:#f92672">=</span> ctx<span style="color:#f92672">.</span>deps
+</span></span><span style="display:flex;"><span>    results <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> db<span style="color:#f92672">.</span>query(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;SELECT * FROM users WHERE name LIKE &#39;%</span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74">%&#39; LIMIT </span><span style="color:#e6db74">{</span>limit<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [r[<span style="color:#e6db74">&#39;name&#39;</span>] <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> results]
+</span></span></code></pre></div><p><strong><code>ctx.deps</code>로 의존성 객체 접근</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_config</span>(ctx: RunContext[AppDeps]) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;현재 설정 조회&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;API URL: </span><span style="color:#e6db74">{</span>ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>api_url<span style="color:#e6db74">}</span><span style="color:#e6db74">, Timeout: </span><span style="color:#e6db74">{</span>ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>config<span style="color:#f92672">.</span>timeout<span style="color:#e6db74">}</span><span style="color:#e6db74">s&#34;</span>
+</span></span></code></pre></div><p><strong><code>ctx.retry</code> — 현재 재시도 횟수 확인</strong></p>
+<p>도구 실행 중 재시도가 발생하면 <code>ctx.retry</code> 값이 증가한다. 이를 활용해 재시도 시 다른 전략을 사용할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> ModelRetry
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_with_retry</span>(ctx: RunContext[httpx<span style="color:#f92672">.</span>AsyncClient], url: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;재시도 시 타임아웃 증가&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    timeout <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span> <span style="color:#f92672">+</span> (ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">*</span> <span style="color:#ae81ff">5</span>)  <span style="color:#75715e"># 1차: 5초, 2차: 10초, 3차: 15초</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>get(url, timeout<span style="color:#f92672">=</span>timeout)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> httpx<span style="color:#f92672">.</span>TimeoutException:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;타임아웃 발생. 재시도 중... (</span><span style="color:#e6db74">{</span>ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#e6db74">}</span><span style="color:#e6db74">/3)&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(<span style="color:#e6db74">&#34;최대 재시도 횟수 초과. 다른 URL을 시도하세요.&#34;</span>)
+</span></span></code></pre></div><hr>
+<h3 id="4-의존성-전달-방법">4. 의존성 전달 방법</h3>
+<p><strong><code>agent.run(prompt, deps=my_deps)</code>로 실행 시 의존성 전달</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> dataclasses <span style="color:#f92672">import</span> dataclass
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> httpx
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyDeps</span>:
+</span></span><span style="display:flex;"><span>    client: httpx<span style="color:#f92672">.</span>AsyncClient
+</span></span><span style="display:flex;"><span>    api_key: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[MyDeps, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 시 의존성 생성 및 전달</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>        deps <span style="color:#f92672">=</span> MyDeps(client<span style="color:#f92672">=</span>client, api_key<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;sk-...&#34;</span>)
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;외부 API에서 데이터 가져오기&#34;</span>,
+</span></span><span style="display:flex;"><span>            deps<span style="color:#f92672">=</span>deps  <span style="color:#75715e"># 의존성 주입</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span></code></pre></div><p><strong>비동기 의존성 처리 (async DB 클라이언트 등)</strong></p>
+<p>비동기 컨텍스트 매니저를 사용하는 의존성은 <code>async with</code>로 관리:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy.ext.asyncio <span style="color:#f92672">import</span> AsyncSession, create_async_engine
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DbDeps</span>:
+</span></span><span style="display:flex;"><span>    session: AsyncSession
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[DbDeps, list[str]](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">query_users</span>(ctx: RunContext[DbDeps]) <span style="color:#f92672">-&gt;</span> list[str]:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>session<span style="color:#f92672">.</span>execute(<span style="color:#e6db74">&#34;SELECT name FROM users&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [row[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> row <span style="color:#f92672">in</span> result]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+</span></span><span style="display:flex;"><span>    engine <span style="color:#f92672">=</span> create_async_engine(<span style="color:#e6db74">&#34;postgresql+asyncpg://...&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> AsyncSession(engine) <span style="color:#66d9ef">as</span> session:
+</span></span><span style="display:flex;"><span>        deps <span style="color:#f92672">=</span> DbDeps(session<span style="color:#f92672">=</span>session)
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;사용자 목록 조회&#34;</span>, deps<span style="color:#f92672">=</span>deps)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span></code></pre></div><hr>
+<h3 id="5-실전-패턴">5. 실전 패턴</h3>
+<p><strong>HTTP 클라이언트 주입: <code>httpx.AsyncClient</code></strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> httpx
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, RunContext
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[httpx<span style="color:#f92672">.</span>AsyncClient, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_weather</span>(ctx: RunContext[httpx<span style="color:#f92672">.</span>AsyncClient], city: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;날씨 API 호출&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>get(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;https://api.weather.com/v1/current&#34;</span>,
+</span></span><span style="display:flex;"><span>        params<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;city&#34;</span>: city}
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>json()[<span style="color:#e6db74">&#34;temperature&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 사용</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient(timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;서울 날씨 알려줘&#34;</span>, deps<span style="color:#f92672">=</span>client)
+</span></span></code></pre></div><p><strong>데이터베이스 세션 주입</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy.ext.asyncio <span style="color:#f92672">import</span> AsyncSession
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sqlalchemy <span style="color:#f92672">import</span> select
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DbDeps</span>:
+</span></span><span style="display:flex;"><span>    session: AsyncSession
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[DbDeps, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_user_count</span>(ctx: RunContext[DbDeps]) <span style="color:#f92672">-&gt;</span> int:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;사용자 수 조회&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>session<span style="color:#f92672">.</span>scalar(
+</span></span><span style="display:flex;"><span>        select(func<span style="color:#f92672">.</span>count())<span style="color:#f92672">.</span>select_from(User)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_user</span>(ctx: RunContext[DbDeps], name: str, email: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;사용자 생성&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> User(name<span style="color:#f92672">=</span>name, email<span style="color:#f92672">=</span>email)
+</span></span><span style="display:flex;"><span>    ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>session<span style="color:#f92672">.</span>add(user)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>session<span style="color:#f92672">.</span>commit()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;사용자 </span><span style="color:#e6db74">{</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74"> 생성 완료&#34;</span>
+</span></span></code></pre></div><p><strong>설정(Config) 객체 주입</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppConfig</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    api_key: str
+</span></span><span style="display:flex;"><span>    api_url: str
+</span></span><span style="display:flex;"><span>    max_retries: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>    timeout: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ConfigDeps</span>:
+</span></span><span style="display:flex;"><span>    config: AppConfig
+</span></span><span style="display:flex;"><span>    http_client: httpx<span style="color:#f92672">.</span>AsyncClient
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[ConfigDeps, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">call_api</span>(ctx: RunContext[ConfigDeps], endpoint: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;설정 기반 API 호출&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    config <span style="color:#f92672">=</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>config
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>http_client<span style="color:#f92672">.</span>get(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>config<span style="color:#f92672">.</span>api_url<span style="color:#e6db74">}</span><span style="color:#e6db74">/</span><span style="color:#e6db74">{</span>endpoint<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>        headers<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;Authorization&#34;</span>: <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Bearer </span><span style="color:#e6db74">{</span>config<span style="color:#f92672">.</span>api_key<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>},
+</span></span><span style="display:flex;"><span>        timeout<span style="color:#f92672">=</span>config<span style="color:#f92672">.</span>timeout
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행</span>
+</span></span><span style="display:flex;"><span>config <span style="color:#f92672">=</span> AppConfig(api_key<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;sk-...&#34;</span>, api_url<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://api.example.com&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>    deps <span style="color:#f92672">=</span> ConfigDeps(config<span style="color:#f92672">=</span>config, http_client<span style="color:#f92672">=</span>client)
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;데이터 가져오기&#34;</span>, deps<span style="color:#f92672">=</span>deps)
+</span></span></code></pre></div><hr>
+<h3 id="6-테스트에서의-의존성-교체">6. 테스트에서의 의존성 교체</h3>
+<p><strong>테스트 시 Mock 의존성 주입</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> pytest
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> unittest.mock <span style="color:#f92672">import</span> AsyncMock
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApiDeps</span>:
+</span></span><span style="display:flex;"><span>    client: httpx<span style="color:#f92672">.</span>AsyncClient
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent[ApiDeps, str](<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_data</span>(ctx: RunContext[ApiDeps], url: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> ctx<span style="color:#f92672">.</span>deps<span style="color:#f92672">.</span>client<span style="color:#f92672">.</span>get(url)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 프로덕션 코드</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">production_run</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>        deps <span style="color:#f92672">=</span> ApiDeps(client<span style="color:#f92672">=</span>client)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;데이터 가져오기&#34;</span>, deps<span style="color:#f92672">=</span>deps)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 테스트 코드</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@pytest.mark.asyncio</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test_agent_with_mock</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Mock HTTP 클라이언트</span>
+</span></span><span style="display:flex;"><span>    mock_client <span style="color:#f92672">=</span> AsyncMock(spec<span style="color:#f92672">=</span>httpx<span style="color:#f92672">.</span>AsyncClient)
+</span></span><span style="display:flex;"><span>    mock_response <span style="color:#f92672">=</span> AsyncMock()
+</span></span><span style="display:flex;"><span>    mock_response<span style="color:#f92672">.</span>text <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;mocked data&#34;</span>
+</span></span><span style="display:flex;"><span>    mock_client<span style="color:#f92672">.</span>get<span style="color:#f92672">.</span>return_value <span style="color:#f92672">=</span> mock_response
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Mock 의존성 주입</span>
+</span></span><span style="display:flex;"><span>    test_deps <span style="color:#f92672">=</span> ApiDeps(client<span style="color:#f92672">=</span>mock_client)
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;테스트 데이터 가져오기&#34;</span>, deps<span style="color:#f92672">=</span>test_deps)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 검증</span>
+</span></span><span style="display:flex;"><span>    mock_client<span style="color:#f92672">.</span>get<span style="color:#f92672">.</span>assert_called_once()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> <span style="color:#e6db74">&#34;mocked&#34;</span> <span style="color:#f92672">in</span> result<span style="color:#f92672">.</span>data
+</span></span></code></pre></div><p><strong>환경별 의존성 전환 전략</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> enum <span style="color:#f92672">import</span> Enum
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Environment</span>(Enum):
+</span></span><span style="display:flex;"><span>    DEVELOPMENT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;dev&#34;</span>
+</span></span><span style="display:flex;"><span>    STAGING <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;staging&#34;</span>
+</span></span><span style="display:flex;"><span>    PRODUCTION <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;prod&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EnvDeps</span>:
+</span></span><span style="display:flex;"><span>    db_url: str
+</span></span><span style="display:flex;"><span>    api_key: str
+</span></span><span style="display:flex;"><span>    debug: bool
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_deps</span>(env: Environment) <span style="color:#f92672">-&gt;</span> EnvDeps:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;환경별 의존성 생성 팩토리&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> env <span style="color:#f92672">==</span> Environment<span style="color:#f92672">.</span>DEVELOPMENT:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EnvDeps(
+</span></span><span style="display:flex;"><span>            db_url<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;sqlite:///dev.db&#34;</span>,
+</span></span><span style="display:flex;"><span>            api_key<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;test-key&#34;</span>,
+</span></span><span style="display:flex;"><span>            debug<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> env <span style="color:#f92672">==</span> Environment<span style="color:#f92672">.</span>STAGING:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EnvDeps(
+</span></span><span style="display:flex;"><span>            db_url<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;postgresql://staging-db&#34;</span>,
+</span></span><span style="display:flex;"><span>            api_key<span style="color:#f92672">=</span>os<span style="color:#f92672">.</span>getenv(<span style="color:#e6db74">&#34;STAGING_API_KEY&#34;</span>),
+</span></span><span style="display:flex;"><span>            debug<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:  <span style="color:#75715e"># PRODUCTION</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> EnvDeps(
+</span></span><span style="display:flex;"><span>            db_url<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;postgresql://prod-db&#34;</span>,
+</span></span><span style="display:flex;"><span>            api_key<span style="color:#f92672">=</span>os<span style="color:#f92672">.</span>getenv(<span style="color:#e6db74">&#34;PROD_API_KEY&#34;</span>),
+</span></span><span style="display:flex;"><span>            debug<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행</span>
+</span></span><span style="display:flex;"><span>env <span style="color:#f92672">=</span> Environment<span style="color:#f92672">.</span>PRODUCTION
+</span></span><span style="display:flex;"><span>deps <span style="color:#f92672">=</span> create_deps(env)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;프로덕션 쿼리&#34;</span>, deps<span style="color:#f92672">=</span>deps)
+</span></span></code></pre></div><hr>
+<h2 id="마무리">마무리</h2>
+<p><code>RunContext</code>와 의존성 주입은 Pydantic-AI의 핵심 설계 패턴이다:</p>
+<ol>
+<li><strong>의존성 명시화</strong>: 도구가 필요한 외부 리소스를 타입으로 선언</li>
+<li><strong>테스트 가능성</strong>: Mock 주입으로 단위 테스트 작성 가능</li>
+<li><strong>요청별 격리</strong>: 각 Agent 실행이 독립적인 의존성 사용</li>
+</ol>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/pydanticai/" rel="tag">PydanticAI</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/agents/01_2_structured-result/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Pydantic-AI 01-2: Agent의 출력을 검증하기 (Structured Result)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/agents/03_3_result-validator/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

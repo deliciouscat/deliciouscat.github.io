@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/agents/05_3_retry/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator & Retry)">
+  <meta property="og:description" content="시리즈: 05. Agent 실행 흐름 설계 — 3/4
+개요 검증 실패 시 자동 재시도 메커니즘은 Pydantic-AI의 핵심 오류 처리 전략이다. 도구 레벨과 결과 레벨의 재시도를 통합적으로 이해한다.
+세부 목차 1. 오류 처리의 두 계층 Pydantic-AI는 오류를 처리하는 두 가지 계층을 제공한다.
+도구 레벨 재시도: 도구 함수 내에서 ModelRetry 발생
+도구 실행 중 문제가 발생하면 도구 함수 안에서 ModelRetry를 발생시킬 수 있다:
+from pydantic_ai import Agent, RunContext, ModelRetry import httpx agent = Agent(&#39;openai:gpt-4&#39;) @agent.tool async def fetch_url(ctx: RunContext, url: str) -&gt; str: &#34;&#34;&#34;웹 페이지 내용 가져오기&#34;&#34;&#34; try: async with httpx.AsyncClient() as client: response = await client.get(url, timeout=5) if response.status_code == 404: raise ModelRetry( f&#34;URL {url}을 찾을 수 없습니다 (404). &#34; f&#34;다른 URL을 시도하세요.&#34; ) return response.text except httpx.TimeoutException: raise ModelRetry( f&#34;{url} 응답이 너무 느립니다. &#34; f&#34;다른 URL을 시도하거나 나중에 다시 시도하세요.&#34; ) # 실행 시: # LLM이 잘못된 URL 제공 → 404 오류 # → ModelRetry 발생 # → LLM에게 피드백 전달 # → LLM이 다른 URL로 재시도 결과 레벨 재시도: @agent.result_validator에서 ModelRetry 발생">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-02-14T13:20:00+09:00">
+    <meta property="article:modified_time" content="2026-02-14T13:20:00+09:00">
+    <meta property="article:tag" content="PydanticAI">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T13:20:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p><strong>시리즈</strong>: 05. Agent 실행 흐름 설계 — 3/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>검증 실패 시 자동 재시도 메커니즘은 Pydantic-AI의 핵심 오류 처리 전략이다. 도구 레벨과 결과 레벨의 재시도를 통합적으로 이해한다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-오류-처리의-두-계층">1. 오류 처리의 두 계층</h3>
+<p>Pydantic-AI는 오류를 처리하는 두 가지 계층을 제공한다.</p>
+<p><strong>도구 레벨 재시도</strong>: 도구 함수 내에서 <code>ModelRetry</code> 발생</p>
+<p>도구 실행 중 문제가 발생하면 도구 함수 안에서 <code>ModelRetry</code>를 발생시킬 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, RunContext, ModelRetry
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> httpx
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_url</span>(ctx: RunContext, url: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;웹 페이지 내용 가져오기&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient() <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>            response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> client<span style="color:#f92672">.</span>get(url, timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> response<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">404</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;URL </span><span style="color:#e6db74">{</span>url<span style="color:#e6db74">}</span><span style="color:#e6db74">을 찾을 수 없습니다 (404). &#34;</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 URL을 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>                )
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> httpx<span style="color:#f92672">.</span>TimeoutException:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>url<span style="color:#e6db74">}</span><span style="color:#e6db74"> 응답이 너무 느립니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 URL을 시도하거나 나중에 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 시:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM이 잘못된 URL 제공 → 404 오류</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → ModelRetry 발생</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → LLM에게 피드백 전달</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → LLM이 다른 URL로 재시도</span>
+</span></span></code></pre></div><p><strong>결과 레벨 재시도</strong>: <code>@agent.result_validator</code>에서 <code>ModelRetry</code> 발생</p>
+<p>최종 결과 검증 시점에서도 재시도를 요청할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, Field
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookingRequest</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    hotel_name: str
+</span></span><span style="display:flex;"><span>    check_in: str
+</span></span><span style="display:flex;"><span>    check_out: str
+</span></span><span style="display:flex;"><span>    guests: int <span style="color:#f92672">=</span> Field(ge<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>BookingRequest)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.result_validator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">validate_booking</span>(ctx: RunContext, result: BookingRequest) <span style="color:#f92672">-&gt;</span> BookingRequest:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;예약 정보 검증&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">from</span> datetime <span style="color:#f92672">import</span> datetime
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    check_in <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>fromisoformat(result<span style="color:#f92672">.</span>check_in)
+</span></span><span style="display:flex;"><span>    check_out <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>fromisoformat(result<span style="color:#f92672">.</span>check_out)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> check_in <span style="color:#f92672">&gt;=</span> check_out:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;체크인 날짜가 체크아웃 날짜와 같거나 늦습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;check_in &lt; check_out 조건을 만족하도록 수정하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (check_out <span style="color:#f92672">-</span> check_in)<span style="color:#f92672">.</span>days <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">30</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;숙박 기간이 30일을 초과합니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;더 짧은 기간으로 조정하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span></code></pre></div><p><strong>각 계층의 역할과 차이점</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>계층</th>
+          <th>발생 시점</th>
+          <th>목적</th>
+          <th>예시</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>도구 레벨</strong></td>
+          <td>도구 함수 실행 중</td>
+          <td>도구 입력값이 잘못되었거나 외부 API 오류</td>
+          <td>존재하지 않는 URL, API 타임아웃</td>
+      </tr>
+      <tr>
+          <td><strong>결과 레벨</strong></td>
+          <td>최종 결과 생성 후</td>
+          <td>비즈니스 로직 검증 실패</td>
+          <td>날짜 범위 오류, 할당량 초과</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="2-도구-실행-중-재시도">2. 도구 실행 중 재시도</h3>
+<p><strong>도구 함수에서 <code>raise ModelRetry(&quot;수정 요청 메시지&quot;)</code></strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_discount</span>(
+</span></span><span style="display:flex;"><span>    ctx: RunContext,
+</span></span><span style="display:flex;"><span>    original_price: float,
+</span></span><span style="display:flex;"><span>    discount_percent: float
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> float:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;할인가 계산&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> discount_percent <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">or</span> discount_percent <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">100</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;할인율은 0~100 사이여야 합니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;현재 값: </span><span style="color:#e6db74">{</span>discount_percent<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> original_price <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;원가는 0보다 커야 합니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;현재 값: </span><span style="color:#e6db74">{</span>original_price<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> original_price <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> discount_percent <span style="color:#f92672">/</span> <span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 예시:</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;10,000원 상품에 150% 할인 적용&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [1차 시도]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM: calculate_discount(10000, 150)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → ModelRetry(&#34;할인율은 0~100 사이여야 합니다. 현재 값: 150&#34;)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [2차 시도]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM이 피드백 받고 수정</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM: calculate_discount(10000, 15)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → 성공: 8500.0</span>
+</span></span></code></pre></div><p><strong>LLM에게 전달되는 오류 피드백</strong></p>
+<p><code>ModelRetry</code>의 메시지는 대화 기록에 추가되어 LLM이 볼 수 있다:</p>
+<pre tabindex="0"><code>[대화 기록]
+
+User: &#34;10,000원 상품에 150% 할인 적용&#34;
+Assistant (tool call): calculate_discount(10000, 150)
+
+Tool Error: &#34;할인율은 0~100 사이여야 합니다. 현재 값: 150&#34;
+
+Assistant (tool call): calculate_discount(10000, 15)
+
+Tool Success: 8500.0
+Assistant (final): &#34;10,000원 상품에 15% 할인을 적용하면 8,500원입니다.&#34;
+</code></pre><p><strong><code>retries</code> 파라미터로 도구별 재시도 횟수 제한</strong></p>
+<p>각 도구마다 재시도 횟수를 제한할 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Tool
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>(retries<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)  <span style="color:#75715e"># 이 도구는 최대 3번까지 재시도</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">risky_api_call</span>(ctx: RunContext, endpoint: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;불안정한 API 호출&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> api_client<span style="color:#f92672">.</span>get(endpoint)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> APIError <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;API 오류 발생. 재시도 중... (</span><span style="color:#e6db74">{</span>ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#e6db74">}</span><span style="color:#e6db74">/3)&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># 최대 재시도 횟수에 도달하면 다른 전략 제안</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;API가 계속 실패합니다. &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;다른 엔드포인트를 시도하거나 나중에 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span></code></pre></div><p>전역 재시도 설정:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    retries<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,  <span style="color:#75715e"># 모든 도구의 기본 재시도 횟수</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 특정 도구만 재시도 횟수 오버라이드</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>(retries<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)  <span style="color:#75715e"># 이 도구는 10번까지</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">critical_tool</span>(ctx: RunContext) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;중요한 작업 - 더 많은 재시도 허용&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div><hr>
+<h3 id="3-결과-검증-실패와-재시도">3. 결과 검증 실패와 재시도</h3>
+<p><strong><code>@agent.result_validator</code>에서의 검증 로직</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> datetime <span style="color:#f92672">import</span> datetime, timedelta
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EventPlan</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    event_name: str
+</span></span><span style="display:flex;"><span>    start_date: str
+</span></span><span style="display:flex;"><span>    end_date: str
+</span></span><span style="display:flex;"><span>    location: str
+</span></span><span style="display:flex;"><span>    max_attendees: int <span style="color:#f92672">=</span> Field(gt<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>EventPlan)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.result_validator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">validate_event</span>(ctx: RunContext, result: EventPlan) <span style="color:#f92672">-&gt;</span> EventPlan:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;이벤트 계획 검증&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    start <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>fromisoformat(result<span style="color:#f92672">.</span>start_date)
+</span></span><span style="display:flex;"><span>    end <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>fromisoformat(result<span style="color:#f92672">.</span>end_date)
+</span></span><span style="display:flex;"><span>    now <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>now()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 과거 날짜 검증</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> start <span style="color:#f92672">&lt;</span> now:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;이벤트 시작일이 과거입니다 (시작: </span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>start_date<span style="color:#e6db74">}</span><span style="color:#e6db74">). &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;오늘(</span><span style="color:#e6db74">{</span>now<span style="color:#f92672">.</span>date()<span style="color:#e6db74">}</span><span style="color:#e6db74">) 이후의 날짜로 설정하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 기간 검증</span>
+</span></span><span style="display:flex;"><span>    duration <span style="color:#f92672">=</span> (end <span style="color:#f92672">-</span> start)<span style="color:#f92672">.</span>days
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> duration <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;이벤트 종료일이 시작일보다 앞서거나 같습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;최소 1일 이상의 기간을 설정하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> duration <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">14</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;이벤트 기간이 </span><span style="color:#e6db74">{</span>duration<span style="color:#e6db74">}</span><span style="color:#e6db74">일로 너무 깁니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;최대 14일 이내로 조정하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 참석자 수 검증</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> result<span style="color:#f92672">.</span>max_attendees <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1000</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;최대 참석자 수(</span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>max_attendees<span style="color:#e6db74">}</span><span style="color:#e6db74">명)가 너무 많습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;1000명 이하로 설정하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span></code></pre></div><p><strong>검증 실패 메시지가 LLM에게 전달되는 방식</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 실행 예시</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;내일부터 20일간 2000명 참석 가능한 컨퍼런스 계획&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [1차 시도]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM 응답: {</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;event_name&#34;: &#34;Tech Conference&#34;,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;start_date&#34;: &#34;2026-02-15&#34;,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;end_date&#34;: &#34;2026-03-07&#34;,  # 20일 기간</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;location&#34;: &#34;Seoul&#34;,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;max_attendees&#34;: 2000</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># }</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Result Validator:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → duration = 20일 &gt; 14일 ✗</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → max_attendees = 2000 &gt; 1000 ✗</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → ModelRetry(&#34;이벤트 기간이 20일로 너무 깁니다...&#34;)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [2차 시도]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># LLM이 피드백 받고 수정:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># {</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;event_name&#34;: &#34;Tech Conference&#34;,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;start_date&#34;: &#34;2026-02-15&#34;,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;end_date&#34;: &#34;2026-02-25&#34;,  # 10일로 조정</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;location&#34;: &#34;Seoul&#34;,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   &#34;max_attendees&#34;: 800  # 1000명 이하로 조정</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># }</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># → 검증 통과 ✓</span>
+</span></span></code></pre></div><p><strong><code>result_retries</code>로 결과 검증 재시도 횟수 제한</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    result_type<span style="color:#f92672">=</span>EventPlan,
+</span></span><span style="display:flex;"><span>    result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,  <span style="color:#75715e"># 결과 검증 재시도 최대 5회</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행 시 오버라이드</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;이벤트 계획 생성&#34;</span>,
+</span></span><span style="display:flex;"><span>    result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>,  <span style="color:#75715e"># 이번 실행만 3회로 제한</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><hr>
+<h3 id="4-재시도-전략-설계">4. 재시도 전략 설계</h3>
+<p><strong>명확한 피드백 메시지 작성법</strong></p>
+<p>❌ <strong>나쁜 예</strong>: 모호한 메시지</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">raise</span> ModelRetry(<span style="color:#e6db74">&#34;날짜가 잘못되었습니다.&#34;</span>)
+</span></span></code></pre></div><p>✅ <strong>좋은 예</strong>: 구체적인 지시</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;체크인 날짜(</span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>check_in<span style="color:#e6db74">}</span><span style="color:#e6db74">)가 체크아웃 날짜(</span><span style="color:#e6db74">{</span>result<span style="color:#f92672">.</span>check_out<span style="color:#e6db74">}</span><span style="color:#e6db74">)보다 늦습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;체크인을 체크아웃보다 앞선 날짜로 변경하거나, &#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;체크아웃을 체크인보다 뒤의 날짜로 변경하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p><strong>점진적 힌트 제공 (1차 실패: 일반적 → 2차 실패: 구체적)</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@agent.result_validator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">validate_with_hints</span>(ctx: RunContext, result: QueryResult) <span style="color:#f92672">-&gt;</span> QueryResult:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;재시도 횟수에 따라 힌트 강도 증가&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> result<span style="color:#f92672">.</span>query_valid:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># 1차 실패: 일반적인 힌트</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;쿼리 형식이 올바르지 않습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;SQL 문법을 확인하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># 2차 실패: 더 구체적인 힌트</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;SELECT, FROM, WHERE 절의 순서와 문법을 확인하세요. &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;예시: SELECT * FROM users WHERE age &gt; 18&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># 3차 이상 실패: 매우 구체적인 예시</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;다음 형식을 따르세요:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;SELECT [컬럼명] FROM [테이블명] WHERE [조건]</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;현재 쿼리: </span><span style="color:#e6db74">{result.query}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;오류 부분: WHERE 절의 비교 연산자를 확인하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span></code></pre></div><p><strong><code>ctx.retry</code> 값을 활용한 단계별 대응</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_data_with_fallback</span>(ctx: RunContext, source: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;재시도 횟수에 따라 전략 변경&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 1차 시도: 빠른 API</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">await</span> fast_api<span style="color:#f92672">.</span>get(source)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span> APIError:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;빠른 API가 실패했습니다. 재시도 중...&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 2차 시도: 느리지만 안정적인 API</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">await</span> stable_api<span style="color:#f92672">.</span>get(source)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span> APIError:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;메인 API가 모두 실패했습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;캐시된 데이터를 사용합니다...&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 3차 이상: 캐시 사용</span>
+</span></span><span style="display:flex;"><span>        cached <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> cache<span style="color:#f92672">.</span>get(source)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cached:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[캐시됨] </span><span style="color:#e6db74">{</span>cached<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;모든 데이터 소스가 실패했습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;다른 source 값을 시도하거나 나중에 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span></code></pre></div><hr>
+<h3 id="5-재시도-한계-초과-시-처리">5. 재시도 한계 초과 시 처리</h3>
+<p><strong><code>UnexpectedModelBehavior</code> 예외</strong></p>
+<p>재시도 횟수를 초과하면 <code>UnexpectedModelBehavior</code> 예외가 발생한다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai.exceptions <span style="color:#f92672">import</span> UnexpectedModelBehavior
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>,
+</span></span><span style="display:flex;"><span>    result_type<span style="color:#f92672">=</span>StrictModel,
+</span></span><span style="display:flex;"><span>    result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>,
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;작업 수행&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">except</span> UnexpectedModelBehavior <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;검증 실패 (3회 재시도 후): </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;마지막 시도 메시지: </span><span style="color:#e6db74">{</span>e<span style="color:#f92672">.</span>message<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p><strong>Fallback 전략 설계</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">run_with_fallback</span>(prompt: str) <span style="color:#f92672">-&gt;</span> dict:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;재시도 실패 시 안전한 기본값 반환&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(prompt, result_retries<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>dict()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> UnexpectedModelBehavior:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Fallback 1: 더 간단한 모델로 재시도</span>
+</span></span><span style="display:flex;"><span>        simple_agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-3.5-turbo&#39;</span>, result_type<span style="color:#f92672">=</span>SimpleModel)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>            result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> simple_agent<span style="color:#f92672">.</span>run(prompt)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>dict()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span> UnexpectedModelBehavior:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># Fallback 2: 기본값 반환</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;failed&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;AI 처리 실패, 기본값 사용&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;data&#34;</span>: DEFAULT_VALUE
+</span></span><span style="display:flex;"><span>            }
+</span></span></code></pre></div><p><strong>부분 결과 활용 패턴</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PartialResult</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    name: str
+</span></span><span style="display:flex;"><span>    age: Optional[int] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    email: Optional[str] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    processed: bool <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>agent <span style="color:#f92672">=</span> Agent(<span style="color:#e6db74">&#39;openai:gpt-4&#39;</span>, result_type<span style="color:#f92672">=</span>PartialResult)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.result_validator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">validate_partial</span>(ctx: RunContext, result: PartialResult) <span style="color:#f92672">-&gt;</span> PartialResult:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;필수 필드만 검증, 선택 필드는 허용&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> result<span style="color:#f92672">.</span>name:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(<span style="color:#e6db74">&#34;name 필드는 필수입니다.&#34;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># email이 있으면 검증, 없으면 무시</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> result<span style="color:#f92672">.</span>email <span style="color:#f92672">and</span> <span style="color:#e6db74">&#34;@&#34;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> result<span style="color:#f92672">.</span>email:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(<span style="color:#e6db74">&#34;email 형식이 올바르지 않습니다.&#34;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    result<span style="color:#f92672">.</span>processed <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 실행: 부분 정보만 있어도 통과</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;홍길동의 기본 정보&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># {&#34;name&#34;: &#34;홍길동&#34;, &#34;age&#34;: null, &#34;email&#34;: null, &#34;processed&#34;: true}</span>
+</span></span></code></pre></div><hr>
+<h3 id="6-에러-처리-모범-사례">6. 에러 처리 모범 사례</h3>
+<p><strong>예측 가능한 실패에 대한 사전 방어</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">divide_numbers</span>(ctx: RunContext, a: float, b: float) <span style="color:#f92672">-&gt;</span> float:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;나눗셈 (0으로 나누기 방어)&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> b <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;0으로 나눌 수 없습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;b 값을 0이 아닌 숫자로 변경하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> a <span style="color:#f92672">/</span> b
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fetch_user</span>(ctx: RunContext, user_id: int) <span style="color:#f92672">-&gt;</span> dict:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;사용자 조회 (범위 검증)&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> user_id <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">or</span> user_id <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">999999</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;user_id (</span><span style="color:#e6db74">{</span>user_id<span style="color:#e6db74">}</span><span style="color:#e6db74">)가 유효 범위(1~999999)를 벗어났습니다.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> db<span style="color:#f92672">.</span>get_user(user_id)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> user <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;user_id </span><span style="color:#e6db74">{</span>user_id<span style="color:#e6db74">}</span><span style="color:#e6db74">를 찾을 수 없습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 user_id를 시도하거나 &#39;list_users&#39; 도구로 목록을 확인하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> user
+</span></span></code></pre></div><p><strong>도구 내부의 try-except와 <code>ModelRetry</code>의 조합</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">robust_api_call</span>(ctx: RunContext, endpoint: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;견고한 API 호출 (여러 예외 처리)&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">with</span> httpx<span style="color:#f92672">.</span>AsyncClient(timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">as</span> client:
+</span></span><span style="display:flex;"><span>            response <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> client<span style="color:#f92672">.</span>get(endpoint)
+</span></span><span style="display:flex;"><span>            response<span style="color:#f92672">.</span>raise_for_status()
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> response<span style="color:#f92672">.</span>text
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> httpx<span style="color:#f92672">.</span>TimeoutException:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>endpoint<span style="color:#e6db74">}</span><span style="color:#e6db74">의 응답이 10초를 초과했습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;더 빠른 엔드포인트를 시도하거나 나중에 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> httpx<span style="color:#f92672">.</span>HTTPStatusError <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> e<span style="color:#f92672">.</span>response<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">404</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>endpoint<span style="color:#e6db74">}</span><span style="color:#e6db74">를 찾을 수 없습니다 (404). &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;URL을 확인하거나 다른 엔드포인트를 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> e<span style="color:#f92672">.</span>response<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">403</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>endpoint<span style="color:#e6db74">}</span><span style="color:#e6db74"> 접근이 거부되었습니다 (403). &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;인증이 필요한지 확인하거나 공개 엔드포인트를 사용하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;API 오류 발생 (HTTP </span><span style="color:#e6db74">{</span>e<span style="color:#f92672">.</span>response<span style="color:#f92672">.</span>status_code<span style="color:#e6db74">}</span><span style="color:#e6db74">). &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 엔드포인트를 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> httpx<span style="color:#f92672">.</span>NetworkError:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>endpoint<span style="color:#e6db74">}</span><span style="color:#e6db74">에 네트워크 연결을 할 수 없습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;URL이 올바른지 확인하거나 나중에 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 예상치 못한 오류: 로깅 후 ModelRetry</span>
+</span></span><span style="display:flex;"><span>        logger<span style="color:#f92672">.</span>error(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Unexpected error in robust_api_call: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;예상치 못한 오류가 발생했습니다: </span><span style="color:#e6db74">{</span>type(e)<span style="color:#f92672">.</span>__name__<span style="color:#e6db74">}</span><span style="color:#e6db74">. &#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 파라미터로 다시 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span></code></pre></div><p><strong>로깅과 알림을 통한 반복 실패 모니터링</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> logging
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> defaultdict
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>logger <span style="color:#f92672">=</span> logging<span style="color:#f92672">.</span>getLogger(__name__)
+</span></span><span style="display:flex;"><span>failure_counts <span style="color:#f92672">=</span> defaultdict(int)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@agent.tool</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">monitored_tool</span>(ctx: RunContext, task: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;반복 실패 모니터링&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    tool_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;monitored_tool&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> perform_task(task)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 성공 시 실패 카운트 리셋</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> failure_counts[tool_name] <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>tool_name<span style="color:#e6db74">}</span><span style="color:#e6db74"> 복구됨 (이전 실패 </span><span style="color:#e6db74">{</span>failure_counts[tool_name]<span style="color:#e6db74">}</span><span style="color:#e6db74">회)&#34;</span>)
+</span></span><span style="display:flex;"><span>            failure_counts[tool_name] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> TaskError <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        failure_counts[tool_name] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 로그 기록</span>
+</span></span><span style="display:flex;"><span>        logger<span style="color:#f92672">.</span>warning(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>tool_name<span style="color:#e6db74">}</span><span style="color:#e6db74"> 실패 #</span><span style="color:#e6db74">{</span>failure_counts[tool_name]<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>            extra<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;retry&#34;</span>: ctx<span style="color:#f92672">.</span>retry, <span style="color:#e6db74">&#34;task&#34;</span>: task}
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 반복 실패 시 알림</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> failure_counts[tool_name] <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">5</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">await</span> send_alert(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;경고: </span><span style="color:#e6db74">{</span>tool_name<span style="color:#e6db74">}</span><span style="color:#e6db74">이 </span><span style="color:#e6db74">{</span>failure_counts[tool_name]<span style="color:#e6db74">}</span><span style="color:#e6db74">회 연속 실패 중&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># LLM에게 피드백</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ctx<span style="color:#f92672">.</span>retry <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>task<span style="color:#e6db74">}</span><span style="color:#e6db74"> 작업이 실패했습니다. &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;다른 방식으로 시도하세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> ModelRetry(
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>task<span style="color:#e6db74">}</span><span style="color:#e6db74"> 작업이 계속 실패합니다 (</span><span style="color:#e6db74">{</span>failure_counts[tool_name]<span style="color:#e6db74">}</span><span style="color:#e6db74">회). &#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;완전히 다른 접근 방식을 사용하거나 이 작업을 건너뛰세요.&#34;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send_alert</span>(message: str):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;모니터링 시스템에 알림 전송&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Slack, PagerDuty, 이메일 등으로 알림</span>
+</span></span><span style="display:flex;"><span>    logger<span style="color:#f92672">.</span>critical(message)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># await slack_client.send_message(channel=&#34;#alerts&#34;, text=message)</span>
+</span></span></code></pre></div><hr>
+<h2 id="마무리">마무리</h2>
+<p>Pydantic-AI의 재시도 메커니즘은:</p>
+<ol>
+<li><strong>두 계층 방어</strong>: 도구 레벨 + 결과 레벨</li>
+<li><strong>자동 피드백</strong>: <code>ModelRetry</code> 메시지를 LLM에게 전달</li>
+<li><strong>유연한 전략</strong>: <code>ctx.retry</code>로 단계별 대응 가능</li>
+<li><strong>안전한 한계</strong>: 재시도 횟수 제한으로 무한 루프 방지</li>
+</ol>
+<p>명확한 오류 메시지와 단계적 힌트 제공이 성공적인 재시도의 핵심이다.</p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/pydanticai/" rel="tag">PydanticAI</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/agents/05_1_run-loop/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-registry/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

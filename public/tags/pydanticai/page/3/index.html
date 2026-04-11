@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>PydanticAI - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/tags/pydanticai/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="PydanticAI">
+  <meta property="og:description" content="deliciouscat의 개발 블로그">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="website">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+	<link rel="alternate" type="application/rss+xml" href="/tags/pydanticai/index.xml" title="잡부를 지향합니다.">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main list" role="main">
+	<header class="main__header">
+		<h1 class="main__title">PydanticAI</h1>
+	</header><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/03_5_usage-limits/" rel="bookmark">
+			Pydantic-AI 03-5: 사용량 추적과 제한 (Usage &amp; Limits)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T11:40:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 5/5</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>프로덕션 환경에서 Agent의 비용과 호출 횟수를 제어하는 것은 필수이다. <code>Usage</code>와 <code>UsageLimits</code>를 통한 사용량 추적 및 제한 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-왜-사용량-제한이-필요한가">1. 왜 사용량 제한이 필요한가?</h3>
+<ul>
+<li>무한 루프 도구 호출의 위험</li>
+<li>API 비용 폭증 시나리오</li>
+<li>프로덕션 안전장치의 필요성</li>
+</ul>
+<h3 id="2-usage-객체-이해하기">2. <code>Usage</code> 객체 이해하기</h3>
+<ul>
+<li><code>RunResult.usage()</code> — 실행 후 사용량 확인</li>
+<li>요청 토큰(request_tokens), 응답 토큰(response_tokens)</li>
+<li>총 토큰과 요청 횟수 추적</li>
+</ul>
+<h3 id="3-usagelimits-설정하기">3. <code>UsageLimits</code> 설정하기</h3>
+<ul>
+<li><code>agent.run(prompt, usage_limits=UsageLimits(...))</code></li>
+<li><code>request_limit</code> — 최대 모델 요청 횟수</li>
+<li><code>request_tokens_limit</code> — 최대 요청 토큰 수</li>
+<li><code>response_tokens_limit</code> — 최대 응답 토큰 수</li>
+<li><code>total_tokens_limit</code> — 총 토큰 제한</li>
+</ul>
+<h3 id="4-제한-초과-시-동작">4. 제한 초과 시 동작</h3>
+<ul>
+<li><code>UsageLimitExceeded</code> 예외 처리</li>
+<li>제한 초과 전 마지막 유효 결과 활용</li>
+</ul>
+<h3 id="5-사용량-모니터링-패턴">5. 사용량 모니터링 패턴</h3>
+<ul>
+<li>여러 실행에 걸친 누적 사용량 추적</li>
+<li>사용자별 / 세션별 사용량 관리</li>
+<li>대시보드 연동을 위한 로깅</li>
+</ul>
+<h3 id="6-비용-최적화-전략">6. 비용 최적화 전략</h3>
+<ul>
+<li>모델별 토큰 비용 비교</li>
+<li>적절한 제한값 설정 가이드라인</li>
+<li>캐싱을 통한 중복 호출 방지</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/03_4_context-engineering/" rel="bookmark">
+			Pydantic-AI 03-4: 컨텍스트 엔지니어링 (Context Engineering)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T11:30:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 4/5</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>컨텍스트 엔지니어링은 의존성, 프롬프트, 도구 결과를 효과적으로 조합하여 Agent에게 최적의 컨텍스트를 제공하는 설계 기법이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-컨텍스트-엔지니어링이란">1. 컨텍스트 엔지니어링이란?</h3>
+<ul>
+<li>프롬프트 엔지니어링을 넘어서는 개념</li>
+<li>Agent에게 전달되는 컨텍스트의 구성 요소</li>
+<li>&ldquo;LLM은 입력이 전부다&rdquo; — 컨텍스트의 중요성</li>
+</ul>
+<h3 id="2-컨텍스트의-세-가지-원천">2. 컨텍스트의 세 가지 원천</h3>
+<ul>
+<li><strong>System Prompt</strong>: Agent의 역할과 제약 정의</li>
+<li><strong>Dependencies</strong>: 실행 시점의 외부 상태 주입</li>
+<li><strong>Tool Results</strong>: 도구 실행 결과로 얻는 동적 정보</li>
+</ul>
+<h3 id="3-의존성을-통한-컨텍스트-주입">3. 의존성을 통한 컨텍스트 주입</h3>
+<ul>
+<li><code>DepsType</code>으로 사용자 정보, 설정 등 전달</li>
+<li>동적 system prompt에서 의존성 활용</li>
+<li>도구 함수에서 의존성으로 외부 상태 접근</li>
+</ul>
+<h3 id="4-도구-반환값-설계">4. 도구 반환값 설계</h3>
+<ul>
+<li>LLM이 이해하기 쉬운 도구 결과 포매팅</li>
+<li>구조화된 문자열 vs JSON 문자열 반환</li>
+<li>에러 상황에서의 도구 반환값 설계</li>
+</ul>
+<h3 id="5-토큰-예산-관리">5. 토큰 예산 관리</h3>
+<ul>
+<li>컨텍스트 윈도우 크기와 비용의 상관관계</li>
+<li>필요한 정보만 선별하여 전달하는 전략</li>
+<li>긴 도구 결과의 요약/압축</li>
+</ul>
+<h3 id="6-설계-원칙">6. 설계 원칙</h3>
+<ul>
+<li>최소 충분 컨텍스트(Minimum Sufficient Context)</li>
+<li>관련성 순위에 따른 정보 배치</li>
+<li>실행 시점에 따른 컨텍스트 동적 구성</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/03_2_dynamic-prompt/" rel="bookmark">
+			Pydantic-AI 03-2: Agent 행동 제어하기 (Dynamic System Prompt)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T11:10:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 2/5</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>@agent.system_prompt</code> 데코레이터를 사용하면 실행 시점의 컨텍스트에 따라 system prompt를 동적으로 생성할 수 있다. LangChain의 미들웨어 대신 Pydantic-AI는 이 패턴으로 Agent 행동을 제어한다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-정적-vs-동적-system-prompt">1. 정적 vs 동적 System Prompt</h3>
+<ul>
+<li><code>instructions</code> 파라미터로 전달하는 정적 프롬프트</li>
+<li><code>@agent.system_prompt</code>로 만드는 동적 프롬프트</li>
+<li>두 방식의 결합: 정적 + 동적 프롬프트 체이닝</li>
+</ul>
+<h3 id="2-agentsystem_prompt-데코레이터">2. <code>@agent.system_prompt</code> 데코레이터</h3>
+<ul>
+<li>데코레이터 함수의 시그니처</li>
+<li>반환값이 system prompt에 추가되는 방식</li>
+<li>여러 개의 system prompt 함수 등록하기</li>
+</ul>
+<h3 id="3-의존성-기반-동적-프롬프트">3. 의존성 기반 동적 프롬프트</h3>
+<ul>
+<li><code>RunContext[DepsType]</code>를 활용한 컨텍스트 인식 프롬프트</li>
+<li>사용자 정보, 시간대, 권한 등에 따른 프롬프트 분기</li>
+<li>비동기 system prompt 함수</li>
+</ul>
+<h3 id="4-프롬프트-설계-패턴">4. 프롬프트 설계 패턴</h3>
+<ul>
+<li>역할(Role) 기반 프롬프트</li>
+<li>제약 조건(Constraints) 명시</li>
+<li>출력 형식(Format) 가이드</li>
+</ul>
+<h3 id="5-실전-예제">5. 실전 예제</h3>
+<ul>
+<li>사용자 권한에 따라 다르게 동작하는 Agent</li>
+<li>시간대별 인사말이 바뀌는 Agent</li>
+<li>A/B 테스트를 위한 프롬프트 분기</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/03_1_streaming/" rel="bookmark">
+			Pydantic-AI 03-1: Agent의 사고 과정 듣기 (Streaming)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T11:00:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 1/5</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>agent.run_stream()</code>을 사용하면 Agent의 응답을 실시간으로 스트리밍할 수 있다. 사용자 경험 개선과 긴 응답 처리에 필수적인 패턴을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-스트리밍이-필요한-이유">1. 스트리밍이 필요한 이유</h3>
+<ul>
+<li>사용자 대기 시간 체감 감소</li>
+<li>긴 응답의 점진적 렌더링</li>
+<li>토큰 단위 출력의 원리</li>
+</ul>
+<h3 id="2-agentrun_stream-기본-사용법">2. <code>agent.run_stream()</code> 기본 사용법</h3>
+<ul>
+<li><code>async with agent.run_stream(prompt) as result:</code> 패턴</li>
+<li><code>StreamedRunResult</code> 객체의 구조</li>
+</ul>
+<h3 id="3-텍스트-스트리밍">3. 텍스트 스트리밍</h3>
+<ul>
+<li><code>result.stream_text()</code> — 텍스트 청크 순회</li>
+<li><code>delta=True</code> 옵션으로 증분 텍스트만 수신</li>
+<li><code>result.stream()</code> — 전체 응답 메시지 스트리밍</li>
+</ul>
+<h3 id="4-구조화된-결과-스트리밍">4. 구조화된 결과 스트리밍</h3>
+<ul>
+<li><code>result_type</code>이 지정된 경우의 스트리밍 동작</li>
+<li>부분 검증(partial validation)의 한계와 대응</li>
+</ul>
+<h3 id="5-스트리밍-중-도구-호출-처리">5. 스트리밍 중 도구 호출 처리</h3>
+<ul>
+<li>스트리밍 도중 도구가 호출되는 흐름</li>
+<li>도구 실행 후 스트리밍이 재개되는 과정</li>
+</ul>
+<h3 id="6-실전-통합-예제">6. 실전 통합 예제</h3>
+<ul>
+<li>FastAPI/Starlette SSE 엔드포인트와 연동</li>
+<li>터미널에서 실시간 출력 구현</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/02_4_message-history/" rel="bookmark">
+			Pydantic-AI 02-4: Agent에게 대화 기억시키기 (Message History)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T10:50:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 02. Agent에게 도구 쥐어주기 — 4/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI는 별도의 체크포인트 시스템 없이, <code>message_history</code> 파라미터를 통해 대화 맥락을 유지한다. 이전 대화를 기반으로 연속적인 상호작용을 구현하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-대화-맥락의-필요성">1. 대화 맥락의 필요성</h3>
+<ul>
+<li>단일 실행(stateless) Agent의 한계</li>
+<li>멀티턴 대화의 기본 구조</li>
+</ul>
+<h3 id="2-message_history-파라미터">2. <code>message_history</code> 파라미터</h3>
+<ul>
+<li><code>agent.run(prompt, message_history=messages)</code> 사용법</li>
+<li><code>RunResult.all_messages()</code>로 대화 이력 추출</li>
+<li>이전 실행 결과를 다음 실행에 전달하기</li>
+</ul>
+<h3 id="3-메시지-타입-복습">3. 메시지 타입 복습</h3>
+<ul>
+<li><code>ModelRequest</code> / <code>ModelResponse</code> 구조 (01-3 참조)</li>
+<li>도구 호출 이력이 포함된 메시지 체인</li>
+</ul>
+<h3 id="4-대화-이력-관리-전략">4. 대화 이력 관리 전략</h3>
+<ul>
+<li>토큰 제한을 고려한 이력 트리밍</li>
+<li>요약 기반 압축 패턴</li>
+<li>최근 N턴만 유지하는 슬라이딩 윈도우</li>
+</ul>
+<h3 id="5-대화-이력-직렬화">5. 대화 이력 직렬화</h3>
+<ul>
+<li>메시지 객체의 JSON 직렬화/역직렬화</li>
+<li>데이터베이스에 대화 이력 저장하기</li>
+<li><code>model_dump()</code> / <code>model_validate()</code> 활용</li>
+</ul>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<ul>
+<li>멀티턴 챗봇 구현</li>
+<li>이전 대화 맥락을 활용한 후속 질문 처리</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/02_2_tool-schema/" rel="bookmark">
+			Pydantic-AI 02-2: Agent에게 사용설명서 제공하기 (Tool Schema)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T10:30:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 02. Agent에게 도구 쥐어주기 — 2/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI는 함수 시그니처와 docstring을 기반으로 도구의 JSON 스키마를 자동 생성한다. 이 스키마가 LLM이 도구를 이해하고 올바르게 호출하는 &ldquo;사용설명서&rdquo; 역할을 한다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-스키마-자동-생성-원리">1. 스키마 자동 생성 원리</h3>
+<ul>
+<li>함수 시그니처 → JSON Schema 변환 과정</li>
+<li><code>Annotated</code> 타입 힌트의 활용</li>
+<li>Pydantic-AI가 읽는 정보: 파라미터명, 타입, 기본값, docstring</li>
+</ul>
+<h3 id="2-docstring의-역할">2. docstring의 역할</h3>
+<ul>
+<li>Google 스타일 docstring 작성법</li>
+<li><code>Args:</code> 섹션이 파라미터 설명으로 변환되는 과정</li>
+<li>함수 설명(첫 줄)이 도구 설명이 되는 규칙</li>
+</ul>
+<h3 id="3-타입-힌트를-통한-스키마-제어">3. 타입 힌트를 통한 스키마 제어</h3>
+<ul>
+<li><code>Literal</code> — 선택지 제한</li>
+<li><code>Optional</code> / <code>Union</code> — 선택적 파라미터</li>
+<li><code>Annotated[int, Field(ge=0, le=100)]</code> — 값 범위 제약</li>
+</ul>
+<h3 id="4-agenttool-vs-agenttool_plain">4. <code>@agent.tool</code> vs <code>@agent.tool_plain</code></h3>
+<ul>
+<li><code>tool</code>: <code>RunContext</code>를 첫 번째 인자로 받음</li>
+<li><code>tool_plain</code>: 컨텍스트 없이 순수 함수로 동작</li>
+<li>언제 어떤 것을 선택해야 하는가</li>
+</ul>
+<h3 id="5-커스텀-스키마-오버라이드">5. 커스텀 스키마 오버라이드</h3>
+<ul>
+<li><code>Tool()</code> 객체를 직접 생성하여 세밀한 제어</li>
+<li>파라미터 이름 변경, 설명 커스텀</li>
+</ul>
+<h3 id="6-좋은-도구-스키마-설계-원칙">6. 좋은 도구 스키마 설계 원칙</h3>
+<ul>
+<li>LLM이 이해하기 쉬운 파라미터 네이밍</li>
+<li>명확한 반환값 설명의 중요성</li>
+<li>과도한 파라미터 vs 적절한 추상화</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/01_1_agent/" rel="bookmark">
+			Pydantic-AI 01-1: Agent 정의와 생성
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T10:00:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 01. Agent의 기본 구조 — 1/3</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>Agent</code> 클래스는 Pydantic-AI의 핵심 진입점이다. 이 글에서는 Agent를 정의하고 생성하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-agent-클래스란">1. Agent 클래스란?</h3>
+<ul>
+<li>Pydantic-AI에서 Agent의 역할과 위치</li>
+<li>LangChain의 AgentExecutor와의 차이점</li>
+</ul>
+<h3 id="2-agent-생성-기본">2. Agent 생성 기본</h3>
+<ul>
+<li><code>Agent()</code> 생성자의 주요 매개변수</li>
+<li><code>model</code> 설정: 문자열 기반 모델 지정 (<code>&quot;openai:gpt-4&quot;</code>, <code>&quot;google/gemini-2.5-flash&quot;</code> 등)</li>
+<li><code>instructions</code> (system prompt) 작성법</li>
+</ul>
+<h3 id="3-system-prompt-설계">3. System Prompt 설계</h3>
+<ul>
+<li>정적 system prompt: 문자열 직접 전달</li>
+<li>동적 system prompt: <code>@agent.system_prompt</code> 데코레이터 (미리보기)</li>
+<li>효과적인 system prompt 작성 가이드라인</li>
+</ul>
+<h3 id="4-모델-설정과-교체">4. 모델 설정과 교체</h3>
+<ul>
+<li>지원 모델 목록 (OpenAI, Anthropic, Google, Groq 등)</li>
+<li><code>model</code> 파라미터의 문자열 형식 이해</li>
+<li>환경변수 기반 API 키 관리</li>
+</ul>
+<h3 id="5-agent-실행-방법">5. Agent 실행 방법</h3>
+<ul>
+<li><code>agent.run()</code> — 비동기 실행</li>
+<li><code>agent.run_sync()</code> — 동기 실행</li>
+<li><code>RunResult</code> 객체의 구조</li>
+</ul>
+<h3 id="6-첫-번째-agent-만들기">6. 첫 번째 Agent 만들기</h3>
+<ul>
+<li>최소 코드로 Agent 생성 및 실행</li>
+<li>응답 확인과 기본 동작 이해</li>
+</ul>
+	</div>
+</article>
+</main>
+
+<div class="pagination">
+	<a class="pagination__item pagination__item--prev btn" href="/tags/pydanticai/page/2/">«</a>
+	<span class="pagination__item pagination__item--current">3/3</span>
+</div>
+
+			</div>
+			
+<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/02_3_run-context/">Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

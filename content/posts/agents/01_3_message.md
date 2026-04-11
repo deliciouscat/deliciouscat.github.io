@@ -8,7 +8,7 @@ tags: ["PydanticAI"]
 
 Pydantic-AI에서는 모델에서 처리되었는가/외부에서 입력받았는가를 기준으로 `Request`와 `Response`로 구분한다.
 
-**ModelRequest**: 모델에 보내는 것 (system, user, tool return)
+**ModelRequest**: 모델에 보내는 것 (system, user, tool return)  
 **ModelResponse**: 모델이 보낸 것 (텍스트, tool call)
 
 ```py
