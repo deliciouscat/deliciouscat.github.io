@@ -6,27 +6,48 @@
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 08 Apr 2026 18:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 08 Apr 2026 19:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Registry</title>
-      <link>http://localhost:1313/tags/registry/</link>
-      <pubDate>Wed, 08 Apr 2026 18:00:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/registry/</guid>
+      <title>Dependency Injection</title>
+      <link>http://localhost:1313/tags/dependency-injection/</link>
+      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/dependency-injection/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DI</title>
+      <link>http://localhost:1313/tags/di/</link>
+      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/di/</guid>
       <description></description>
     </item>
     <item>
       <title>Vibe Coding</title>
       <link>http://localhost:1313/tags/vibe-coding/</link>
-      <pubDate>Wed, 08 Apr 2026 18:00:00 +0900</pubDate>
+      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/vibe-coding/</guid>
       <description></description>
     </item>
     <item>
       <title>디자인패턴</title>
       <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
-      <pubDate>Wed, 08 Apr 2026 18:00:00 +0900</pubDate>
+      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>의존성주입</title>
+      <link>http://localhost:1313/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/</link>
+      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Registry</title>
+      <link>http://localhost:1313/tags/registry/</link>
+      <pubDate>Wed, 08 Apr 2026 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/registry/</guid>
       <description></description>
     </item>
     <item>

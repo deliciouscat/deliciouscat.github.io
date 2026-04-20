@@ -5,6 +5,11 @@ draft: false
 categories: ["Computer Science"]
 tags: ["디자인패턴", "Vibe Coding", "의존성주입", "DI", "Dependency Injection"]
 ---
+# 의존성이란?
+의존성 = "이게 없으면 나도 못 돌아가는 것"  
+의존성 관리 = "그 '없으면 안 되는 것'이 바뀔 때 나한테 얼마나 퍼지냐를 제어하는 것"  
+-> 의존 대상이 바뀔 때 얼마나 많은 곳을 수정해야 하냐가 설계 품질의 척도
+
 
 # Dependency Injection Pattern (의존성 주입 패턴)
 
@@ -368,3 +373,100 @@ class OrderService:
    - Consumer → `UserService`
    - Dependency → `FakeDatabase`, `FakeMailer`
    - Provider → 테스트 함수 (`test_create_user_sends_welcome_email`)
+
+
+# 비유와 실전 코드 예시
+
+## 주방 비유
+
+### 의존성이란?
+
+셰프는 **칼 없이는 일을 못 해**.
+→ 셰프는 칼에 의존한다.
+
+---
+
+### 나쁜 의존성 관리
+
+```
+셰프가 직접 제철소에서 강철 구해서 칼을 만든다
+```
+
+칼 재질이 바뀌면? 셰프가 다시 제철소 가야 함.  
+칼을 테스트용 고무칼로 바꾸고 싶어도? 셰프 손을 거쳐야 함.  
+셰프가 칼 **만드는 법**까지 알아야 하는 게 문제.
+
+---
+
+### 추상화 (뭘 받을지)
+
+```
+셰프는 "잘 드는 칼"이면 뭐든 상관없다고 선언한다
+```
+
+```python
+def cook(self, knife: 날카로운칼):  # 인터페이스
+    ...
+```
+
+일제 칼이든, 독일 칼이든, 세라믹 칼이든 — 셰프는 몰라도 됨.  
+**"잘 드는 칼"이라는 추상에만 의존.**
+
+---
+
+### 조립 (누가 만들어서 언제 넣을지)
+
+```
+주방장(IoC 컨테이너)이 매일 아침 칼을 갈아서 셰프 자리에 올려놓는다
+```
+
+- 점심 서비스엔 → 야채용 칼
+- 저녁 서비스엔 → 고기용 칼
+- 위생검사 날엔 → 검사용 칼 (테스트 환경)
+
+셰프는 **자기 자리에 칼이 있다는 것만 알면 됨.** 누가 갈았는지, 어디서 왔는지 몰라도 됨.
+
+---
+
+### 전체 그림
+
+```
+셰프        =  비즈니스 로직 (Domain)
+칼          =  의존성
+"잘 드는 칼" =  인터페이스 (추상)
+일제/독일 칼 =  구체 구현체
+주방장      =  IoC 컨테이너
+칼 올려놓기 =  DI (의존성 주입)
+```
+
+셰프가 잘 하는 일은 **요리**야.  
+칼을 만들고, 고르고, 관리하는 건 셰프 일이 아님  
+그걸 셰프한테서 떼어내는 게 의존성 관리의 목적
+
+## 실제 코드
+
+### 전체 그림
+
+**이 프로젝트에 대응하면 대략 이렇게 보면 된다.**
+
+| 비유 | 이 코드베이스에서 |
+|------|-------------------|
+| 셰프 | `application/interactors`의 유스케이스 (`RegisterUserInteractor`, `LoginUserInteractor` …) |
+| “잘 드는 칼” | `application/interfaces`의 포트 (`TransactionManager`, `UserRepository`, `SessionRepository` …) |
+| 실제 칼 | `infrastructure`의 구현체·어댑터 (예: `TransactionManagerImpl`, DB 리포지토리 구현) |
+| 주방장 | Dishka `AsyncContainer` — `main/ioc/main.py`의 `create_container()` |
+| 아침에 칼 올려놓기 | `Provider`들이 `@provide` / `provide(...)`로 “타입 → 만드는 법”을 등록하는 것 (`DatabaseProvider`, `RepositoryProvider`, `InteractorProvider` …) |
+| 서비스 시간대별 칼 | `Scope.APP` vs `Scope.REQUEST` (앱 전체 1개 vs 요청마다 1개 — 예: `async_sessionmaker`는 APP, `AsyncSession`은 REQUEST) |
+
+**한 줄 흐름 예시**
+
+- 라우터는 **`LoginUserInteractor`만** 알면 되고,  
+- 인터랙터는 **`UserRepository`·`TransactionManager` 같은 인터페이스**만 알면 되며,  
+- **어떤 구현체를 어떤 설정으로 만들지**는 `main/ioc/providers`의 Provider들이 맡는다.  
+- `main/app.py`에서 `setup_dishka(container, app)`으로 그 “주방장”을 FastAPI 요청 파이프라인에 붙인다.
+
+---
+
+셰프가 잘 하는 일은 **요리**야.  
+칼을 만들고, 고르고, 관리하는 건 셰프 일이 아니야.  
+그걸 셰프한테서 떼어내는 게 의존성 관리의 목적이야.

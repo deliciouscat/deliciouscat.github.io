@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dependency Injection on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/dependency-injection/</link>
+    <description>Recent content in Dependency Injection on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 08 Apr 2026 19:00:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/dependency-injection/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-dependency-injection/</link>
+      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-dependency-injection/</guid>
+      <description>&lt;h1 id=&#34;의존성이란&#34;&gt;의존성이란?&lt;/h1&gt;&#xA;&lt;p&gt;의존성 = &amp;ldquo;이게 없으면 나도 못 돌아가는 것&amp;rdquo;&lt;br&gt;&#xA;의존성 관리 = &amp;ldquo;그 &amp;lsquo;없으면 안 되는 것&amp;rsquo;이 바뀔 때 나한테 얼마나 퍼지냐를 제어하는 것&amp;rdquo;&lt;br&gt;&#xA;-&amp;gt; 의존 대상이 바뀔 때 얼마나 많은 곳을 수정해야 하냐가 설계 품질의 척도&lt;/p&gt;&#xA;&lt;h2 id=&#34;쉐프가-주방-보조에게&#34;&gt;쉐프가 주방 보조에게&lt;/h2&gt;&#xA;&lt;h1 id=&#34;dependency-injection-pattern-의존성-주입-패턴&#34;&gt;Dependency Injection Pattern (의존성 주입 패턴)&lt;/h1&gt;&#xA;&lt;p&gt;Dependency Injection(의존성 주입, DI)은 &lt;strong&gt;객체가 자신이 필요한 의존성을 직접 생성하지 않고, 외부에서 주입(inject)받는&lt;/strong&gt; 디자인 패턴이다.&#xA;&amp;ldquo;의존성을 스스로 만들지 말고, 누군가가 가져다줄 때까지 기다려라.&amp;rdquo;&lt;/p&gt;&#xA;&lt;p&gt;예를 들어:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

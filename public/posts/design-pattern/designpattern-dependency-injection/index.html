@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-dependency-injection/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)">
+  <meta property="og:description" content="의존성이란? 의존성 = “이게 없으면 나도 못 돌아가는 것”
+의존성 관리 = “그 ‘없으면 안 되는 것’이 바뀔 때 나한테 얼마나 퍼지냐를 제어하는 것”
+-&gt; 의존 대상이 바뀔 때 얼마나 많은 곳을 수정해야 하냐가 설계 품질의 척도
+Dependency Injection Pattern (의존성 주입 패턴) Dependency Injection(의존성 주입, DI)은 객체가 자신이 필요한 의존성을 직접 생성하지 않고, 외부에서 주입(inject)받는 디자인 패턴이다. “의존성을 스스로 만들지 말고, 누군가가 가져다줄 때까지 기다려라.”
+예를 들어:
+# DI 없이: 의존성을 스스로 만든다 class OrderService: def __init__(self): self.db = MySQLDatabase() # 직접 생성 ← 문제 # DI 적용: 의존성을 주입받는다 class OrderService: def __init__(self, db): # 외부에서 받는다 ← 해결 self.db = db # 호출 측에서 의존성을 결정하고 주입 db = MySQLDatabase() service = OrderService(db) → OrderService는 MySQLDatabase가 뭔지 알 필요가 없다. 인터페이스만 알면 된다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-04-08T19:00:00+09:00">
+    <meta property="article:modified_time" content="2026-04-08T19:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="의존성주입">
+    <meta property="article:tag" content="DI">
+    <meta property="article:tag" content="Dependency Injection">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-04-08T19:00:00&#43;09:00">April 08, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="의존성이란">의존성이란?</h1>
+<p>의존성 = &ldquo;이게 없으면 나도 못 돌아가는 것&rdquo;<br>
+의존성 관리 = &ldquo;그 &lsquo;없으면 안 되는 것&rsquo;이 바뀔 때 나한테 얼마나 퍼지냐를 제어하는 것&rdquo;<br>
+-&gt; 의존 대상이 바뀔 때 얼마나 많은 곳을 수정해야 하냐가 설계 품질의 척도</p>
+<h1 id="dependency-injection-pattern-의존성-주입-패턴">Dependency Injection Pattern (의존성 주입 패턴)</h1>
+<p>Dependency Injection(의존성 주입, DI)은 <strong>객체가 자신이 필요한 의존성을 직접 생성하지 않고, 외부에서 주입(inject)받는</strong> 디자인 패턴이다.
+&ldquo;의존성을 스스로 만들지 말고, 누군가가 가져다줄 때까지 기다려라.&rdquo;</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># DI 없이: 의존성을 스스로 만든다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> MySQLDatabase()   <span style="color:#75715e"># 직접 생성 ← 문제</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># DI 적용: 의존성을 주입받는다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, db):         <span style="color:#75715e"># 외부에서 받는다 ← 해결</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> db
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 호출 측에서 의존성을 결정하고 주입</span>
+</span></span><span style="display:flex;"><span>db <span style="color:#f92672">=</span> MySQLDatabase()
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> OrderService(db)
+</span></span></code></pre></div><p>→ <code>OrderService</code>는 <code>MySQLDatabase</code>가 뭔지 알 필요가 없다. <strong>인터페이스만 알면 된다.</strong></p>
+<h2 id="문제-의존성을-직접-만드는-코드">문제: 의존성을 직접 만드는 코드</h2>
+<p>의존성을 클래스 내부에서 직접 생성하면 코드가 강하게 결합(tightly coupled)된다.</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> PostgreSQLDatabase(    <span style="color:#75715e"># 구체 클래스에 직접 의존</span>
+</span></span><span style="display:flex;"><span>            host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>,
+</span></span><span style="display:flex;"><span>            port<span style="color:#f92672">=</span><span style="color:#ae81ff">5432</span>,
+</span></span><span style="display:flex;"><span>            password<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;secret&#34;</span>           <span style="color:#75715e"># 설정 값까지 내부에 박혀 있음</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>mailer <span style="color:#f92672">=</span> SMTPMailer(
+</span></span><span style="display:flex;"><span>            host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;smtp.gmail.com&#34;</span>,
+</span></span><span style="display:flex;"><span>            port<span style="color:#f92672">=</span><span style="color:#ae81ff">587</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger <span style="color:#f92672">=</span> FileLogger(<span style="color:#e6db74">&#34;/var/log/app.log&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_user</span>(self, email, password):
+</span></span><span style="display:flex;"><span>        user <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>db<span style="color:#f92672">.</span>insert(<span style="color:#e6db74">&#34;users&#34;</span>, {<span style="color:#e6db74">&#34;email&#34;</span>: email, <span style="color:#e6db74">&#34;password&#34;</span>: password})
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>mailer<span style="color:#f92672">.</span>send(email, <span style="color:#e6db74">&#34;환영합니다!&#34;</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger<span style="color:#f92672">.</span>log(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;유저 생성: </span><span style="color:#e6db74">{</span>email<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> user
+</span></span></code></pre></div><p>위 코드의 문제점:</p>
+<ol>
+<li><code>UserService</code>가 <code>PostgreSQLDatabase</code>, <code>SMTPMailer</code>, <code>FileLogger</code>의 생성 방법까지 알아야 한다.</li>
+<li>DB를 <code>MySQL</code>로 바꾸려면 <code>UserService</code>를 직접 수정해야 한다.</li>
+<li>테스트 시 실제 DB/메일 서버가 없으면 테스트 자체가 불가능하다.</li>
+<li>설정값(호스트, 비밀번호 등)이 비즈니스 로직 안에 섞여 있다.</li>
+</ol>
+<p><strong>DI를 적용한 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, db, mailer, logger):   <span style="color:#75715e"># 의존성을 모두 주입받는다</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> db
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>mailer <span style="color:#f92672">=</span> mailer
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger <span style="color:#f92672">=</span> logger
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_user</span>(self, email, password):
+</span></span><span style="display:flex;"><span>        user <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>db<span style="color:#f92672">.</span>insert(<span style="color:#e6db74">&#34;users&#34;</span>, {<span style="color:#e6db74">&#34;email&#34;</span>: email, <span style="color:#e6db74">&#34;password&#34;</span>: password})
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>mailer<span style="color:#f92672">.</span>send(email, <span style="color:#e6db74">&#34;환영합니다!&#34;</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger<span style="color:#f92672">.</span>log(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;유저 생성: </span><span style="color:#e6db74">{</span>email<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 호출 측에서 조립</span>
+</span></span><span style="display:flex;"><span>db <span style="color:#f92672">=</span> PostgreSQLDatabase(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">5432</span>, password<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;secret&#34;</span>)
+</span></span><span style="display:flex;"><span>mailer <span style="color:#f92672">=</span> SMTPMailer(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;smtp.gmail.com&#34;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">587</span>)
+</span></span><span style="display:flex;"><span>logger <span style="color:#f92672">=</span> FileLogger(<span style="color:#e6db74">&#34;/var/log/app.log&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> UserService(db, mailer, logger)
+</span></span></code></pre></div><p><code>UserService</code>는 이제 인터페이스만 알면 된다. DB가 바뀌어도, 메일러가 바뀌어도 <code>UserService</code> 코드는 손댈 필요가 없다.</p>
+<h2 id="의존성-역전-원칙-dip과의-관계">의존성 역전 원칙 (DIP)과의 관계</h2>
+<p>DI는 <strong>의존성 역전 원칙(Dependency Inversion Principle; DIP)을 실현하는 수단</strong>이다.</p>
+<ul>
+<li>DIP: &ldquo;고수준 모듈은 저수준 모듈에 의존하면 안 된다. 둘 다 추상화에 의존해야 한다.&rdquo; (원칙)</li>
+<li>DI: &ldquo;의존성을 외부에서 주입해라.&rdquo; (구현 기법)</li>
+</ul>
+<p><strong>DIP만 선언하고 DI 없이 구현한 예 (반쪽짜리):</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Database</span>:         <span style="color:#75715e"># 추상화를 만들었지만</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">insert</span>(self, table, data): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> PostgreSQLDatabase()  <span style="color:#75715e"># 여전히 스스로 생성 ← DIP 위반</span>
+</span></span></code></pre></div><p><strong>DIP + DI를 함께 적용한 예 (완성형):</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> abc <span style="color:#f92672">import</span> ABC, abstractmethod
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Database</span>(ABC):            <span style="color:#75715e"># 추상화 (인터페이스)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">insert</span>(self, table, data): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostgreSQLDatabase</span>(Database):     <span style="color:#75715e"># 저수준 모듈</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">insert</span>(self, table, data):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;PostgreSQL: </span><span style="color:#e6db74">{</span>table<span style="color:#e6db74">}</span><span style="color:#e6db74"> ← </span><span style="color:#e6db74">{</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MySQLDatabase</span>(Database):          <span style="color:#75715e"># 저수준 모듈</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">insert</span>(self, table, data):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;MySQL: </span><span style="color:#e6db74">{</span>table<span style="color:#e6db74">}</span><span style="color:#e6db74"> ← </span><span style="color:#e6db74">{</span>data<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserService</span>:                      <span style="color:#75715e"># 고수준 모듈</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, db: Database):   <span style="color:#75715e"># 추상화에만 의존 + 외부에서 주입</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> db
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_user</span>(self, email):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>db<span style="color:#f92672">.</span>insert(<span style="color:#e6db74">&#34;users&#34;</span>, {<span style="color:#e6db74">&#34;email&#34;</span>: email})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 주입 시점에서 구체 클래스 결정</span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> UserService(PostgreSQLDatabase())
+</span></span><span style="display:flex;"><span>service2 <span style="color:#f92672">=</span> UserService(MySQLDatabase())
+</span></span></code></pre></div><h2 id="주입-방식-세-가지">주입 방식 세 가지</h2>
+<h3 id="1-생성자-주입-constructor-injection--가장-권장">1. 생성자 주입 (Constructor Injection) — 가장 권장</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReportService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, fetcher, formatter, exporter):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>fetcher <span style="color:#f92672">=</span> fetcher
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>formatter <span style="color:#f92672">=</span> formatter
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>exporter <span style="color:#f92672">=</span> exporter
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate</span>(self, report_id):
+</span></span><span style="display:flex;"><span>        data <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>fetcher<span style="color:#f92672">.</span>fetch(report_id)
+</span></span><span style="display:flex;"><span>        formatted <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>formatter<span style="color:#f92672">.</span>format(data)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>exporter<span style="color:#f92672">.</span>export(formatted)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> ReportService(
+</span></span><span style="display:flex;"><span>    fetcher<span style="color:#f92672">=</span>ApiDataFetcher(),
+</span></span><span style="display:flex;"><span>    formatter<span style="color:#f92672">=</span>PdfFormatter(),
+</span></span><span style="display:flex;"><span>    exporter<span style="color:#f92672">=</span>S3Exporter()
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>→ 객체 생성 시점에 모든 의존성이 확정된다. 불변 객체를 만들 수 있고, 의존성 누락이 컴파일/생성 시점에 드러난다.</p>
+<h3 id="2-세터-주입-setter-injection--선택적-의존성에-사용">2. 세터 주입 (Setter Injection) — 선택적 의존성에 사용</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EmailService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, smtp):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>smtp <span style="color:#f92672">=</span> smtp
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>          <span style="color:#75715e"># 선택적 의존성</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_logger</span>(self, logger):   <span style="color:#75715e"># 필요할 때만 주입</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger <span style="color:#f92672">=</span> logger
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send</span>(self, to, body):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>logger:
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>logger<span style="color:#f92672">.</span>log(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Sending to </span><span style="color:#e6db74">{</span>to<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>smtp<span style="color:#f92672">.</span>send(to, body)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> EmailService(SMTPClient())
+</span></span><span style="display:flex;"><span>service<span style="color:#f92672">.</span>set_logger(FileLogger())    <span style="color:#75715e"># 로거는 선택 사항</span>
+</span></span></code></pre></div><p>→ 필수가 아닌 의존성에 사용한다. 단, 주입 전에 메서드를 호출하면 <code>None</code> 에러가 날 수 있으므로 주의.</p>
+<h3 id="3-인터페이스-주입-interface-injection--python에선-드물게-사용">3. 인터페이스 주입 (Interface Injection) — Python에선 드물게 사용</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Injectable</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inject_logger</span>(self, logger): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentService</span>(Injectable):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inject_logger</span>(self, logger):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger <span style="color:#f92672">=</span> logger
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger<span style="color:#f92672">.</span>log(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Payment: </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 프레임워크가 inject_logger를 자동 호출하는 구조</span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> PaymentService()
+</span></span><span style="display:flex;"><span>service<span style="color:#f92672">.</span>inject_logger(ConsoleLogger())
+</span></span></code></pre></div><p>→ Python에선 덕 타이핑이 가능해서 이 방식은 잘 쓰지 않는다. Java 같은 언어에서 주로 활용된다.</p>
+<h2 id="di-컨테이너-ioc-container">DI 컨테이너 (IoC Container)</h2>
+<p>객체가 많아지면 주입 코드가 반복된다. <strong>DI 컨테이너</strong>는 이 조립 과정을 자동화한다.</p>
+<p><strong>컨테이너 없이 직접 조립하면:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 의존성 트리를 손으로 다 조립해야 한다</span>
+</span></span><span style="display:flex;"><span>db <span style="color:#f92672">=</span> PostgreSQLDatabase(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>)
+</span></span><span style="display:flex;"><span>cache <span style="color:#f92672">=</span> RedisCache(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;redis-server&#34;</span>)
+</span></span><span style="display:flex;"><span>repo <span style="color:#f92672">=</span> UserRepository(db, cache)
+</span></span><span style="display:flex;"><span>mailer <span style="color:#f92672">=</span> SMTPMailer(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;smtp.gmail.com&#34;</span>)
+</span></span><span style="display:flex;"><span>logger <span style="color:#f92672">=</span> FileLogger(<span style="color:#e6db74">&#34;/var/log/app.log&#34;</span>)
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> UserService(repo, mailer, logger)   <span style="color:#75715e"># 점점 길어진다...</span>
+</span></span></code></pre></div><p><strong>간단한 DI 컨테이너 직접 구현:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Container</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_bindings <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_singletons <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">bind</span>(self, abstract, factory):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;매 요청마다 새 인스턴스&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_bindings[abstract] <span style="color:#f92672">=</span> factory
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">singleton</span>(self, abstract, factory):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;처음 한 번만 생성하고 이후엔 재사용&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_bindings[abstract] <span style="color:#f92672">=</span> factory
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_singletons[abstract] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">make</span>(self, abstract):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> abstract <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_singletons:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>_singletons[abstract] <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                self<span style="color:#f92672">.</span>_singletons[abstract] <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>_bindings[abstract](self)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_singletons[abstract]
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_bindings[abstract](self)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 등록</span>
+</span></span><span style="display:flex;"><span>container <span style="color:#f92672">=</span> Container()
+</span></span><span style="display:flex;"><span>container<span style="color:#f92672">.</span>singleton(<span style="color:#e6db74">&#34;db&#34;</span>, <span style="color:#66d9ef">lambda</span> c: PostgreSQLDatabase(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;localhost&#34;</span>))
+</span></span><span style="display:flex;"><span>container<span style="color:#f92672">.</span>singleton(<span style="color:#e6db74">&#34;cache&#34;</span>, <span style="color:#66d9ef">lambda</span> c: RedisCache(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;redis-server&#34;</span>))
+</span></span><span style="display:flex;"><span>container<span style="color:#f92672">.</span>bind(<span style="color:#e6db74">&#34;user_repo&#34;</span>, <span style="color:#66d9ef">lambda</span> c: UserRepository(c<span style="color:#f92672">.</span>make(<span style="color:#e6db74">&#34;db&#34;</span>), c<span style="color:#f92672">.</span>make(<span style="color:#e6db74">&#34;cache&#34;</span>)))
+</span></span><span style="display:flex;"><span>container<span style="color:#f92672">.</span>bind(<span style="color:#e6db74">&#34;user_service&#34;</span>, <span style="color:#66d9ef">lambda</span> c: UserService(c<span style="color:#f92672">.</span>make(<span style="color:#e6db74">&#34;user_repo&#34;</span>)))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 사용: 조립을 컨테이너가 알아서 처리</span>
+</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> container<span style="color:#f92672">.</span>make(<span style="color:#e6db74">&#34;user_service&#34;</span>)
+</span></span></code></pre></div><p>→ 컨테이너를 한 번 설정해두면, <code>make(&quot;user_service&quot;)</code> 한 줄로 복잡한 의존성 트리가 자동으로 조립된다.</p>
+<h2 id="테스트에서의-위력">테스트에서의 위력</h2>
+<p>DI의 진가는 <strong>테스트</strong>에서 드러난다. 실제 DB나 외부 API 없이 비즈니스 로직만 검증할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 테스트용 Mock 객체</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FakeDatabase</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>data <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">insert</span>(self, table, row):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>setdefault(table, [])<span style="color:#f92672">.</span>append(row)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> row
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">find</span>(self, table, id):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> next((r <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>data<span style="color:#f92672">.</span>get(table, []) <span style="color:#66d9ef">if</span> r[<span style="color:#e6db74">&#34;id&#34;</span>] <span style="color:#f92672">==</span> id), <span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FakeMailer</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>sent <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send</span>(self, to, body):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>sent<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;to&#34;</span>: to, <span style="color:#e6db74">&#34;body&#34;</span>: body})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 테스트: 실제 DB/메일 서버 없이 완전한 격리 가능</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test_create_user_sends_welcome_email</span>():
+</span></span><span style="display:flex;"><span>    db <span style="color:#f92672">=</span> FakeDatabase()
+</span></span><span style="display:flex;"><span>    mailer <span style="color:#f92672">=</span> FakeMailer()
+</span></span><span style="display:flex;"><span>    service <span style="color:#f92672">=</span> UserService(db<span style="color:#f92672">=</span>db, mailer<span style="color:#f92672">=</span>mailer, logger<span style="color:#f92672">=</span>FakeLogger())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    service<span style="color:#f92672">.</span>create_user(<span style="color:#e6db74">&#34;alice@example.com&#34;</span>, <span style="color:#e6db74">&#34;password123&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> len(mailer<span style="color:#f92672">.</span>sent) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> mailer<span style="color:#f92672">.</span>sent[<span style="color:#ae81ff">0</span>][<span style="color:#e6db74">&#34;to&#34;</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;alice@example.com&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> <span style="color:#e6db74">&#34;환영&#34;</span> <span style="color:#f92672">in</span> mailer<span style="color:#f92672">.</span>sent[<span style="color:#ae81ff">0</span>][<span style="color:#e6db74">&#34;body&#34;</span>]
+</span></span></code></pre></div><p>DI 없이 <code>UserService</code> 내부에서 <code>SMTPMailer()</code>를 직접 생성한다면, 이 테스트는 SMTP 서버 없이 실행조차 안 된다.</p>
+<h2 id="registry-pattern과의-차이">Registry Pattern과의 차이</h2>
+<p><a href="../designpattern-registry/">레지스트리 패턴</a>도 의존성 문제를 다루지만, 방식이 다르다.</p>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>Dependency Injection</th>
+          <th>Registry Pattern</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>의존성 취득 방법</strong></td>
+          <td>외부에서 주입받는다 (수동적)</td>
+          <td>레지스트리에 물어본다 (능동적)</td>
+      </tr>
+      <tr>
+          <td><strong>클라이언트 코드</strong></td>
+          <td>의존성이 누군지 모른다</td>
+          <td>레지스트리에 키를 넣고 꺼낸다</td>
+      </tr>
+      <tr>
+          <td><strong>결합도</strong></td>
+          <td>매우 낮음</td>
+          <td>레지스트리에는 의존</td>
+      </tr>
+      <tr>
+          <td><strong>테스트 격리</strong></td>
+          <td>주입만 바꾸면 됨</td>
+          <td>레지스트리 상태를 초기화해야 함</td>
+      </tr>
+      <tr>
+          <td><strong>주요 사용처</strong></td>
+          <td>서비스 계층, 비즈니스 로직</td>
+          <td>플러그인, 핸들러 동적 등록</td>
+      </tr>
+  </tbody>
+</table>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Registry 방식: 클라이언트가 직접 조회</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(self, order):
+</span></span><span style="display:flex;"><span>        handler <span style="color:#f92672">=</span> HandlerRegistry<span style="color:#f92672">.</span>get(order<span style="color:#f92672">.</span>type)  <span style="color:#75715e"># 능동적으로 꺼냄</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> handler<span style="color:#f92672">.</span>handle(order)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># DI 방식: 클라이언트는 그냥 받아서 씀</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, handler):    <span style="color:#75715e"># 수동적으로 주입받음</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>handler <span style="color:#f92672">=</span> handler
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(self, order):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>handler<span style="color:#f92672">.</span>handle(order)
+</span></span></code></pre></div><p>두 패턴은 <strong>함께 쓰이기도</strong> 한다. DI 컨테이너 내부에서 Registry를 활용해 동적 조회를 수행하고, 그 결과를 외부 객체에 주입하는 방식이다.</p>
+<h2 id="dependency-injection은-다음과-같은-상황에서-유용하다">Dependency Injection은 다음과 같은 상황에서 유용하다:</h2>
+<ol>
+<li>
+<p><strong>구현체를 교체해야 할 가능성이 있을 때</strong></p>
+<ul>
+<li>개발 환경 DB ↔ 프로덕션 DB</li>
+<li>실제 결제 모듈 ↔ 테스트용 결제 모듈</li>
+</ul>
+</li>
+<li>
+<p><strong>단위 테스트를 제대로 작성하고 싶을 때</strong></p>
+<ul>
+<li>외부 시스템(DB, API, 메일) 없이 비즈니스 로직만 검증</li>
+</ul>
+</li>
+<li>
+<p><strong>코드가 복잡해지고 클래스 간 결합도를 낮추고 싶을 때</strong></p>
+<ul>
+<li>클래스가 10개를 넘어가기 시작하면 DI 컨테이너 도입을 고려</li>
+</ul>
+</li>
+<li>
+<p><strong>프레임워크를 사용할 때 (대부분 이미 DI를 지원함)</strong></p>
+<ul>
+<li>FastAPI: <code>Depends()</code></li>
+<li>Spring: <code>@Autowired</code></li>
+<li>Angular: 생성자 주입 자동화</li>
+</ul>
+</li>
+</ol>
+<h2 id="장단점">장단점</h2>
+<h3 id="장점">장점</h3>
+<p>✅ <strong>테스트 용이성</strong>: 실제 의존성을 Mock으로 교체해서 완전한 단위 테스트 가능</p>
+<p>✅ <strong>느슨한 결합</strong>: 클래스가 구체 구현이 아닌 추상화에만 의존</p>
+<p>✅ <strong>유연한 교체</strong>: 설정 파일이나 환경 변수만 바꿔서 구현체 교체 가능</p>
+<p>✅ <strong>단일 책임 원칙 준수</strong>: 객체 생성 책임이 비즈니스 로직과 분리됨</p>
+<h3 id="단점">단점</h3>
+<p>❌ <strong>초기 설정 복잡도</strong>: 작은 프로젝트에선 오히려 코드가 늘어나는 느낌</p>
+<p>❌ <strong>런타임 에러 가능성</strong>: 주입이 누락되면 컴파일 타임이 아닌 런타임에 오류 발생</p>
+<p>❌ <strong>추적 어려움</strong>: IDE에서 &ldquo;이 인터페이스의 실제 구현체가 뭐야?&ldquo;를 찾기 번거로울 수 있음</p>
+<h2 id="용어-정리">용어 정리</h2>
+<p><strong>Dependency (의존성)</strong>: 어떤 클래스가 동작하기 위해 필요한 다른 객체<br>
+<strong>Injection (주입)</strong>: 의존성을 외부에서 전달하는 행위<br>
+<strong>Consumer (소비자)</strong>: 의존성을 주입받아 사용하는 클래스<br>
+<strong>Provider (제공자)</strong>: 의존성을 생성하고 공급하는 쪽 (컨테이너, 테스트 코드, 메인 함수 등)<br>
+<strong>IoC Container (IoC 컨테이너)</strong>: 의존성 등록과 조립을 자동화하는 객체</p>
+<ol>
+<li>
+<p>유저 서비스 예시:</p>
+<ul>
+<li>Consumer → <code>UserService</code></li>
+<li>Dependency → <code>Database</code>, <code>Mailer</code>, <code>Logger</code></li>
+<li>Provider → <code>container.make(&quot;user_service&quot;)</code></li>
+</ul>
+</li>
+<li>
+<p>테스트 예시:</p>
+<ul>
+<li>Consumer → <code>UserService</code></li>
+<li>Dependency → <code>FakeDatabase</code>, <code>FakeMailer</code></li>
+<li>Provider → 테스트 함수 (<code>test_create_user_sends_welcome_email</code>)</li>
+</ul>
+</li>
+</ol>
+<h1 id="비유와-실전-코드-예시">비유와 실전 코드 예시</h1>
+<h2 id="주방-비유">주방 비유</h2>
+<h3 id="의존성이란-1">의존성이란?</h3>
+<p>셰프는 <strong>칼 없이는 일을 못 해</strong>.
+→ 셰프는 칼에 의존한다.</p>
+<hr>
+<h3 id="나쁜-의존성-관리">나쁜 의존성 관리</h3>
+<pre tabindex="0"><code>셰프가 직접 제철소에서 강철 구해서 칼을 만든다
+</code></pre><p>칼 재질이 바뀌면? 셰프가 다시 제철소 가야 함.<br>
+칼을 테스트용 고무칼로 바꾸고 싶어도? 셰프 손을 거쳐야 함.<br>
+셰프가 칼 <strong>만드는 법</strong>까지 알아야 하는 게 문제.</p>
+<hr>
+<h3 id="추상화-뭘-받을지">추상화 (뭘 받을지)</h3>
+<pre tabindex="0"><code>셰프는 &#34;잘 드는 칼&#34;이면 뭐든 상관없다고 선언한다
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">cook</span>(self, knife: 날카로운칼):  <span style="color:#75715e"># 인터페이스</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span></code></pre></div><p>일제 칼이든, 독일 칼이든, 세라믹 칼이든 — 셰프는 몰라도 됨.<br>
+<strong>&ldquo;잘 드는 칼&quot;이라는 추상에만 의존.</strong></p>
+<hr>
+<h3 id="조립-누가-만들어서-언제-넣을지">조립 (누가 만들어서 언제 넣을지)</h3>
+<pre tabindex="0"><code>주방장(IoC 컨테이너)이 매일 아침 칼을 갈아서 셰프 자리에 올려놓는다
+</code></pre><ul>
+<li>점심 서비스엔 → 야채용 칼</li>
+<li>저녁 서비스엔 → 고기용 칼</li>
+<li>위생검사 날엔 → 검사용 칼 (테스트 환경)</li>
+</ul>
+<p>셰프는 <strong>자기 자리에 칼이 있다는 것만 알면 됨.</strong> 누가 갈았는지, 어디서 왔는지 몰라도 됨.</p>
+<hr>
+<h3 id="전체-그림">전체 그림</h3>
+<pre tabindex="0"><code>셰프        =  비즈니스 로직 (Domain)
+칼          =  의존성
+&#34;잘 드는 칼&#34; =  인터페이스 (추상)
+일제/독일 칼 =  구체 구현체
+주방장      =  IoC 컨테이너
+칼 올려놓기 =  DI (의존성 주입)
+</code></pre><p>셰프가 잘 하는 일은 <strong>요리</strong>야.<br>
+칼을 만들고, 고르고, 관리하는 건 셰프 일이 아님<br>
+그걸 셰프한테서 떼어내는 게 의존성 관리의 목적</p>
+<h2 id="실제-코드">실제 코드</h2>
+<h3 id="전체-그림-1">전체 그림</h3>
+<p><strong>이 프로젝트에 대응하면 대략 이렇게 보면 된다.</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>비유</th>
+          <th>이 코드베이스에서</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>셰프</td>
+          <td><code>application/interactors</code>의 유스케이스 (<code>RegisterUserInteractor</code>, <code>LoginUserInteractor</code> …)</td>
+      </tr>
+      <tr>
+          <td>“잘 드는 칼”</td>
+          <td><code>application/interfaces</code>의 포트 (<code>TransactionManager</code>, <code>UserRepository</code>, <code>SessionRepository</code> …)</td>
+      </tr>
+      <tr>
+          <td>실제 칼</td>
+          <td><code>infrastructure</code>의 구현체·어댑터 (예: <code>TransactionManagerImpl</code>, DB 리포지토리 구현)</td>
+      </tr>
+      <tr>
+          <td>주방장</td>
+          <td>Dishka <code>AsyncContainer</code> — <code>main/ioc/main.py</code>의 <code>create_container()</code></td>
+      </tr>
+      <tr>
+          <td>아침에 칼 올려놓기</td>
+          <td><code>Provider</code>들이 <code>@provide</code> / <code>provide(...)</code>로 “타입 → 만드는 법”을 등록하는 것 (<code>DatabaseProvider</code>, <code>RepositoryProvider</code>, <code>InteractorProvider</code> …)</td>
+      </tr>
+      <tr>
+          <td>서비스 시간대별 칼</td>
+          <td><code>Scope.APP</code> vs <code>Scope.REQUEST</code> (앱 전체 1개 vs 요청마다 1개 — 예: <code>async_sessionmaker</code>는 APP, <code>AsyncSession</code>은 REQUEST)</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>한 줄 흐름 예시</strong></p>
+<ul>
+<li>라우터는 <strong><code>LoginUserInteractor</code>만</strong> 알면 되고,</li>
+<li>인터랙터는 <strong><code>UserRepository</code>·<code>TransactionManager</code> 같은 인터페이스</strong>만 알면 되며,</li>
+<li><strong>어떤 구현체를 어떤 설정으로 만들지</strong>는 <code>main/ioc/providers</code>의 Provider들이 맡는다.</li>
+<li><code>main/app.py</code>에서 <code>setup_dishka(container, app)</code>으로 그 “주방장”을 FastAPI 요청 파이프라인에 붙인다.</li>
+</ul>
+<hr>
+<p>셰프가 잘 하는 일은 <strong>요리</strong>야.<br>
+칼을 만들고, 고르고, 관리하는 건 셰프 일이 아니야.<br>
+그걸 셰프한테서 떼어내는 게 의존성 관리의 목적이야.</p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" rel="tag">의존성주입</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/di/" rel="tag">DI</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/dependency-injection/" rel="tag">Dependency Injection</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-registry/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-dependency-injection/">Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/03_3_result-validator/">Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (7)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

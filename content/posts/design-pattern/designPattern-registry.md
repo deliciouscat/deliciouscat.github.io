@@ -5,6 +5,9 @@ draft: false
 categories: ["Computer Science"]
 tags: ["디자인패턴", "Vibe Coding", "레지스트리", "Registry"]
 ---
+## 사전지식
+- [데코레이터](https://www.youtube.com/watch?v=3t26Z4vk7XE&list=PL6R2CbVlhcYtnLsypcisMzDN344c1Conr)
+
 
 # Registry Pattern (레지스트리 패턴)
 
