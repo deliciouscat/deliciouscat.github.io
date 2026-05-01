@@ -102,8 +102,8 @@
 	</header>
 	<div class="content list__excerpt post__content clearfix">
 		<h1 id="strategy-pattern-전략-패턴">Strategy Pattern (전략 패턴)</h1>
-<p>Strategy Pattern은 <strong>알고리즘군을 정의하고 각각을 캡슐화하여 교환 가능하게 만드는</strong> 디자인 패턴이다.
-클라이언트는 알고리즘의 구체적인 구현과 독립적으로 <strong>런타임에 알고리즘을 선택</strong>할 수 있다.</p>
+<p>Strategy Pattern은 <strong>알고리즘군을 정의하고 각각을 캡슐화하여(-&gt; 전략을 여럿 두어) 교환 가능하게 만드는</strong> 디자인 패턴이다.
+클라이언트는 알고리즘의 구체적인 구현과 독립적으로 <strong>런타임에 알고리즘(전략)을 선택</strong>할 수 있다.</p>
 <p>예를 들어:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentStrategy</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">pass</span>

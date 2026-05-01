@@ -7,8 +7,8 @@ tags: ["디자인패턴", "전략패턴", "Strategy"]
 ---
 # Strategy Pattern (전략 패턴)
 
-Strategy Pattern은 **알고리즘군을 정의하고 각각을 캡슐화하여 교환 가능하게 만드는** 디자인 패턴이다.
-클라이언트는 알고리즘의 구체적인 구현과 독립적으로 **런타임에 알고리즘을 선택**할 수 있다.
+Strategy Pattern은 **알고리즘군을 정의하고 각각을 캡슐화하여(-> 전략을 여럿 두어) 교환 가능하게 만드는** 디자인 패턴이다.
+클라이언트는 알고리즘의 구체적인 구현과 독립적으로 **런타임에 알고리즘(전략)을 선택**할 수 있다.
 
 예를 들어:
 ```python
@@ -40,9 +40,7 @@ print(cart.checkout(200))  # Paid 200 with PayPal
 ```
 → `ShoppingCart`는 구체적인 결제 방식을 알 필요 없이, `PaymentStrategy` 인터페이스만 알면 된다.
 
-## 의존성 역전 원칙 (Dependency Inversion Principle; DIP)
-
-Strategy Pattern의 핵심은 **"구체적인 구현이 아닌 추상화에 의존"**하는 것이다.
+## Strategy Pattern의 추상화 방식
 
 **잘못된 예:**
 ```python
@@ -180,46 +178,6 @@ processor.set_strategy(QuickSort())  # 같은 객체로 전략만 변경
 result = processor.process([7, 2, 9])
 ```
 
-## Strategy Pattern의 재귀적 특성?
-
-Composite Pattern과 달리, Strategy Pattern은 **재귀적 구조를 가지지 않는다**. 대신:
-
-- **단일 책임**: 각 전략은 하나의 알고리즘만 구현
-- **수평적 관계**: 전략들은 계층 구조가 아닌 대등한 관계
-- **교환 가능성**: 같은 인터페이스를 구현하므로 서로 교체 가능
-
-```python
-# Strategy는 서로를 포함하지 않음 (재귀 X)
-class EncryptionStrategy:
-    def encrypt(self, text): pass
-
-class AES(EncryptionStrategy):
-    def encrypt(self, text): return f"AES({text})"
-
-class RSA(EncryptionStrategy):
-    def encrypt(self, text): return f"RSA({text})"
-
-# 전략들은 독립적이고 수평적
-strategies = [AES(), RSA()]  # 서로를 포함하지 않음
-```
-
-**단, 전략을 조합하는 패턴은 가능:**
-```python
-class CompositeStrategy(EncryptionStrategy):
-    def __init__(self, *strategies):
-        self.strategies = strategies
-    
-    def encrypt(self, text):
-        result = text
-        for strategy in self.strategies:
-            result = strategy.encrypt(result)
-        return result
-
-# 여러 전략을 순차적으로 적용
-multi_encrypt = CompositeStrategy(AES(), RSA())
-encrypted = multi_encrypt.encrypt("secret")  # RSA(AES(secret))
-```
-
 ## Strategy Pattern은 다음과 같은 상황에서 유용하다:
 
 1. **같은 작업을 다양한 방식으로 수행해야 할 때**
@@ -251,3 +209,78 @@ encrypted = multi_encrypt.encrypt("secret")  # RSA(AES(secret))
    - Strategy → CompressionStrategy
    - ConcreteStrategy → ZipStrategy, RarStrategy, LzmaStrategy
    - Context → DataCompressor
+
+
+  
+-----
+# 의문
+
+## DI 패턴하고 비슷한 면이 있는데?
+
+**두 패턴 모두:** 
+- 구체 클래스 대신 인터페이스/추상화에 의존한다
+- **DIP(의존성 역전 원칙)**를 실현하는 수단이다
+- 상속 대신 **구성(Composition)**을 쓴다
+- 구현체를 교체 가능하게 만든다
+
+### 핵심 차이
+## DI와 Strategy, 비슷한 면이 있는가?
+
+### 공통 뿌리 — DIP
+
+둘 다 같은 원칙에서 출발합니다.
+
+> "구체 클래스가 아닌 추상화(인터페이스)에 의존해라" — DIP
+
+그래서 코드 모양이 비슷합니다. 둘 다 인터페이스를 생성자로 받고, 구체 클래스는 외부에서 결정합니다.
+
+
+### 무엇이 다른가 — 질문 자체가 다르다
+
+| | Strategy | DI |
+|---|---|---|
+| **푸는 질문** | "어떤 알고리즘을 실행할 것인가?" | "이 의존성을 누가 만들 책임인가?" |
+| **핵심 관심사** | 행동(Behavior)의 유연한 교체 | 생성(Construction) 책임의 분리 |
+| **구체 타입을 누가 아는가** | 호출 측이 전략을 선택해서 넘김 | Provider(컨테이너)가 한 곳에서 결정 |
+| **런타임 교체** | 설계 의도에 포함됨 (`set_strategy`) | 필수가 아님 |
+
+*설계철학이 아닌 구체적인 구현 형태 차이로는 **런타임 교체** 부분이 핵심인 듯.*  
+*선택 로직이 Context 안에 포함되어 있을 때 DI와 차별화될듯?*
+
+### 관계 정리
+
+```
+Strategy ──┐
+           ├── DIP를 공통 뿌리로 공유
+DI ────────┘
+
+DI로 Strategy를 구현할 수 있다   (O)
+Strategy는 DI 없이도 성립한다    (O)
+DI는 Strategy의 일종이다         (X)
+Strategy는 DI의 일종이다         (X)
+```
+
+Strategy는 **"무엇을 실행할지"** 를 유연하게 만드는 패턴이고,  
+DI는 **"누가 만들어서 줄지"** 의 책임을 Consumer 밖으로 옮기는 패턴입니다.
+
+같은 원칙(DIP)을 서로 다른 문제에 적용한 것이라 닮아 보이지만, 답하려는 질문이 다릅니다.
+
+
+## 동적 교체가 없어도 유용한 경우(토의사항)
+단, 자동/동적이 아니어도 Strategy가 DI보다 적합한 경우가 있습니다.
+
+여러 구현체가 동등하게 공존하는 구조:
+```py
+# A/B 테스트 — 어느 게 "기본값"이 아님
+strategies = {
+    "group_a": RecommendByRecent(),
+    "group_b": RecommendByPopularity(),
+    "group_c": RecommendByML(),
+}
+feed = FeedService(strategies[user.ab_group])
+```
+파이프라인에서 교체 가능한 단계:
+```py
+compressor = DataCompressor(ZipStrategy())
+compressor.strategy = LzmaStrategy()  # 파일 크기 보고 런타임 교체
+```
