@@ -8,11 +8,35 @@
     <loc>http://localhost:1313/</loc>
     <lastmod>2099-10-14T12:55:00+09:00</lastmod>
   </url><url>
+    <loc>http://localhost:1313/tags/abstract-factory/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2026-04-08T19:00:00+09:00</lastmod>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/computer-science/</loc>
-    <lastmod>2026-04-08T19:00:00+09:00</lastmod>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/factory/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/vibe-coding/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/design-pattern/designpattern-abs-factory/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/</loc>
+    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/dependency-injection/</loc>
     <lastmod>2026-04-08T19:00:00+09:00</lastmod>
@@ -20,16 +44,7 @@
     <loc>http://localhost:1313/tags/di/</loc>
     <lastmod>2026-04-08T19:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2026-04-08T19:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/vibe-coding/</loc>
-    <lastmod>2026-04-08T19:00:00+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/posts/design-pattern/designpattern-dependency-injection/</loc>
-    <lastmod>2026-04-08T19:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</loc>
     <lastmod>2026-04-08T19:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/</loc>
@@ -200,13 +215,7 @@
     <loc>http://localhost:1313/posts/api-manuals/clerkauth-1/</loc>
     <lastmod>2025-10-25T16:45:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/factory/</loc>
-    <lastmod>2025-09-27T16:55:00+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/posts/design-pattern/designpattern-factory/</loc>
-    <lastmod>2025-09-27T16:55:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/</loc>
     <lastmod>2025-09-27T16:55:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/observer/</loc>

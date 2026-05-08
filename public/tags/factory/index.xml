@@ -6,8 +6,15 @@
     <description>Recent content in Factory on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 27 Sep 2025 16:55:00 +0900</lastBuildDate>
+    <lastBuildDate>Fri, 08 May 2026 15:44:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/factory/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-abs-factory/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-abs-factory/</guid>
+      <description>&lt;p&gt;Abstract Factory Pattern은 &lt;strong&gt;관련 있는 객체들의 묶음(제품군)을 생성하는 인터페이스를 제공하되, 구체적인 클래스는 클라이언트가 알지 못하게 하는&lt;/strong&gt; 생성 디자인 패턴이다.&lt;/p&gt;&#xA;&lt;p&gt;Factory Method가 &amp;ldquo;객체 하나를 어떻게 만들지&amp;quot;에 집중한다면, Abstract Factory는 &amp;ldquo;서로 어울리는 객체 세트를 어떤 계열로 만들지&amp;quot;에 집중한다.&lt;/p&gt;&#xA;&lt;p&gt;예를 들어 GUI를 만든다고 해보자.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Windows 환경에서는 &lt;code&gt;WindowsButton&lt;/code&gt;, &lt;code&gt;WindowsCheckbox&lt;/code&gt;, &lt;code&gt;WindowsTextbox&lt;/code&gt;&lt;/li&gt;&#xA;&lt;li&gt;Mac 환경에서는 &lt;code&gt;MacButton&lt;/code&gt;, &lt;code&gt;MacCheckbox&lt;/code&gt;, &lt;code&gt;MacTextbox&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;이렇게 버튼, 체크박스, 텍스트박스가 각각 따로 존재하지만, 실제로는 &lt;strong&gt;같은 운영체제 스타일끼리 함께 생성되어야 한다.&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;이때 &lt;code&gt;WindowsButton&lt;/code&gt;과 &lt;code&gt;MacCheckbox&lt;/code&gt;가 섞여버리면 UI 스타일이 깨진다. Abstract Factory는 이런 문제를 막고, 관련 객체들을 하나의 제품군으로 일관되게 생성하게 해준다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Vibe Coding을 위한 디자인 패턴 - 팩토리(Factory)</title>
       <link>http://localhost:1313/posts/design-pattern/designpattern-factory/</link>

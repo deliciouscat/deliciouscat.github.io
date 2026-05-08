@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-abs-factory/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)">
+  <meta property="og:description" content="Abstract Factory Pattern은 관련 있는 객체들의 묶음(제품군)을 생성하는 인터페이스를 제공하되, 구체적인 클래스는 클라이언트가 알지 못하게 하는 생성 디자인 패턴이다.
+Factory Method가 “객체 하나를 어떻게 만들지&#34;에 집중한다면, Abstract Factory는 “서로 어울리는 객체 세트를 어떤 계열로 만들지&#34;에 집중한다.
+예를 들어 GUI를 만든다고 해보자.
+Windows 환경에서는 WindowsButton, WindowsCheckbox, WindowsTextbox Mac 환경에서는 MacButton, MacCheckbox, MacTextbox 이렇게 버튼, 체크박스, 텍스트박스가 각각 따로 존재하지만, 실제로는 같은 운영체제 스타일끼리 함께 생성되어야 한다.
+이때 WindowsButton과 MacCheckbox가 섞여버리면 UI 스타일이 깨진다. Abstract Factory는 이런 문제를 막고, 관련 객체들을 하나의 제품군으로 일관되게 생성하게 해준다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-08T15:44:00+09:00">
+    <meta property="article:modified_time" content="2026-05-08T15:44:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="추상팩토리">
+    <meta property="article:tag" content="Abstract Factory">
+    <meta property="article:tag" content="팩토리">
+    <meta property="article:tag" content="Factory">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-08T15:44:00&#43;09:00">May 08, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p>Abstract Factory Pattern은 <strong>관련 있는 객체들의 묶음(제품군)을 생성하는 인터페이스를 제공하되, 구체적인 클래스는 클라이언트가 알지 못하게 하는</strong> 생성 디자인 패턴이다.</p>
+<p>Factory Method가 &ldquo;객체 하나를 어떻게 만들지&quot;에 집중한다면, Abstract Factory는 &ldquo;서로 어울리는 객체 세트를 어떤 계열로 만들지&quot;에 집중한다.</p>
+<p>예를 들어 GUI를 만든다고 해보자.</p>
+<ul>
+<li>Windows 환경에서는 <code>WindowsButton</code>, <code>WindowsCheckbox</code>, <code>WindowsTextbox</code></li>
+<li>Mac 환경에서는 <code>MacButton</code>, <code>MacCheckbox</code>, <code>MacTextbox</code></li>
+</ul>
+<p>이렇게 버튼, 체크박스, 텍스트박스가 각각 따로 존재하지만, 실제로는 <strong>같은 운영체제 스타일끼리 함께 생성되어야 한다.</strong></p>
+<p>이때 <code>WindowsButton</code>과 <code>MacCheckbox</code>가 섞여버리면 UI 스타일이 깨진다. Abstract Factory는 이런 문제를 막고, 관련 객체들을 하나의 제품군으로 일관되게 생성하게 해준다.</p>
+<h2 id="factory-method와의-차이">Factory Method와의 차이</h2>
+<p>먼저 헷갈리기 쉬운 Factory Method와 비교해보자.</p>
+<h3 id="factory-method">Factory Method</h3>
+<p>Factory Method는 보통 <strong>하나의 제품(Product)</strong> 을 만든다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DocumentFactory</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_document</span>(self) <span style="color:#f92672">-&gt;</span> Document:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PDFFactory</span>(DocumentFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_document</span>(self) <span style="color:#f92672">-&gt;</span> Document:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> PDFDocument()
+</span></span></code></pre></div><p>여기서 팩토리는 <code>Document</code> 계열 객체 하나를 생성한다.</p>
+<p>즉 관심사는:</p>
+<blockquote>
+<p>&ldquo;PDF 문서를 만들까? Word 문서를 만들까?&rdquo;</p></blockquote>
+<p>이다.</p>
+<h3 id="abstract-factory">Abstract Factory</h3>
+<p>Abstract Factory는 <strong>서로 관련 있는 여러 제품을 함께 만든다.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GUIFactory</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_button</span>(self) <span style="color:#f92672">-&gt;</span> Button:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_checkbox</span>(self) <span style="color:#f92672">-&gt;</span> Checkbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_textbox</span>(self) <span style="color:#f92672">-&gt;</span> Textbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div><p>여기서 팩토리는 <code>Button</code>, <code>Checkbox</code>, <code>Textbox</code>를 함께 생성한다.</p>
+<p>즉 관심사는:</p>
+<blockquote>
+<p>&ldquo;Windows 스타일 제품군을 만들까? Mac 스타일 제품군을 만들까?&rdquo;</p></blockquote>
+<p>이다.</p>
+<p>간단히 말하면:</p>
+<ul>
+<li><strong>Factory Method</strong>: 객체 하나의 생성 방식 캡슐화</li>
+<li><strong>Abstract Factory</strong>: 관련 객체 묶음의 생성 방식 캡슐화</li>
+</ul>
+<p>Abstract Factory 안에는 여러 개의 Factory Method가 들어 있다고 생각해도 된다.</p>
+<h2 id="문제가-있는-예시">문제가 있는 예시</h2>
+<p>Abstract Factory가 필요한 상황을 코드로 보자.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowsButton</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Windows button&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MacButton</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Mac button&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowsCheckbox</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Windows checkbox&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MacCheckbox</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Mac checkbox&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, os_type):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>os_type <span style="color:#f92672">=</span> os_type
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render_ui</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>os_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;windows&#34;</span>:
+</span></span><span style="display:flex;"><span>            button <span style="color:#f92672">=</span> WindowsButton()
+</span></span><span style="display:flex;"><span>            checkbox <span style="color:#f92672">=</span> WindowsCheckbox()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> self<span style="color:#f92672">.</span>os_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;mac&#34;</span>:
+</span></span><span style="display:flex;"><span>            button <span style="color:#f92672">=</span> MacButton()
+</span></span><span style="display:flex;"><span>            checkbox <span style="color:#f92672">=</span> MacCheckbox()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        print(button<span style="color:#f92672">.</span>render())
+</span></span><span style="display:flex;"><span>        print(checkbox<span style="color:#f92672">.</span>render())
+</span></span></code></pre></div><p>위 코드의 문제점:</p>
+<ol>
+<li><code>Application</code>이 모든 구체 클래스를 알고 있어야 한다.</li>
+<li>새로운 OS 스타일이 추가되면 <code>Application</code>을 수정해야 한다.</li>
+<li>버튼과 체크박스 생성 로직이 여기저기 섞이기 쉽다.</li>
+<li>실수로 <code>WindowsButton</code>과 <code>MacCheckbox</code> 같은 조합을 만들 수도 있다.</li>
+</ol>
+<p>즉, 클라이언트 코드가 구체적인 UI 제품들에 너무 강하게 의존하고 있다.</p>
+<h2 id="abstract-factory-적용">Abstract Factory 적용</h2>
+<p>이제 Button, Checkbox를 각각 추상화하고, 이들을 생성하는 Factory도 추상화해보자.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> abc <span style="color:#f92672">import</span> ABC, abstractmethod
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 제품 인터페이스 1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Button</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 제품 인터페이스 2</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Checkbox</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Windows를 위한 Concrete Products</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowsButton</span>(Button):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Windows button&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowsCheckbox</span>(Checkbox):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Windows checkbox&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Mac을 위한 Concrete Products</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MacButton</span>(Button):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Mac button&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MacCheckbox</span>(Checkbox):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Render Mac checkbox&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 추상 팩토리</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GUIFactory</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_button</span>(self) <span style="color:#f92672">-&gt;</span> Button:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_checkbox</span>(self) <span style="color:#f92672">-&gt;</span> Checkbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Concrete Factory: Windows 제품군 생성</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowsFactory</span>(GUIFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_button</span>(self) <span style="color:#f92672">-&gt;</span> Button:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> WindowsButton()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_checkbox</span>(self) <span style="color:#f92672">-&gt;</span> Checkbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> WindowsCheckbox()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Concrete Factory: Mac 제품군 생성</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MacFactory</span>(GUIFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_button</span>(self) <span style="color:#f92672">-&gt;</span> Button:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MacButton()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_checkbox</span>(self) <span style="color:#f92672">-&gt;</span> Checkbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MacCheckbox()
+</span></span></code></pre></div><p>이제 <code>Application</code>은 구체적인 제품을 몰라도 된다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, factory: GUIFactory):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>factory <span style="color:#f92672">=</span> factory
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">render_ui</span>(self):
+</span></span><span style="display:flex;"><span>        button <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>factory<span style="color:#f92672">.</span>create_button()
+</span></span><span style="display:flex;"><span>        checkbox <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>factory<span style="color:#f92672">.</span>create_checkbox()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        print(button<span style="color:#f92672">.</span>render())
+</span></span><span style="display:flex;"><span>        print(checkbox<span style="color:#f92672">.</span>render())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 사용</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_factory</span>(os_type: str) <span style="color:#f92672">-&gt;</span> GUIFactory:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> os_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;windows&#34;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> WindowsFactory()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> os_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;mac&#34;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MacFactory()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Unknown OS type: </span><span style="color:#e6db74">{</span>os_type<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>factory <span style="color:#f92672">=</span> create_factory(<span style="color:#e6db74">&#34;windows&#34;</span>)
+</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Application(factory)
+</span></span><span style="display:flex;"><span>app<span style="color:#f92672">.</span>render_ui()
+</span></span></code></pre></div><p><code>Application</code>은 <code>WindowsButton</code>, <code>MacButton</code>, <code>WindowsCheckbox</code>, <code>MacCheckbox</code>를 직접 알지 않는다.
+오직 <code>GUIFactory</code>, <code>Button</code>, <code>Checkbox</code>라는 추상화에만 의존한다.</p>
+<h2 id="제품군-일관성-보장">제품군 일관성 보장</h2>
+<p>Abstract Factory의 중요한 장점은 <strong>서로 어울리는 객체들이 함께 생성되도록 강제한다는 것</strong>이다.</p>
+<p>위 예시에서 <code>WindowsFactory</code>는 항상 Windows 스타일 제품만 만든다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowsFactory</span>(GUIFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_button</span>(self) <span style="color:#f92672">-&gt;</span> Button:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> WindowsButton()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_checkbox</span>(self) <span style="color:#f92672">-&gt;</span> Checkbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> WindowsCheckbox()
+</span></span></code></pre></div><p>반대로 <code>MacFactory</code>는 항상 Mac 스타일 제품만 만든다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MacFactory</span>(GUIFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_button</span>(self) <span style="color:#f92672">-&gt;</span> Button:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MacButton()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_checkbox</span>(self) <span style="color:#f92672">-&gt;</span> Checkbox:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MacCheckbox()
+</span></span></code></pre></div><p>클라이언트가 팩토리 하나만 선택하면, 그 뒤에 생성되는 객체들은 자연스럽게 같은 계열로 맞춰진다.</p>
+<p>이 구조는 다음과 같은 상황에서 유용하다.</p>
+<ul>
+<li>다크 테마 / 라이트 테마 UI 컴포넌트</li>
+<li>Windows / Mac / Linux용 위젯</li>
+<li>MySQL / PostgreSQL / SQLite용 저장소 객체들</li>
+<li>AWS / GCP / Azure용 클라우드 리소스 객체들</li>
+<li>테스트 환경 / 운영 환경용 서비스 객체들</li>
+</ul>
+<h2 id="데이터베이스-예시">데이터베이스 예시</h2>
+<p>GUI 예시가 너무 UI에 치우쳐 있으니, 데이터베이스 예시도 보자.</p>
+<p>애플리케이션에서 데이터베이스마다 여러 객체가 필요하다고 가정하자.</p>
+<ul>
+<li>연결 객체</li>
+<li>쿼리 빌더</li>
+<li>마이그레이션 러너</li>
+</ul>
+<p>이 객체들은 서로 같은 DB 계열이어야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> abc <span style="color:#f92672">import</span> ABC, abstractmethod
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 어떤 DB를 쓰던 제공하는 기능들 (Abstract Product)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Connection</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">connect</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">QueryBuilder</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">select_users</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MigrationRunner</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">migrate</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 그 기능들의 실제 구현 (Concrete Product)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MySQLConnection</span>(Connection):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">connect</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Connect to MySQL&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MySQLQueryBuilder</span>(QueryBuilder):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">select_users</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;SELECT * FROM users LIMIT 10&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MySQLMigrationRunner</span>(MigrationRunner):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">migrate</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Run MySQL migration&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostgreSQLConnection</span>(Connection):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">connect</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Connect to PostgreSQL&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostgreSQLQueryBuilder</span>(QueryBuilder):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">select_users</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;SELECT * FROM users LIMIT 10&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostgreSQLMigrationRunner</span>(MigrationRunner):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">migrate</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Run PostgreSQL migration&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Abstract Factory: Product를 생성함</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DatabaseFactory</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_connection</span>(self) <span style="color:#f92672">-&gt;</span> Connection:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_query_builder</span>(self) <span style="color:#f92672">-&gt;</span> QueryBuilder:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_migration_runner</span>(self) <span style="color:#f92672">-&gt;</span> MigrationRunner:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Concrete Factory: 각 DB에 맞춰진 Concrete Product를 생성함</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MySQLFactory</span>(DatabaseFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_connection</span>(self) <span style="color:#f92672">-&gt;</span> Connection:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MySQLConnection()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_query_builder</span>(self) <span style="color:#f92672">-&gt;</span> QueryBuilder:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MySQLQueryBuilder()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_migration_runner</span>(self) <span style="color:#f92672">-&gt;</span> MigrationRunner:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MySQLMigrationRunner()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostgreSQLFactory</span>(DatabaseFactory):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_connection</span>(self) <span style="color:#f92672">-&gt;</span> Connection:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> PostgreSQLConnection()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_query_builder</span>(self) <span style="color:#f92672">-&gt;</span> QueryBuilder:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> PostgreSQLQueryBuilder()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_migration_runner</span>(self) <span style="color:#f92672">-&gt;</span> MigrationRunner:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> PostgreSQLMigrationRunner()
+</span></span></code></pre></div><p>클라이언트 코드는 다음처럼 사용할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DataApplication</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, factory: DatabaseFactory):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>connection <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span>create_connection()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>query_builder <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span>create_query_builder()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>migration_runner <span style="color:#f92672">=</span> factory<span style="color:#f92672">.</span>create_migration_runner()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">start</span>(self):
+</span></span><span style="display:flex;"><span>        print(self<span style="color:#f92672">.</span>connection<span style="color:#f92672">.</span>connect())
+</span></span><span style="display:flex;"><span>        print(self<span style="color:#f92672">.</span>migration_runner<span style="color:#f92672">.</span>migrate())
+</span></span><span style="display:flex;"><span>        print(self<span style="color:#f92672">.</span>query_builder<span style="color:#f92672">.</span>select_users())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> DataApplication(PostgreSQLFactory())
+</span></span><span style="display:flex;"><span>app<span style="color:#f92672">.</span>start()
+</span></span></code></pre></div><p>이제 <code>DataApplication</code>은 MySQL인지 PostgreSQL인지 몰라도 된다. <code>DataApplication</code>이 직접 의존하는 것은 다음뿐이다.</p>
+<ul>
+<li><code>DatabaseFactory</code></li>
+<li><code>Connection</code></li>
+<li><code>QueryBuilder</code></li>
+<li><code>MigrationRunner</code></li>
+</ul>
+<p><code>MySQLConnection</code>, <code>PostgreSQLConnection</code> 같은 구체 클래스에는 의존하지 않는다.</p>
+<p>DB를 바꾸고 싶으면 팩토리만 바꾸면 된다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>app <span style="color:#f92672">=</span> DataApplication(MySQLFactory())
+</span></span></code></pre></div><p>DB 구현체가 바뀌어도 <code>DataApplication</code>의 핵심 로직은 그대로 유지된다.</p>
+<h2 id="장점">장점</h2>
+<ol>
+<li>
+<p><strong>제품군 일관성 보장</strong></p>
+<ul>
+<li>같은 계열의 객체들이 함께 생성되므로 잘못된 조합을 줄일 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>구체 클래스와 클라이언트 분리</strong></p>
+<ul>
+<li>클라이언트는 <code>WindowsButton</code>, <code>MacCheckbox</code> 같은 구체 클래스를 몰라도 된다.</li>
+</ul>
+</li>
+<li>
+<p><strong>제품군 교체가 쉬움</strong></p>
+<ul>
+<li><code>WindowsFactory</code>를 <code>MacFactory</code>로 바꾸는 식으로 전체 객체 세트를 교체할 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>개방-폐쇄 원칙(OCP) 준수</strong></p>
+<ul>
+<li>새로운 제품군을 추가할 때 기존 클라이언트 코드를 크게 수정하지 않아도 된다.</li>
+</ul>
+</li>
+<li>
+<p><strong>테스트 용이성</strong></p>
+<ul>
+<li>테스트용 팩토리를 만들어 Mock 객체 세트를 주입할 수 있다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="단점">단점</h2>
+<ol>
+<li>
+<p><strong>구조가 복잡해진다</strong></p>
+<ul>
+<li>제품 인터페이스, 구체 제품, 추상 팩토리, 구체 팩토리가 모두 필요하다.</li>
+</ul>
+</li>
+<li>
+<p><strong>새로운 제품 종류 추가가 번거롭다</strong></p>
+<ul>
+<li>예를 들어 <code>create_slider()</code>를 추가하면 모든 팩토리 구현체를 수정해야 한다.</li>
+</ul>
+</li>
+<li>
+<p><strong>작은 프로젝트에는 과할 수 있다</strong></p>
+<ul>
+<li>제품군이 명확하지 않다면 단순한 Factory Method나 직접 생성이 더 낫다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="언제-사용해야-할까">언제 사용해야 할까?</h2>
+<ol>
+<li>
+<p><strong>관련 객체들을 세트로 생성해야 할 때</strong></p>
+<ul>
+<li>버튼, 체크박스, 텍스트박스처럼 같은 테마나 플랫폼에 속해야 하는 객체들</li>
+</ul>
+</li>
+<li>
+<p><strong>제품군 전체를 런타임에 교체해야 할 때</strong></p>
+<ul>
+<li>설정에 따라 Windows UI, Mac UI, Web UI를 바꾸는 경우</li>
+</ul>
+</li>
+<li>
+<p><strong>클라이언트가 구체 클래스를 몰라야 할 때</strong></p>
+<ul>
+<li>프레임워크나 라이브러리처럼 확장 가능성이 중요한 경우</li>
+</ul>
+</li>
+<li>
+<p><strong>잘못된 객체 조합을 방지하고 싶을 때</strong></p>
+<ul>
+<li>PostgreSQL 연결 객체와 MySQL 전용 쿼리 빌더가 섞이면 안 되는 경우</li>
+</ul>
+</li>
+</ol>
+<h2 id="factory-method와-abstract-factory-선택-기준">Factory Method와 Abstract Factory 선택 기준</h2>
+<p>둘 중 무엇을 써야 할지 헷갈린다면 이렇게 생각하면 된다.</p>
+<h3 id="객체-하나만-만들면-된다">객체 하나만 만들면 된다</h3>
+<p>Factory Method가 적합하다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>factory<span style="color:#f92672">.</span>create_document()
+</span></span></code></pre></div><p>관심사는 하나다.</p>
+<blockquote>
+<p>어떤 <code>Document</code>를 만들 것인가?</p></blockquote>
+<h3 id="관련-객체-여러-개를-함께-만들어야-한다">관련 객체 여러 개를 함께 만들어야 한다</h3>
+<p>Abstract Factory가 적합하다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>factory<span style="color:#f92672">.</span>create_button()
+</span></span><span style="display:flex;"><span>factory<span style="color:#f92672">.</span>create_checkbox()
+</span></span><span style="display:flex;"><span>factory<span style="color:#f92672">.</span>create_textbox()
+</span></span></code></pre></div><p>관심사는 제품군이다.</p>
+<blockquote>
+<p>어떤 스타일의 UI 세트를 만들 것인가?</p></blockquote>
+<h2 id="용어-정리">용어 정리</h2>
+<ul>
+<li><strong>AbstractFactory (추상 팩토리)</strong>: 관련 제품들을 생성하는 메서드들을 선언한 인터페이스</li>
+<li><strong>ConcreteFactory (구체 팩토리)</strong>: 특정 제품군을 실제로 생성하는 클래스</li>
+<li><strong>AbstractProduct (추상 제품)</strong>: 제품들이 따라야 하는 공통 인터페이스</li>
+<li><strong>ConcreteProduct (구체 제품)</strong>: 특정 제품군에 속하는 실제 객체</li>
+<li><strong>Product Family (제품군)</strong>: 서로 함께 사용되어야 하는 관련 객체들의 묶음</li>
+</ul>
+<h2 id="한-줄-요약">한 줄 요약</h2>
+<p>Factory Method가 <strong>객체 하나의 생성을 캡슐화</strong>한다면, Abstract Factory는 <strong>관련 객체들의 세트 생성을 캡슐화</strong>한다.</p>
+<p>즉:</p>
+<blockquote>
+<p>Factory Method는 &ldquo;무엇 하나를 만들까?&ldquo;이고, Abstract Factory는 &ldquo;어떤 계열의 세트를 만들까?&ldquo;이다.</p></blockquote>
+<hr>
+<h2 id="혼동하기-쉬운-팩토리-관련-용어-비교">혼동하기 쉬운 팩토리 관련 용어 비교</h2>
+<h3 id="1-팩토리-factory">1. 팩토리 (Factory)</h3>
+<p>가장 넓은 의미의 모호한 용어다. 함수, 메서드, 클래스 등 <strong>무언가를 생성하는 모든 것</strong>을 통칭한다. &ldquo;팩토리&quot;라는 단어만 봐서는 구체적인 의미를 알 수 없으니, 문맥을 파악해야 한다.</p>
+<h3 id="2-생성-메서드-creation-method">2. 생성 메서드 (Creation Method)</h3>
+<p><strong>객체를 생성해 반환하는 메서드</strong>다. 생성자 호출을 감싸는 래퍼로, 의도를 더 명확히 표현하는 이름을 가질 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Number</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, value):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>value <span style="color:#f92672">=</span> value
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self):          <span style="color:#75715e"># 생성 메서드</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Number(self<span style="color:#f92672">.</span>value <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>)
+</span></span></code></pre></div><p>많은 사람이 이것을 &ldquo;팩토리 메서드&quot;라고 부르지만, 팩토리 메서드 패턴과는 다르다.</p>
+<h3 id="3-정적-생성-메서드-static-creation-method">3. 정적 생성 메서드 (Static Creation Method)</h3>
+<p><strong>정적(static)으로 선언된 생성 메서드</strong>다. 객체 없이 클래스에서 직접 호출할 수 있어 대체 생성자 역할을 한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, id, name, email):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>id <span style="color:#f92672">=</span> id
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>email <span style="color:#f92672">=</span> email
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@staticmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">load</span>(id):            <span style="color:#75715e"># 정적 생성 메서드</span>
+</span></span><span style="display:flex;"><span>        id, name, email <span style="color:#f92672">=</span> DB<span style="color:#f92672">.</span>load_data(<span style="color:#e6db74">&#39;users&#39;</span>, id)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> User(id, name, email)
+</span></span></code></pre></div><p>&ldquo;정적 팩토리 메서드&quot;라고 부르는 사람도 있지만, <code>static</code>으로 선언되면 자식 클래스에서 오버라이드할 수 없으므로 팩토리 메서드 패턴이라고 부르기에는 적합하지 않다.</p>
+<h3 id="4-단순-팩토리-simple-factory">4. 단순 팩토리 (Simple Factory)</h3>
+<p><strong>하나의 메서드 안에 조건문을 두고 어떤 클래스를 인스턴스화할지 결정하는 패턴</strong>이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserFactory</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@staticmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create</span>(type_):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> type_ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;user&#39;</span>:     <span style="color:#66d9ef">return</span> User()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> type_ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;admin&#39;</span>:  <span style="color:#66d9ef">return</span> Admin()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>: <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Unknown type: </span><span style="color:#e6db74">{</span>type_<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>공식 GoF 패턴은 아니다. 팩토리 메서드나 추상 팩토리 패턴을 도입하기 전의 중간 단계로 자주 등장한다. 클래스에 <code>abstract</code>를 붙인다고 추상 팩토리 패턴이 되지는 않는다.</p>
+<h3 id="5-팩토리-메서드-패턴-factory-method-pattern">5. 팩토리 메서드 패턴 (Factory Method Pattern)</h3>
+<p><strong>객체 생성을 위한 인터페이스를 정의하되, 어떤 클래스를 만들지는 자식 클래스가 결정하도록 위임하는 패턴</strong>이다. 상속을 기반으로 동작한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Department</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_employee</span>(self, id): <span style="color:#f92672">...</span>   <span style="color:#75715e"># 팩토리 메서드</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ITDepartment</span>(Department):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_employee</span>(self, id):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Programmer(id)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AccountingDepartment</span>(Department):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_employee</span>(self, id):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Accountant(id)
+</span></span></code></pre></div><p>부모 클래스에 생성 메서드가 있고, 자식 클래스가 이를 오버라이드한다면 팩토리 메서드 패턴일 가능성이 높다.</p>
+<h3 id="6-추상-팩토리-패턴-abstract-factory-pattern">6. 추상 팩토리 패턴 (Abstract Factory Pattern)</h3>
+<p><strong>서로 관련된 객체들의 제품군을 일관되게 생성하는 인터페이스를 제공하는 패턴</strong>이다. 구체 클래스를 지정하지 않고 제품군 전체를 교체할 수 있다.</p>
+<p>단 하나의 객체가 아닌 <strong>여러 객체의 집합</strong>을 생성해야 할 때 사용한다. 이 글의 본 내용이다.</p>
+<hr>
+<h3 id="요약-비교표">요약 비교표</h3>
+<table>
+  <thead>
+      <tr>
+          <th>용어</th>
+          <th>형태</th>
+          <th>핵심</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>팩토리</td>
+          <td>모호한 통칭</td>
+          <td>무언가를 생성하는 것</td>
+      </tr>
+      <tr>
+          <td>생성 메서드</td>
+          <td>일반 메서드</td>
+          <td>객체를 만들어 반환</td>
+      </tr>
+      <tr>
+          <td>정적 생성 메서드</td>
+          <td>static 메서드</td>
+          <td>객체 없이 호출, 대체 생성자 역할</td>
+      </tr>
+      <tr>
+          <td>단순 팩토리</td>
+          <td>조건문이 있는 static 메서드</td>
+          <td>타입에 따라 다른 객체 반환</td>
+      </tr>
+      <tr>
+          <td>팩토리 메서드 패턴</td>
+          <td>추상 메서드 + 상속</td>
+          <td>자식 클래스가 생성 타입 결정</td>
+      </tr>
+      <tr>
+          <td>추상 팩토리 패턴</td>
+          <td>인터페이스 + 제품군</td>
+          <td>관련 객체 세트를 일관되게 생성</td>
+      </tr>
+  </tbody>
+</table>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" rel="tag">추상팩토리</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/abstract-factory/" rel="tag">Abstract Factory</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" rel="tag">팩토리</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/factory/" rel="tag">Factory</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-dependency-injection/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-abs-factory/">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-dependency-injection/">Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_1_run-loop/">Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (5)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (8)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

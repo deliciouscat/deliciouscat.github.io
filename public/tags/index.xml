@@ -6,8 +6,50 @@
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 08 Apr 2026 19:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Fri, 08 May 2026 15:44:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Abstract Factory</title>
+      <link>http://localhost:1313/tags/abstract-factory/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/abstract-factory/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Factory</title>
+      <link>http://localhost:1313/tags/factory/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/factory/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vibe Coding</title>
+      <link>http://localhost:1313/tags/vibe-coding/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/vibe-coding/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>디자인패턴</title>
+      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>추상팩토리</title>
+      <link>http://localhost:1313/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>팩토리</title>
+      <link>http://localhost:1313/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/</link>
+      <pubDate>Fri, 08 May 2026 15:44:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Dependency Injection</title>
       <link>http://localhost:1313/tags/dependency-injection/</link>
@@ -20,20 +62,6 @@
       <link>http://localhost:1313/tags/di/</link>
       <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/di/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Vibe Coding</title>
-      <link>http://localhost:1313/tags/vibe-coding/</link>
-      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/vibe-coding/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>디자인패턴</title>
-      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
-      <pubDate>Wed, 08 Apr 2026 19:00:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
       <description></description>
     </item>
     <item>
@@ -153,20 +181,6 @@
       <link>http://localhost:1313/tags/authentification/</link>
       <pubDate>Sat, 25 Oct 2025 16:45:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/authentification/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Factory</title>
-      <link>http://localhost:1313/tags/factory/</link>
-      <pubDate>Sat, 27 Sep 2025 16:55:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/factory/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>팩토리</title>
-      <link>http://localhost:1313/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/</link>
-      <pubDate>Sat, 27 Sep 2025 16:55:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/</guid>
       <description></description>
     </item>
     <item>
