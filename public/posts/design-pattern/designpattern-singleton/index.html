@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-singleton/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)">
+  <meta property="og:description" content="Singleton Pattern은 클래스의 인스턴스가 오직 하나만 생성되도록 보장하고, 그 인스턴스에 대한 전역 접근점을 제공하는 생성 디자인 패턴이다.
+여기서 **인스턴스(instance)**는 클래스라는 설계도를 바탕으로 메모리에 실제로 만들어진 객체 하나를 가리킨다. 예를 들어 Config()를 호출하면 그때 생성되는 것이 Config의 인스턴스다. 같은 클래스라도 호출할 때마다 새로 만들면 서로 다른 인스턴스가 생기고, 싱글톤은 그중에서 살아 있는 인스턴스를 하나로 고정하는 패턴이다.
+쉽게 말하면, 어떤 클래스를 아무리 많이 new 해도 항상 동일한 객체 하나를 반환하도록 만드는 패턴이다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-14T15:41:00+09:00">
+    <meta property="article:modified_time" content="2026-05-14T15:41:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="싱글톤">
+    <meta property="article:tag" content="Singleton">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-14T15:41:00&#43;09:00">May 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p>Singleton Pattern은 <strong>클래스의 인스턴스가 오직 하나만 생성되도록 보장하고, 그 인스턴스에 대한 전역 접근점을 제공하는</strong> 생성 디자인 패턴이다.</p>
+<p>여기서 **인스턴스(instance)**는 클래스라는 설계도를 바탕으로 메모리에 실제로 만들어진 객체 하나를 가리킨다. 예를 들어 <code>Config()</code>를 호출하면 그때 생성되는 것이 <code>Config</code>의 인스턴스다. 같은 클래스라도 호출할 때마다 새로 만들면 서로 다른 인스턴스가 생기고, 싱글톤은 그중에서 살아 있는 인스턴스를 하나로 고정하는 패턴이다.</p>
+<p>쉽게 말하면, 어떤 클래스를 아무리 많이 <code>new</code> 해도 항상 동일한 객체 하나를 반환하도록 만드는 패턴이다.</p>
+<p>예를 들어 애플리케이션 설정(Config), 로거(Logger), 데이터베이스 연결 풀(Connection Pool) 같은 것들은 여러 개 만들 이유가 없다. 오히려 여러 개가 생기면 문제가 발생한다. 이런 상황에서 싱글톤이 등장한다.</p>
+<h2 id="문제가-있는-예시">문제가 있는 예시</h2>
+<p>먼저 싱글톤 없이 코드를 작성하면 어떤 문제가 생기는지 보자.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Config</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;localhost:5432&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config1 <span style="color:#f92672">=</span> Config()
+</span></span><span style="display:flex;"><span>config2 <span style="color:#f92672">=</span> Config()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config1<span style="color:#f92672">.</span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(config1<span style="color:#f92672">.</span>debug)  <span style="color:#75715e"># True</span>
+</span></span><span style="display:flex;"><span>print(config2<span style="color:#f92672">.</span>debug)  <span style="color:#75715e"># False ← 다른 인스턴스라서 값이 다르다</span>
+</span></span></code></pre></div><p><code>Config</code>가 여러 개 생성되면 인스턴스마다 상태가 달라진다. 어떤 곳에서는 <code>debug=True</code>, 어떤 곳에서는 <code>debug=False</code>인 상황이 생긴다.</p>
+<p>의도는 &ldquo;전체 앱에서 공유되는 설정&quot;이었는데, 실제로는 인스턴스마다 따로 상태를 가져서 동기화 문제가 발생한다.</p>
+<h2 id="싱글톤-적용">싱글톤 적용</h2>
+<p>싱글톤 패턴의 핵심은 두 가지다.</p>
+<ol>
+<li>생성자를 외부에서 직접 호출하지 못하게 막는다.</li>
+<li>인스턴스를 반환하는 정적 메서드를 하나 만들고, 이미 인스턴스가 있으면 그걸 반환, 없으면 새로 만든다.</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Config</span>:
+</span></span><span style="display:flex;"><span>    _instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">=</span> super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls)
+</span></span><span style="display:flex;"><span>            cls<span style="color:#f92672">.</span>_instance<span style="color:#f92672">.</span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>            cls<span style="color:#f92672">.</span>_instance<span style="color:#f92672">.</span>db_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;localhost:5432&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_instance
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config1 <span style="color:#f92672">=</span> Config()
+</span></span><span style="display:flex;"><span>config2 <span style="color:#f92672">=</span> Config()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config1<span style="color:#f92672">.</span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(config1<span style="color:#f92672">.</span>debug)  <span style="color:#75715e"># True</span>
+</span></span><span style="display:flex;"><span>print(config2<span style="color:#f92672">.</span>debug)  <span style="color:#75715e"># True ← 같은 인스턴스다</span>
+</span></span><span style="display:flex;"><span>print(config1 <span style="color:#f92672">is</span> config2)  <span style="color:#75715e"># True</span>
+</span></span></code></pre></div><p>이제 <code>Config()</code>를 몇 번 호출해도 항상 같은 객체를 반환한다.</p>
+<p><strong>헷갈릴 수 있는 부분:</strong><br>
+<code>__new__</code>라는 이름은 &ldquo;새 인스턴스를 만들어라&quot;는 원래 역할에서 온 것이다. 싱글톤에서는 그 메서드를 가로채서, 원래 동작(새로 만들기) 대신 기존 것을 반환하도록 바꿔치기한다. 이름이 <code>__new__</code>인 건 &ldquo;항상 새로 만든다&quot;는 의미가 아니라 &ldquo;객체 생성 시점에 호출되는 훅&quot;이기 때문이다.</p>
+<h2 id="고전적인-구현-클래스-메서드-방식">고전적인 구현 (클래스 메서드 방식)</h2>
+<p>Python에서 가장 전통적으로 많이 쓰는 방식이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Singleton</span>:
+</span></span><span style="display:flex;"><span>    _instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_instance</span>(cls):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">=</span> cls()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_instance
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>value <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span>get_instance()
+</span></span><span style="display:flex;"><span>s2 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span>get_instance()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(s1 <span style="color:#f92672">is</span> s2)  <span style="color:#75715e"># True</span>
+</span></span></code></pre></div><p><code>get_instance()</code>를 통해서만 인스턴스를 가져오도록 유도한다.</p>
+<p>단, Python에서는 <code>Singleton()</code>을 직접 호출하는 것을 막기가 언어 차원에서 쉽지 않다. 이 방식에는 구멍이 두 가지 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>s1 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span>get_instance()  <span style="color:#75715e"># 의도된 방법</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>s2 <span style="color:#f92672">=</span> Singleton()               <span style="color:#75715e"># 구멍 1: 생성자를 직접 호출하면 새 인스턴스가 생긴다</span>
+</span></span><span style="display:flex;"><span>s3 <span style="color:#f92672">=</span> Singleton<span style="color:#f92672">.</span>_instance       <span style="color:#75715e"># 구멍 2: 내부 변수에 직접 접근해도 get_instance()를 우회한다</span>
+</span></span></code></pre></div><p><code>_instance</code> 앞의 언더스코어(<code>_</code>)는 &ldquo;내부 변수니까 건드리지 마세요&quot;라는 <strong>관례적 경고</strong>일 뿐, 언어가 강제로 막아주지는 않는다. Java처럼 생성자를 <code>private</code>으로 선언하면 컴파일러가 막아주지만, Python에는 그런 장치가 없다. 싱글톤의 무결성은 결국 코드를 쓰는 사람의 규율에 의존하게 된다.</p>
+<p>엄격하게 제한하고 싶다면 <code>__init__</code>에서 이미 인스턴스가 있으면 예외를 던지거나, <code>__new__</code> 방식을 사용하는 것이 낫다.</p>
+<h2 id="스레드-안전-싱글톤">스레드 안전 싱글톤</h2>
+<p>멀티스레드 환경에서는 두 스레드가 동시에 <code>_instance is None</code>을 확인하고 둘 다 인스턴스를 만들 수 있다. 이를 <strong>Race Condition</strong>이라 한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> threading
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Config</span>:
+</span></span><span style="display:flex;"><span>    _instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    _lock <span style="color:#f92672">=</span> threading<span style="color:#f92672">.</span>Lock()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">with</span> cls<span style="color:#f92672">.</span>_lock:
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># 락을 얻은 뒤에도 다시 확인한다 (Double-Checked Locking)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                    cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">=</span> super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls)
+</span></span><span style="display:flex;"><span>                    cls<span style="color:#f92672">.</span>_instance<span style="color:#f92672">.</span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_instance
+</span></span></code></pre></div><p>락을 얻기 전에 한 번, 락을 얻은 후에 한 번 더 체크한다. 이를 <strong>Double-Checked Locking</strong> 패턴이라 한다.</p>
+<p>이미 인스턴스가 있는 경우에는 락 없이 바로 반환되므로 성능 부담도 줄어든다.</p>
+<h2 id="python에서-가장-간단한-방법-모듈">Python에서 가장 간단한 방법: 모듈</h2>
+<p>Python에서는 모듈 자체가 싱글톤처럼 동작한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># config.py</span>
+</span></span><span style="display:flex;"><span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>db_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;localhost:5432&#34;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># app.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> config
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config<span style="color:#f92672">.</span>debug <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># other.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> config
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(config<span style="color:#f92672">.</span>debug)  <span style="color:#75715e"># True ← 같은 모듈 객체다</span>
+</span></span></code></pre></div><p>Python은 모듈을 처음 임포트할 때만 실행하고, 이후에는 캐싱된 모듈 객체를 그대로 반환한다. 따라서 모듈 레벨 변수는 자연스럽게 전역 상태를 공유한다.</p>
+<p>간단한 경우라면 클래스로 싱글톤을 구현하는 것보다 모듈을 활용하는 것이 훨씬 간결하다.</p>
+<h2 id="실제-사용-예시-로거">실제 사용 예시: 로거</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> threading
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Logger</span>:
+</span></span><span style="display:flex;"><span>    _instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    _lock <span style="color:#f92672">=</span> threading<span style="color:#f92672">.</span>Lock()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">with</span> cls<span style="color:#f92672">.</span>_lock:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                    cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">=</span> super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls)
+</span></span><span style="display:flex;"><span>                    cls<span style="color:#f92672">.</span>_instance<span style="color:#f92672">.</span>_logs <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_instance
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">log</span>(self, message: str):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_logs<span style="color:#f92672">.</span>append(message)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[LOG] </span><span style="color:#e6db74">{</span>message<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_logs</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_logs
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 어디서 호출해도 같은 로거다</span>
+</span></span><span style="display:flex;"><span>logger1 <span style="color:#f92672">=</span> Logger()
+</span></span><span style="display:flex;"><span>logger2 <span style="color:#f92672">=</span> Logger()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>logger1<span style="color:#f92672">.</span>log(<span style="color:#e6db74">&#34;서버 시작&#34;</span>)
+</span></span><span style="display:flex;"><span>logger2<span style="color:#f92672">.</span>log(<span style="color:#e6db74">&#34;요청 수신&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(logger1<span style="color:#f92672">.</span>get_logs())
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [&#39;서버 시작&#39;, &#39;요청 수신&#39;]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(logger1 <span style="color:#f92672">is</span> logger2)  <span style="color:#75715e"># True</span>
+</span></span></code></pre></div><p>로거가 하나의 인스턴스로 유지되므로 로그가 한 곳에 모인다.</p>
+<h2 id="실제-사용-예시-데이터베이스-연결-풀">실제 사용 예시: 데이터베이스 연결 풀</h2>
+<p>데이터베이스 연결은 비용이 크기 때문에 연결 객체를 하나만 만들어 재사용하는 것이 일반적이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> threading
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DatabaseConnection</span>:
+</span></span><span style="display:flex;"><span>    _instance <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>    _lock <span style="color:#f92672">=</span> threading<span style="color:#f92672">.</span>Lock()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">with</span> cls<span style="color:#f92672">.</span>_lock:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>                    cls<span style="color:#f92672">.</span>_instance <span style="color:#f92672">=</span> super()<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls)
+</span></span><span style="display:flex;"><span>                    cls<span style="color:#f92672">.</span>_instance<span style="color:#f92672">.</span>_connection <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span>_instance<span style="color:#f92672">.</span>_connect()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_instance
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_connect</span>(self):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;DB 연결 생성&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> {<span style="color:#e6db74">&#34;host&#34;</span>: <span style="color:#e6db74">&#34;localhost&#34;</span>, <span style="color:#e6db74">&#34;port&#34;</span>: <span style="color:#ae81ff">5432</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">query</span>(self, sql: str):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Execute: </span><span style="color:#e6db74">{</span>sql<span style="color:#e6db74">}</span><span style="color:#e6db74"> on </span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>_connection<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 여러 곳에서 호출해도 연결은 한 번만 생성된다</span>
+</span></span><span style="display:flex;"><span>db1 <span style="color:#f92672">=</span> DatabaseConnection()
+</span></span><span style="display:flex;"><span>db2 <span style="color:#f92672">=</span> DatabaseConnection()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(db1<span style="color:#f92672">.</span>query(<span style="color:#e6db74">&#34;SELECT * FROM users&#34;</span>))
+</span></span><span style="display:flex;"><span>print(db1 <span style="color:#f92672">is</span> db2)  <span style="color:#75715e"># True</span>
+</span></span></code></pre></div><h2 id="장점">장점</h2>
+<ol>
+<li>
+<p><strong>인스턴스가 하나임을 보장</strong></p>
+<ul>
+<li>전역 상태를 일관되게 유지할 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>전역 접근점 제공</strong></p>
+<ul>
+<li>어디서든 같은 인스턴스에 접근할 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>최초 사용 시점에만 초기화 (Lazy Initialization)</strong></p>
+<ul>
+<li>무거운 자원(DB 연결, 설정 파일 로드 등)을 실제로 필요한 시점까지 초기화를 미룰 수 있다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="단점">단점</h2>
+<ol>
+<li>
+<p><strong>단일 책임 원칙(SRP) 위반 가능성</strong></p>
+<ul>
+<li>하나의 클래스가 &ldquo;자기 역할&quot;과 &ldquo;인스턴스 수 관리&quot;라는 두 가지 책임을 갖는다.</li>
+</ul>
+</li>
+<li>
+<p><strong>전역 상태로 인한 숨겨진 의존성</strong></p>
+<ul>
+<li>싱글톤은 전역 변수처럼 동작하기 때문에 어디서든 상태를 변경할 수 있다. 코드 흐름을 추적하기 어려워지고 버그 원인을 찾기 힘들어진다.</li>
+</ul>
+</li>
+<li>
+<p><strong>테스트가 어렵다</strong></p>
+<ul>
+<li>단위 테스트에서 싱글톤의 상태가 테스트 간에 공유된다. 한 테스트에서 상태를 바꾸면 다른 테스트에 영향을 미친다. 테스트 격리를 위해 인스턴스를 초기화하는 별도 메서드가 필요해진다.</li>
+</ul>
+</li>
+<li>
+<p><strong>멀티스레드 환경에서 주의 필요</strong></p>
+<ul>
+<li>구현이 잘못되면 Race Condition으로 인스턴스가 여러 개 생성될 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>의존성 주입(DI)과 충돌</strong></p>
+<ul>
+<li>싱글톤은 내부에서 직접 인스턴스를 가져오는 구조라서 외부에서 주입하기 어렵다. DI 컨테이너를 사용하는 환경에서는 싱글톤을 직접 구현하기보다 DI 프레임워크에 싱글톤 스코프를 맡기는 것이 낫다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="언제-사용해야-할까">언제 사용해야 할까?</h2>
+<ol>
+<li>
+<p><strong>전체 앱에서 단 하나의 인스턴스만 있어야 할 때</strong></p>
+<ul>
+<li>로거, 설정 관리자, 이벤트 버스 등</li>
+</ul>
+</li>
+<li>
+<p><strong>공유 자원을 하나의 진입점으로 통제해야 할 때</strong></p>
+<ul>
+<li>데이터베이스 연결 풀, 스레드 풀, 캐시 등</li>
+</ul>
+</li>
+<li>
+<p><strong>객체 생성 비용이 크고 한 번만 초기화해도 될 때</strong></p>
+<ul>
+<li>무거운 설정 파일 파싱, 외부 API 클라이언트 초기화 등</li>
+</ul>
+</li>
+</ol>
+<h2 id="언제-피해야-할까">언제 피해야 할까?</h2>
+<ol>
+<li>
+<p><strong>테스트 격리가 중요한 경우</strong></p>
+<ul>
+<li>특히 단위 테스트가 많은 코드베이스에서는 전역 상태가 부담이 된다.</li>
+</ul>
+</li>
+<li>
+<p><strong>의존성이 명확하게 드러나야 할 때</strong></p>
+<ul>
+<li>싱글톤은 의존성을 숨긴다. 어떤 함수가 어떤 싱글톤에 의존하는지 코드만 봐서는 파악하기 힘들 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>객체가 여러 개여도 문제없는 경우</strong></p>
+<ul>
+<li>반드시 하나일 필요가 없는 객체에 싱글톤을 쓰면 불필요하게 결합도만 높인다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="안티패턴으로-불리는-이유">안티패턴으로 불리는 이유</h2>
+<p>싱글톤은 디자인 패턴 중에서도 <strong>안티패턴</strong>으로 분류되는 경우가 많다.</p>
+<p>이유는 전역 상태를 만들기 때문이다. 전역 상태는:</p>
+<ul>
+<li>코드 어디서든 변경할 수 있어 예측이 어렵다.</li>
+<li>테스트할 때 상태 격리가 힘들다.</li>
+<li>의존성이 코드에서 명시적으로 보이지 않는다.</li>
+</ul>
+<p>특히 멀티스레드나 분산 환경에서는 &ldquo;싱글톤이 정말 하나인가?&ldquo;라는 질문도 의미가 없어진다. 프로세스가 여러 개라면 각 프로세스마다 각자의 싱글톤 인스턴스를 갖기 때문이다.</p>
+<p>그렇다고 싱글톤 자체가 나쁜 것은 아니다. <strong>로거, 설정 관리, 연결 풀처럼 본질적으로 하나여야 하는 것</strong>에는 여전히 유효하다. 중요한 것은 필요에 의해 쓰는 것과, 습관적으로 전역 변수 대신 쓰는 것을 구분하는 것이다.</p>
+<h2 id="registry-di와의-관계">Registry, DI와의 관계</h2>
+<p>싱글톤의 단점을 해결하는 현실적인 대안이 <strong>Registry 패턴</strong>과 **의존성 주입(DI)**이다.</p>
+<h3 id="registry-패턴-레지스트리-객체가-싱글톤임-인스턴스도-싱글턴처럼-동작함">Registry 패턴: 레지스트리 객체가 싱글톤임. 인스턴스도 싱글턴처럼 동작함.</h3>
+<p>Registry는 객체를 이름(키)으로 등록해두고 꺼내 쓰는 중앙 저장소 패턴이다. 인스턴스를 등록해두면 어디서 꺼내도 같은 객체가 반환되므로, 싱글톤과 동일한 효과를 낼 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ServiceRegistry</span>:
+</span></span><span style="display:flex;"><span>    _store <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(cls, name, instance):
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_store[name] <span style="color:#f92672">=</span> instance
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(cls, name):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_store[name]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 딱 한 번 등록</span>
+</span></span><span style="display:flex;"><span>ServiceRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;logger&#34;</span>, Logger())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 어디서든 같은 인스턴스</span>
+</span></span><span style="display:flex;"><span>logger <span style="color:#f92672">=</span> ServiceRegistry<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;logger&#34;</span>)
+</span></span></code></pre></div><p>싱글톤과의 차이는 <strong>관리 주체</strong>다. 싱글톤은 클래스 스스로 &ldquo;나는 하나만 존재한다&quot;고 강제하지만, Registry는 외부에서 인스턴스를 맡겨두는 방식이다. 덕분에 테스트할 때 Mock 객체로 교체하기가 훨씬 쉽다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 테스트에서 실제 Logger 대신 Mock으로 교체</span>
+</span></span><span style="display:flex;"><span>ServiceRegistry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;logger&#34;</span>, MockLogger())
+</span></span></code></pre></div><p>단, Registry 자체는 앱 전체에서 하나여야 하므로 결국 싱글톤으로 구현된다.</p>
+<h3 id="의존성-주입di-ioc-컨테이너가-싱글톤임-컨테이너가-싱글톤-스코프인지-개별-스코프인지-인스턴스를-관리함">의존성 주입(DI): IoC 컨테이너가 싱글톤임. 컨테이너가 싱글톤 스코프인지 개별 스코프인지 인스턴스를 관리함.</h3>
+<p>DI는 싱글톤의 가장 큰 단점인 &ldquo;숨겨진 의존성&rdquo; 문제를 해결한다. 필요한 객체를 내부에서 직접 꺼내는 대신, 외부에서 주입받는다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 싱글톤 방식: 의존성이 코드 안에 숨어 있다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(self, order):
+</span></span><span style="display:flex;"><span>        logger <span style="color:#f92672">=</span> Logger()          <span style="color:#75715e"># 숨겨진 의존성</span>
+</span></span><span style="display:flex;"><span>        db <span style="color:#f92672">=</span> DatabaseConnection()  <span style="color:#75715e"># 숨겨진 의존성</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># DI 방식: 의존성이 생성자에 명시적으로 드러난다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, logger, db):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>logger <span style="color:#f92672">=</span> logger
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> db
+</span></span></code></pre></div><p>DI 프레임워크(Spring, FastAPI의 Depends 등)는 내부적으로 Registry를 자료구조로 사용하며, 객체의 생명주기를 <code>singleton</code>(한 번 만들어 재사용)과 <code>transient</code>(요청마다 새로 생성) 중에서 선택할 수 있게 해준다. 즉, DI 컨테이너는 Registry 위에서 싱글톤을 더 유연하게 구현하는 구조다.</p>
+<p>실무에서는 싱글톤을 클래스에 직접 구현하기보다, DI 컨테이너에 싱글톤 스코프를 맡기는 방식이 권장된다. 의존성이 명시적으로 드러나고, 테스트 격리도 쉬워지기 때문이다.</p>
+<h2 id="용어-정리">용어 정리</h2>
+<ul>
+<li><strong>Singleton (싱글톤)</strong>: 인스턴스가 하나임을 보장하는 클래스</li>
+<li><strong>Lazy Initialization (지연 초기화)</strong>: 처음 접근하는 시점에 인스턴스를 생성하는 방식</li>
+<li><strong>Eager Initialization (즉시 초기화)</strong>: 클래스 로드 시점에 인스턴스를 미리 만드는 방식</li>
+<li><strong>Double-Checked Locking</strong>: 멀티스레드 환경에서 락을 최소화하면서 인스턴스를 안전하게 초기화하는 기법</li>
+<li><strong>Race Condition</strong>: 두 스레드가 동시에 같은 코드를 실행해 의도치 않은 결과가 발생하는 상황</li>
+</ul>
+<h2 id="한-줄-요약">한 줄 요약</h2>
+<p>싱글톤은 <strong>인스턴스를 딱 하나로 제한하고 전역에서 접근할 수 있게 만드는 패턴</strong>이다. 전역 상태의 편리함과 그로 인한 복잡도 상승을 함께 가져오므로, 정말 하나여야 하는 이유가 있을 때만 쓰는 것이 좋다.</p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" rel="tag">싱글톤</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/singleton/" rel="tag">Singleton</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-abs-factory/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-singleton/">Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-abs-factory/">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-dependency-injection/">Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-registry/">Vibe Coding을 위한 디자인 패턴 - 레지스트리(Registry)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/agents/05_3_retry/">Pydantic-AI 05-3: Agent 오류 처리 프로세스 (Result Validator &amp; Retry)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (9)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>
