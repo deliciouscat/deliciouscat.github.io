@@ -6,8 +6,15 @@
     <description>Recent content in Posts on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 14 May 2026 15:41:00 +0900</lastBuildDate>
+    <lastBuildDate>Tue, 19 May 2026 17:42:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</title>
+      <link>http://localhost:1313/posts/code-reading/django-singleton/</link>
+      <pubDate>Tue, 19 May 2026 17:42:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/django-singleton/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-singleton/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 싱글톤&lt;/a&gt;을 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;django가-뭔지-3줄&#34;&gt;Django가 뭔지 3줄&lt;/h2&gt;&#xA;&lt;p&gt;Django는 Python으로 서버를 만들 때 쓰는 웹 프레임워크다.&lt;br&gt;&#xA;Supabase가 &amp;ldquo;DB + 인증 + API를 클라우드에서 제공&amp;quot;하는 서비스라면, Django는 그 서버 코드를 직접 짜는 도구다.&lt;br&gt;&#xA;&amp;ldquo;앱(app)을 조립해서 하나의 프로젝트를 만든다&amp;quot;는 구조가 특징이고, 이 조립 정보를 관리하는 게 오늘의 주제다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;문제-서버가-켜질-때-뭐가-설치돼-있지-를-어떻게-알지&#34;&gt;문제: 서버가 켜질 때 &amp;ldquo;뭐가 설치돼 있지?&amp;rdquo; 를 어떻게 알지?&lt;/h2&gt;&#xA;&lt;p&gt;Supabase를 쓸 때는 어떤 테이블이 있는지 Supabase 대시보드가 관리한다. Django는 그걸 직접 코드로 관리한다. 서버가 켜지는 순간부터 이런 질문에 답해야 한다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)</title>
       <link>http://localhost:1313/posts/design-pattern/designpattern-singleton/</link>
