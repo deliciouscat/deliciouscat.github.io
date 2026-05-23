@@ -6,8 +6,50 @@
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 May 2026 17:42:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 23 May 2026 16:06:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prototype</title>
+      <link>http://localhost:1313/tags/prototype/</link>
+      <pubDate>Sat, 23 May 2026 16:06:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/prototype/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Python</title>
+      <link>http://localhost:1313/tags/python/</link>
+      <pubDate>Sat, 23 May 2026 16:06:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/python/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Scikit-Learn</title>
+      <link>http://localhost:1313/tags/scikit-learn/</link>
+      <pubDate>Sat, 23 May 2026 16:06:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/scikit-learn/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>디자인패턴</title>
+      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
+      <pubDate>Sat, 23 May 2026 16:06:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vibe Coding</title>
+      <link>http://localhost:1313/tags/vibe-coding/</link>
+      <pubDate>Sat, 23 May 2026 15:30:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/vibe-coding/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>프로토타입</title>
+      <link>http://localhost:1313/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/</link>
+      <pubDate>Sat, 23 May 2026 15:30:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Django</title>
       <link>http://localhost:1313/tags/django/</link>
@@ -20,20 +62,6 @@
       <link>http://localhost:1313/tags/singleton/</link>
       <pubDate>Tue, 19 May 2026 17:42:00 +0900</pubDate>
       <guid>http://localhost:1313/tags/singleton/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>디자인패턴</title>
-      <link>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</link>
-      <pubDate>Tue, 19 May 2026 17:42:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Vibe Coding</title>
-      <link>http://localhost:1313/tags/vibe-coding/</link>
-      <pubDate>Thu, 14 May 2026 15:41:00 +0900</pubDate>
-      <guid>http://localhost:1313/tags/vibe-coding/</guid>
       <description></description>
     </item>
     <item>

@@ -6,8 +6,22 @@
     <description>Recent content in Posts on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 May 2026 17:42:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 23 May 2026 16:06:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</title>
+      <link>http://localhost:1313/posts/code-reading/sklearn-prototype/</link>
+      <pubDate>Sat, 23 May 2026 16:06:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/sklearn-prototype/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-prototype/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 프로토타입&lt;/a&gt;을 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;scikit-learn이-뭔지-3줄&#34;&gt;scikit-learn이 뭔지 3줄&lt;/h2&gt;&#xA;&lt;p&gt;scikit-learn은 Python으로 머신러닝 모델을 만들 때 쓰는 라이브러리다.&lt;br&gt;&#xA;&lt;code&gt;LogisticRegression()&lt;/code&gt;, &lt;code&gt;RandomForestClassifier()&lt;/code&gt; 같은 모델을 만들고 &lt;code&gt;.fit(X, y)&lt;/code&gt;로 학습시킨다.&lt;br&gt;&#xA;GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이브러리 중 하나다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;문제-같은-설정의-모델을-여러-번-학습해야-한다&#34;&gt;문제: &amp;ldquo;같은 설정의 모델을 여러 번 학습해야 한다&amp;rdquo;&lt;/h2&gt;&#xA;&lt;p&gt;GridSearchCV(하이퍼파라미터 탐색), 교차검증(cross-validation), 앙상블 모델에는 공통 문제가 있다.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;GridSearchCV&#xA;  └─ LogisticRegression(C=0.1)을 5-fold 교차검증으로 평가&#xA;       ├─ fold 1: 모델 학습 → 평가 → 버림&#xA;       ├─ fold 2: 모델 학습 → 평가 → 버림&#xA;       ├─ fold 3: 모델 학습 → 평가 → 버림&#xA;       ├─ fold 4: 모델 학습 → 평가 → 버림&#xA;       └─ fold 5: 모델 학습 → 평가 → 버림&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;fold마다 &amp;ldquo;아직 학습 안 된, 같은 설정의 새 모델&amp;quot;이 필요하다.&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-prototype/</link>
+      <pubDate>Sat, 23 May 2026 15:30:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-prototype/</guid>
+      <description>&lt;p&gt;Prototype Pattern은 &lt;strong&gt;기존 객체를 복제(clone)하여 새로운 객체를 생성하는&lt;/strong&gt; 생성 디자인 패턴이다.&lt;/p&gt;&#xA;&lt;p&gt;&lt;code&gt;new&lt;/code&gt;로 처음부터 만드는 대신, 이미 존재하는 객체를 복사해서 새 객체를 만든다. 복제 대상이 되는 원본 객체를 프로토타입(Prototype)이라고 부른다.&lt;/p&gt;&#xA;&lt;h2 id=&#34;왜-복제가-필요한가&#34;&gt;왜 복제가 필요한가?&lt;/h2&gt;&#xA;&lt;p&gt;객체를 만들 때 다음과 같은 상황이 있다.&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;&lt;strong&gt;생성 비용이 크다&lt;/strong&gt; — DB에서 데이터를 조회하거나, 복잡한 계산을 거쳐야 객체가 완성되는 경우&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;비슷한 객체를 여러 개 만들어야 한다&lt;/strong&gt; — 기본 설정이 같고 일부만 다른 객체를 반복 생성하는 경우&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;클라이언트가 구체 클래스를 몰라야 한다&lt;/strong&gt; — 인터페이스만 알고 있는 상태에서 같은 타입의 객체를 만들어야 하는 경우&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;이런 상황에서 매번 &lt;code&gt;new&lt;/code&gt;를 호출하고, 생성자에 파라미터를 하나하나 넘기고, 초기화 로직을 반복하는 건 비효율적이다. 프로토타입 패턴은 &amp;ldquo;이미 만들어진 객체를 복사하면 된다&amp;quot;는 발상으로 이 문제를 해결한다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</title>
       <link>http://localhost:1313/posts/code-reading/django-singleton/</link>

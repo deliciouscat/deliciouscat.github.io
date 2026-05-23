@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-prototype/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)">
+  <meta property="og:description" content="Prototype Pattern은 기존 객체를 복제(clone)하여 새로운 객체를 생성하는 생성 디자인 패턴이다.
+new로 처음부터 만드는 대신, 이미 존재하는 객체를 복사해서 새 객체를 만든다. 복제 대상이 되는 원본 객체를 프로토타입(Prototype)이라고 부른다.
+왜 복제가 필요한가? 객체를 만들 때 다음과 같은 상황이 있다.
+생성 비용이 크다 — DB에서 데이터를 조회하거나, 복잡한 계산을 거쳐야 객체가 완성되는 경우 비슷한 객체를 여러 개 만들어야 한다 — 기본 설정이 같고 일부만 다른 객체를 반복 생성하는 경우 클라이언트가 구체 클래스를 몰라야 한다 — 인터페이스만 알고 있는 상태에서 같은 타입의 객체를 만들어야 하는 경우 이런 상황에서 매번 new를 호출하고, 생성자에 파라미터를 하나하나 넘기고, 초기화 로직을 반복하는 건 비효율적이다. 프로토타입 패턴은 “이미 만들어진 객체를 복사하면 된다&#34;는 발상으로 이 문제를 해결한다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-23T15:30:00+09:00">
+    <meta property="article:modified_time" content="2026-05-23T15:30:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Vibe Coding">
+    <meta property="article:tag" content="프로토타입">
+    <meta property="article:tag" content="Prototype">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-23T15:30:00&#43;09:00">May 23, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p>Prototype Pattern은 <strong>기존 객체를 복제(clone)하여 새로운 객체를 생성하는</strong> 생성 디자인 패턴이다.</p>
+<p><code>new</code>로 처음부터 만드는 대신, 이미 존재하는 객체를 복사해서 새 객체를 만든다. 복제 대상이 되는 원본 객체를 프로토타입(Prototype)이라고 부른다.</p>
+<h2 id="왜-복제가-필요한가">왜 복제가 필요한가?</h2>
+<p>객체를 만들 때 다음과 같은 상황이 있다.</p>
+<ol>
+<li><strong>생성 비용이 크다</strong> — DB에서 데이터를 조회하거나, 복잡한 계산을 거쳐야 객체가 완성되는 경우</li>
+<li><strong>비슷한 객체를 여러 개 만들어야 한다</strong> — 기본 설정이 같고 일부만 다른 객체를 반복 생성하는 경우</li>
+<li><strong>클라이언트가 구체 클래스를 몰라야 한다</strong> — 인터페이스만 알고 있는 상태에서 같은 타입의 객체를 만들어야 하는 경우</li>
+</ol>
+<p>이런 상황에서 매번 <code>new</code>를 호출하고, 생성자에 파라미터를 하나하나 넘기고, 초기화 로직을 반복하는 건 비효율적이다. 프로토타입 패턴은 &ldquo;이미 만들어진 객체를 복사하면 된다&quot;는 발상으로 이 문제를 해결한다.</p>
+<h2 id="문제가-있는-예시">문제가 있는 예시</h2>
+<p>게임에서 몬스터를 생성하는 상황을 생각해보자.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Monster</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name, hp, attack, defense, skills, sprite_data):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>hp <span style="color:#f92672">=</span> hp
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>attack <span style="color:#f92672">=</span> attack
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>defense <span style="color:#f92672">=</span> defense
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>skills <span style="color:#f92672">=</span> skills
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>sprite_data <span style="color:#f92672">=</span> sprite_data  <span style="color:#75715e"># 로딩에 비용이 큰 데이터</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">spawn_goblin_squad</span>():
+</span></span><span style="display:flex;"><span>    goblins <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">50</span>):
+</span></span><span style="display:flex;"><span>        goblin <span style="color:#f92672">=</span> Monster(
+</span></span><span style="display:flex;"><span>            name<span style="color:#f92672">=</span><span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Goblin_</span><span style="color:#e6db74">{</span>i<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>,
+</span></span><span style="display:flex;"><span>            hp<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>            attack<span style="color:#f92672">=</span><span style="color:#ae81ff">15</span>,
+</span></span><span style="display:flex;"><span>            defense<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,
+</span></span><span style="display:flex;"><span>            skills<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;slash&#34;</span>, <span style="color:#e6db74">&#34;dodge&#34;</span>],
+</span></span><span style="display:flex;"><span>            sprite_data<span style="color:#f92672">=</span>load_sprite(<span style="color:#e6db74">&#34;goblin.png&#34;</span>)  <span style="color:#75715e"># 매번 디스크에서 로드</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        goblins<span style="color:#f92672">.</span>append(goblin)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> goblins
+</span></span></code></pre></div><p>위 코드의 문제점:</p>
+<ol>
+<li>50마리의 고블린을 만들 때마다 <code>load_sprite()</code>가 50번 호출된다.</li>
+<li>모든 고블린이 같은 기본 스탯을 가지는데, 매번 파라미터를 나열해야 한다.</li>
+<li>나중에 고블린의 기본 스펙이 바뀌면 <code>spawn_goblin_squad()</code> 전체를 수정해야 한다.</li>
+</ol>
+<h2 id="prototype-적용">Prototype 적용</h2>
+<p>프로토타입 패턴을 적용하면 원본 고블린을 하나 만들고, 나머지는 복제한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> abc <span style="color:#f92672">import</span> ABC, abstractmethod
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> copy
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Monster</span>(ABC):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clone</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@abstractmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">describe</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Goblin</span>(Monster):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, name, hp, attack, defense, skills, sprite_data):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>hp <span style="color:#f92672">=</span> hp
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>attack <span style="color:#f92672">=</span> attack
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>defense <span style="color:#f92672">=</span> defense
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>skills <span style="color:#f92672">=</span> list(skills)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>sprite_data <span style="color:#f92672">=</span> sprite_data
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clone</span>(self):
+</span></span><span style="display:flex;"><span>        cloned <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>copy(self)
+</span></span><span style="display:flex;"><span>        cloned<span style="color:#f92672">.</span>skills <span style="color:#f92672">=</span> list(self<span style="color:#f92672">.</span>skills)  <span style="color:#75715e"># 리스트는 별도로 깊은 복사</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cloned
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">describe</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>name<span style="color:#e6db74">}</span><span style="color:#e6db74"> (HP:</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>hp<span style="color:#e6db74">}</span><span style="color:#e6db74">, ATK:</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>attack<span style="color:#e6db74">}</span><span style="color:#e6db74">, DEF:</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>defense<span style="color:#e6db74">}</span><span style="color:#e6db74">)&#34;</span>
+</span></span></code></pre></div><p>이제 원본 하나를 만들고 복제해서 쓴다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">spawn_goblin_squad</span>():
+</span></span><span style="display:flex;"><span>    prototype <span style="color:#f92672">=</span> Goblin(
+</span></span><span style="display:flex;"><span>        name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Goblin&#34;</span>,
+</span></span><span style="display:flex;"><span>        hp<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>        attack<span style="color:#f92672">=</span><span style="color:#ae81ff">15</span>,
+</span></span><span style="display:flex;"><span>        defense<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,
+</span></span><span style="display:flex;"><span>        skills<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;slash&#34;</span>, <span style="color:#e6db74">&#34;dodge&#34;</span>],
+</span></span><span style="display:flex;"><span>        sprite_data<span style="color:#f92672">=</span>load_sprite(<span style="color:#e6db74">&#34;goblin.png&#34;</span>)  <span style="color:#75715e"># 한 번만 로드</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    goblins <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">50</span>):
+</span></span><span style="display:flex;"><span>        goblin <span style="color:#f92672">=</span> prototype<span style="color:#f92672">.</span>clone()
+</span></span><span style="display:flex;"><span>        goblin<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Goblin_</span><span style="color:#e6db74">{</span>i<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>        goblins<span style="color:#f92672">.</span>append(goblin)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> goblins
+</span></span></code></pre></div><p><code>load_sprite()</code>는 한 번만 호출된다. 50마리 모두 같은 <code>sprite_data</code>를 공유하고, 개별적으로 달라야 하는 부분(이름 등)만 복제 후에 바꾼다.</p>
+<h2 id="얕은-복사-vs-깊은-복사">얕은 복사 vs 깊은 복사</h2>
+<p>프로토타입 패턴에서 가장 주의해야 할 부분이다.</p>
+<h3 id="얕은-복사-shallow-copy">얕은 복사 (Shallow Copy)</h3>
+<p>객체의 최상위 필드만 복사한다. 내부에 리스트, 딕셔너리, 다른 객체가 있으면 <strong>참조만 복사</strong>되므로 원본과 복제본이 같은 내부 객체를 공유한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> copy
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>original <span style="color:#f92672">=</span> Goblin(<span style="color:#e6db74">&#34;Goblin&#34;</span>, <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">5</span>, [<span style="color:#e6db74">&#34;slash&#34;</span>, <span style="color:#e6db74">&#34;dodge&#34;</span>], <span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>shallow <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>copy(original)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>shallow<span style="color:#f92672">.</span>skills<span style="color:#f92672">.</span>append(<span style="color:#e6db74">&#34;fireball&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(original<span style="color:#f92672">.</span>skills)  <span style="color:#75715e"># [&#34;slash&#34;, &#34;dodge&#34;, &#34;fireball&#34;] — 원본도 변경됨!</span>
+</span></span></code></pre></div><h3 id="깊은-복사-deep-copy">깊은 복사 (Deep Copy)</h3>
+<p>객체 내부의 모든 중첩 객체까지 재귀적으로 복사한다. 원본과 복제본이 완전히 독립된다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>original <span style="color:#f92672">=</span> Goblin(<span style="color:#e6db74">&#34;Goblin&#34;</span>, <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">5</span>, [<span style="color:#e6db74">&#34;slash&#34;</span>, <span style="color:#e6db74">&#34;dodge&#34;</span>], <span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>deep <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>deepcopy(original)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>deep<span style="color:#f92672">.</span>skills<span style="color:#f92672">.</span>append(<span style="color:#e6db74">&#34;fireball&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(original<span style="color:#f92672">.</span>skills)  <span style="color:#75715e"># [&#34;slash&#34;, &#34;dodge&#34;] — 원본은 영향 없음</span>
+</span></span></code></pre></div><h3 id="선택-기준">선택 기준</h3>
+<ul>
+<li><strong>불변(immutable) 필드만 있다면</strong>: 얕은 복사로 충분하다.</li>
+<li><strong>가변(mutable) 필드가 있다면</strong>: 깊은 복사를 쓰거나, <code>clone()</code> 안에서 해당 필드만 수동으로 깊은 복사한다.</li>
+<li><strong>성능이 중요하다면</strong>: <code>deepcopy</code>는 느릴 수 있으므로, 꼭 필요한 필드만 선택적으로 복사하는 게 낫다.</li>
+</ul>
+<p>앞선 <code>Goblin.clone()</code>에서 <code>copy.copy()</code>로 얕은 복사를 하되, <code>skills</code> 리스트만 별도로 복사한 이유가 이것이다.</p>
+<h2 id="prototype-registry">Prototype Registry</h2>
+<p>프로토타입을 미리 등록해두고 키로 꺼내 쓰는 패턴도 자주 사용된다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MonsterRegistry</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_prototypes <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>(self, key, prototype):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_prototypes[key] <span style="color:#f92672">=</span> prototype
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create</span>(self, key, <span style="color:#f92672">**</span>overrides):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> key <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_prototypes:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Unknown monster type: </span><span style="color:#e6db74">{</span>key<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        clone <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>_prototypes[key]<span style="color:#f92672">.</span>clone()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> attr, value <span style="color:#f92672">in</span> overrides<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>            setattr(clone, attr, value)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> clone
+</span></span></code></pre></div><p>등록하고 사용하는 코드:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>registry <span style="color:#f92672">=</span> MonsterRegistry()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>registry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;goblin&#34;</span>, Goblin(
+</span></span><span style="display:flex;"><span>    name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Goblin&#34;</span>, hp<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>, attack<span style="color:#f92672">=</span><span style="color:#ae81ff">15</span>, defense<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>,
+</span></span><span style="display:flex;"><span>    skills<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;slash&#34;</span>, <span style="color:#e6db74">&#34;dodge&#34;</span>],
+</span></span><span style="display:flex;"><span>    sprite_data<span style="color:#f92672">=</span>load_sprite(<span style="color:#e6db74">&#34;goblin.png&#34;</span>)
+</span></span><span style="display:flex;"><span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>registry<span style="color:#f92672">.</span>register(<span style="color:#e6db74">&#34;orc&#34;</span>, Orc(
+</span></span><span style="display:flex;"><span>    name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Orc&#34;</span>, hp<span style="color:#f92672">=</span><span style="color:#ae81ff">300</span>, attack<span style="color:#f92672">=</span><span style="color:#ae81ff">40</span>, defense<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>,
+</span></span><span style="display:flex;"><span>    skills<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;smash&#34;</span>, <span style="color:#e6db74">&#34;roar&#34;</span>],
+</span></span><span style="display:flex;"><span>    sprite_data<span style="color:#f92672">=</span>load_sprite(<span style="color:#e6db74">&#34;orc.png&#34;</span>)
+</span></span><span style="display:flex;"><span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 사용</span>
+</span></span><span style="display:flex;"><span>goblin <span style="color:#f92672">=</span> registry<span style="color:#f92672">.</span>create(<span style="color:#e6db74">&#34;goblin&#34;</span>, name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Goblin_Elite&#34;</span>, attack<span style="color:#f92672">=</span><span style="color:#ae81ff">25</span>)
+</span></span><span style="display:flex;"><span>orc <span style="color:#f92672">=</span> registry<span style="color:#f92672">.</span>create(<span style="color:#e6db74">&#34;orc&#34;</span>, name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Orc_Chief&#34;</span>, hp<span style="color:#f92672">=</span><span style="color:#ae81ff">500</span>)
+</span></span></code></pre></div><p>클라이언트는 <code>Goblin</code>, <code>Orc</code> 같은 구체 클래스를 직접 알 필요 없다. 레지스트리에 키만 넘기면 복제된 객체를 받는다.</p>
+<h2 id="설정-객체-예시">설정 객체 예시</h2>
+<p>게임 예시가 너무 도메인 특화되어 있으니, 더 일반적인 예시도 보자.</p>
+<p>서버 설정 객체를 환경별로 만드는 상황이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> copy
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ServerConfig</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, host, port, db_url, cache_size, log_level, 
+</span></span><span style="display:flex;"><span>                 ssl_cert, timeout, max_connections):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>host <span style="color:#f92672">=</span> host
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>port <span style="color:#f92672">=</span> port
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db_url <span style="color:#f92672">=</span> db_url
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>cache_size <span style="color:#f92672">=</span> cache_size
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>log_level <span style="color:#f92672">=</span> log_level
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>ssl_cert <span style="color:#f92672">=</span> ssl_cert
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>timeout <span style="color:#f92672">=</span> timeout
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>max_connections <span style="color:#f92672">=</span> max_connections
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>middleware <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clone</span>(self):
+</span></span><span style="display:flex;"><span>        cloned <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>copy(self)
+</span></span><span style="display:flex;"><span>        cloned<span style="color:#f92672">.</span>middleware <span style="color:#f92672">=</span> list(self<span style="color:#f92672">.</span>middleware)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cloned
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__repr__</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;ServerConfig(</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>host<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>port<span style="color:#e6db74">}</span><span style="color:#e6db74">, log=</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>log_level<span style="color:#e6db74">}</span><span style="color:#e6db74">)&#34;</span>
+</span></span></code></pre></div><p>기본 설정을 프로토타입으로 만들고, 환경별로 일부만 오버라이드한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>base_config <span style="color:#f92672">=</span> ServerConfig(
+</span></span><span style="display:flex;"><span>    host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0.0.0.0&#34;</span>,
+</span></span><span style="display:flex;"><span>    port<span style="color:#f92672">=</span><span style="color:#ae81ff">8080</span>,
+</span></span><span style="display:flex;"><span>    db_url<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;postgresql://localhost:5432/app&#34;</span>,
+</span></span><span style="display:flex;"><span>    cache_size<span style="color:#f92672">=</span><span style="color:#ae81ff">256</span>,
+</span></span><span style="display:flex;"><span>    log_level<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;INFO&#34;</span>,
+</span></span><span style="display:flex;"><span>    ssl_cert<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/etc/ssl/cert.pem&#34;</span>,
+</span></span><span style="display:flex;"><span>    timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">30</span>,
+</span></span><span style="display:flex;"><span>    max_connections<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>base_config<span style="color:#f92672">.</span>middleware <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;auth&#34;</span>, <span style="color:#e6db74">&#34;cors&#34;</span>, <span style="color:#e6db74">&#34;logging&#34;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 개발 환경: 기본 설정을 복제하고 일부만 변경</span>
+</span></span><span style="display:flex;"><span>dev_config <span style="color:#f92672">=</span> base_config<span style="color:#f92672">.</span>clone()
+</span></span><span style="display:flex;"><span>dev_config<span style="color:#f92672">.</span>log_level <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;DEBUG&#34;</span>
+</span></span><span style="display:flex;"><span>dev_config<span style="color:#f92672">.</span>db_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;postgresql://localhost:5432/app_dev&#34;</span>
+</span></span><span style="display:flex;"><span>dev_config<span style="color:#f92672">.</span>ssl_cert <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 스테이징 환경</span>
+</span></span><span style="display:flex;"><span>staging_config <span style="color:#f92672">=</span> base_config<span style="color:#f92672">.</span>clone()
+</span></span><span style="display:flex;"><span>staging_config<span style="color:#f92672">.</span>host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;staging.example.com&#34;</span>
+</span></span><span style="display:flex;"><span>staging_config<span style="color:#f92672">.</span>db_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;postgresql://staging-db:5432/app&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 프로덕션 환경</span>
+</span></span><span style="display:flex;"><span>prod_config <span style="color:#f92672">=</span> base_config<span style="color:#f92672">.</span>clone()
+</span></span><span style="display:flex;"><span>prod_config<span style="color:#f92672">.</span>host <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;api.example.com&#34;</span>
+</span></span><span style="display:flex;"><span>prod_config<span style="color:#f92672">.</span>max_connections <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>prod_config<span style="color:#f92672">.</span>cache_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1024</span>
+</span></span></code></pre></div><p>8개의 필드를 가진 설정 객체인데, 환경별로 다른 건 2~3개뿐이다. 매번 8개 파라미터를 나열하는 것보다 프로토타입을 복제하고 차이점만 수정하는 게 훨씬 깔끔하다.</p>
+<h2 id="다른-생성-패턴과의-비교">다른 생성 패턴과의 비교</h2>
+<h3 id="factory-method--abstract-factory와의-차이">Factory Method / Abstract Factory와의 차이</h3>
+<p>팩토리 패턴들은 <strong>클래스 기반</strong>이다. &ldquo;어떤 클래스의 인스턴스를 만들 것인가?&ldquo;가 핵심이다.</p>
+<p>프로토타입은 <strong>인스턴스 기반</strong>이다. &ldquo;어떤 기존 객체를 복사할 것인가?&ldquo;가 핵심이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Factory: 클래스를 지정해서 새로 생성</span>
+</span></span><span style="display:flex;"><span>goblin <span style="color:#f92672">=</span> GoblinFactory<span style="color:#f92672">.</span>create()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Prototype: 기존 객체를 복사해서 생성</span>
+</span></span><span style="display:flex;"><span>goblin <span style="color:#f92672">=</span> goblin_prototype<span style="color:#f92672">.</span>clone()
+</span></span></code></pre></div><p>팩토리는 항상 초기 상태의 객체를 만든다. 프로토타입은 특정 상태의 객체를 그대로 복제할 수 있다.</p>
+<h3 id="builder와의-차이">Builder와의 차이</h3>
+<p>Builder는 복잡한 객체를 <strong>단계별로 조립</strong>한다.</p>
+<p>프로토타입은 이미 조립된 객체를 <strong>통째로 복사</strong>한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Builder: 단계별 조립</span>
+</span></span><span style="display:flex;"><span>config <span style="color:#f92672">=</span> ConfigBuilder() \
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">.</span>set_host(<span style="color:#e6db74">&#34;0.0.0.0&#34;</span>) \
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">.</span>set_port(<span style="color:#ae81ff">8080</span>) \
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">.</span>set_db_url(<span style="color:#e6db74">&#34;...&#34;</span>) \
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">.</span>build()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Prototype: 기존 객체 복사 후 수정</span>
+</span></span><span style="display:flex;"><span>config <span style="color:#f92672">=</span> base_config<span style="color:#f92672">.</span>clone()
+</span></span><span style="display:flex;"><span>config<span style="color:#f92672">.</span>port <span style="color:#f92672">=</span> <span style="color:#ae81ff">9090</span>
+</span></span></code></pre></div><p>이미 완성된 객체가 있고 약간만 바꾸고 싶다면 프로토타입이 더 적합하다.</p>
+<h2 id="장점">장점</h2>
+<ol>
+<li>
+<p><strong>생성 비용 절감</strong></p>
+<ul>
+<li>초기화에 비용이 큰 객체(DB 조회, 파일 로딩 등)를 매번 새로 만들지 않아도 된다.</li>
+</ul>
+</li>
+<li>
+<p><strong>구체 클래스 의존 제거</strong></p>
+<ul>
+<li><code>clone()</code>만 호출하면 되므로, 클라이언트가 구체 클래스를 몰라도 같은 타입의 객체를 만들 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>유사 객체 대량 생성에 유리</strong></p>
+<ul>
+<li>기본 설정이 같고 일부만 다른 객체를 쉽게 만들 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>상태가 포함된 객체 복제</strong></p>
+<ul>
+<li>팩토리는 초기 상태의 객체만 만들지만, 프로토타입은 현재 상태 그대로를 복제할 수 있다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="단점">단점</h2>
+<ol>
+<li>
+<p><strong>깊은 복사의 복잡성</strong></p>
+<ul>
+<li>순환 참조가 있거나 복잡한 중첩 구조를 가진 객체는 올바르게 복제하기 어렵다.</li>
+</ul>
+</li>
+<li>
+<p><strong>clone() 구현 부담</strong></p>
+<ul>
+<li>모든 프로토타입 클래스에 <code>clone()</code>을 구현해야 하고, 필드가 변경될 때마다 <code>clone()</code>도 함께 갱신해야 한다.</li>
+</ul>
+</li>
+<li>
+<p><strong>얕은 복사 버그 위험</strong></p>
+<ul>
+<li>얕은 복사로 인해 원본과 복제본이 내부 객체를 공유하는 문제를 놓치기 쉽다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="언제-사용해야-할까">언제 사용해야 할까?</h2>
+<ol>
+<li>
+<p><strong>객체 생성 비용이 클 때</strong></p>
+<ul>
+<li>네트워크 호출, 파일 I/O, 복잡한 계산이 초기화에 필요한 경우</li>
+</ul>
+</li>
+<li>
+<p><strong>비슷한 객체를 여러 개 만들어야 할 때</strong></p>
+<ul>
+<li>기본값이 같고 일부만 다른 객체를 반복 생성하는 경우</li>
+</ul>
+</li>
+<li>
+<p><strong>런타임에 객체의 타입이 결정될 때</strong></p>
+<ul>
+<li>설정 파일이나 사용자 입력에 따라 다양한 타입의 객체를 만들어야 하는데, 구체 클래스를 미리 알 수 없는 경우</li>
+</ul>
+</li>
+<li>
+<p><strong>객체의 현재 상태를 보존한 채 복사하고 싶을 때</strong></p>
+<ul>
+<li>스냅샷, 되돌리기(undo), 시뮬레이션 분기 등</li>
+</ul>
+</li>
+</ol>
+<h2 id="용어-정리">용어 정리</h2>
+<ul>
+<li><strong>Prototype (프로토타입)</strong>: 복제의 원본이 되는 객체. <code>clone()</code> 메서드를 제공한다.</li>
+<li><strong>Concrete Prototype (구체 프로토타입)</strong>: Prototype 인터페이스를 구현한 실제 클래스.</li>
+<li><strong>Clone (복제)</strong>: 프로토타입의 현재 상태를 복사하여 새 객체를 만드는 연산.</li>
+<li><strong>Shallow Copy (얕은 복사)</strong>: 최상위 필드만 복사. 내부 참조 객체는 공유.</li>
+<li><strong>Deep Copy (깊은 복사)</strong>: 모든 중첩 객체까지 재귀적으로 복사. 완전 독립.</li>
+<li><strong>Prototype Registry (프로토타입 레지스트리)</strong>: 프로토타입들을 키-값으로 관리하는 저장소.</li>
+</ul>
+<h2 id="한-줄-요약">한 줄 요약</h2>
+<p>Prototype Pattern은 <strong>기존 객체를 복제하여 새 객체를 생성하는 패턴</strong>이다.</p>
+<p>즉:</p>
+<blockquote>
+<p>&ldquo;처음부터 만들지 말고, 있는 걸 복사해서 고쳐 쓰자.&rdquo;</p></blockquote>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/vibe-coding/" rel="tag">Vibe Coding</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" rel="tag">프로토타입</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/prototype/" rel="tag">Prototype</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/code-reading/django-singleton/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/code-reading/sklearn-prototype/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/sklearn-prototype/">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-singleton/">Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-singleton/">Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-abs-factory/">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (7)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (12)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone() - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/code-reading/sklearn-prototype/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()">
+  <meta property="og:description" content="이전 글 Vibe Coding을 위한 디자인 패턴 - 프로토타입을 읽었다는 가정 하에 쓴다.
+scikit-learn이 뭔지 3줄 scikit-learn은 Python으로 머신러닝 모델을 만들 때 쓰는 라이브러리다.
+LogisticRegression(), RandomForestClassifier() 같은 모델을 만들고 .fit(X, y)로 학습시킨다.
+GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이브러리 중 하나다.
+문제: “같은 설정의 모델을 여러 번 학습해야 한다” GridSearchCV(하이퍼파라미터 탐색), 교차검증(cross-validation), 앙상블 모델에는 공통 문제가 있다.
+GridSearchCV └─ LogisticRegression(C=0.1)을 5-fold 교차검증으로 평가 ├─ fold 1: 모델 학습 → 평가 → 버림 ├─ fold 2: 모델 학습 → 평가 → 버림 ├─ fold 3: 모델 학습 → 평가 → 버림 ├─ fold 4: 모델 학습 → 평가 → 버림 └─ fold 5: 모델 학습 → 평가 → 버림 fold마다 “아직 학습 안 된, 같은 설정의 새 모델&#34;이 필요하다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-23T16:06:00+09:00">
+    <meta property="article:modified_time" content="2026-05-23T16:06:00+09:00">
+    <meta property="article:tag" content="Scikit-Learn">
+    <meta property="article:tag" content="Prototype">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Python">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-23T16:06:00&#43;09:00">May 23, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p>이전 글 <a href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입</a>을 읽었다는 가정 하에 쓴다.</p></blockquote>
+<h2 id="scikit-learn이-뭔지-3줄">scikit-learn이 뭔지 3줄</h2>
+<p>scikit-learn은 Python으로 머신러닝 모델을 만들 때 쓰는 라이브러리다.<br>
+<code>LogisticRegression()</code>, <code>RandomForestClassifier()</code> 같은 모델을 만들고 <code>.fit(X, y)</code>로 학습시킨다.<br>
+GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이브러리 중 하나다.</p>
+<hr>
+<h2 id="문제-같은-설정의-모델을-여러-번-학습해야-한다">문제: &ldquo;같은 설정의 모델을 여러 번 학습해야 한다&rdquo;</h2>
+<p>GridSearchCV(하이퍼파라미터 탐색), 교차검증(cross-validation), 앙상블 모델에는 공통 문제가 있다.</p>
+<pre tabindex="0"><code>GridSearchCV
+  └─ LogisticRegression(C=0.1)을 5-fold 교차검증으로 평가
+       ├─ fold 1: 모델 학습 → 평가 → 버림
+       ├─ fold 2: 모델 학습 → 평가 → 버림
+       ├─ fold 3: 모델 학습 → 평가 → 버림
+       ├─ fold 4: 모델 학습 → 평가 → 버림
+       └─ fold 5: 모델 학습 → 평가 → 버림
+</code></pre><p><strong>fold마다 &ldquo;아직 학습 안 된, 같은 설정의 새 모델&quot;이 필요하다.</strong></p>
+<p>그냥 같은 인스턴스를 재사용하면 안 된다. fold 1의 학습 결과가 fold 2에 섞인다.<br>
+그렇다고 <code>LogisticRegression(C=0.1)</code>을 매번 직접 쓰면 GridSearchCV가 어떤 파라미터로 만들어야 하는지 코드 안에 하드코딩해야 한다.</p>
+<p>scikit-learn은 이 문제를 <code>clone()</code>으로 해결한다.</p>
+<hr>
+<h2 id="해법-clone--파라미터만-복제하는-프로토타입">해법: <code>clone()</code> — 파라미터만 복제하는 프로토타입</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># sklearn/base.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.base <span style="color:#f92672">import</span> clone
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.linear_model <span style="color:#f92672">import</span> LogisticRegression
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>fitted <span style="color:#f92672">=</span> LogisticRegression(C<span style="color:#f92672">=</span><span style="color:#ae81ff">0.1</span>)<span style="color:#f92672">.</span>fit(X, y)
+</span></span><span style="display:flex;"><span>fresh  <span style="color:#f92672">=</span> clone(fitted)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>hasattr(fitted, <span style="color:#e6db74">&#34;classes_&#34;</span>)  <span style="color:#75715e"># True  — 학습된 상태 있음</span>
+</span></span><span style="display:flex;"><span>hasattr(fresh,  <span style="color:#e6db74">&#34;classes_&#34;</span>)  <span style="color:#75715e"># False — 깨끗한 새 모델</span>
+</span></span><span style="display:flex;"><span>fitted <span style="color:#f92672">is</span> fresh              <span style="color:#75715e"># False — 별개의 객체</span>
+</span></span></code></pre></div><p><code>clone()</code>은 학습된 결과(가중치, <code>classes_</code>, <code>coef_</code> 등)는 복사하지 않는다.<br>
+<strong>&ldquo;어떻게 만들어졌는가&rdquo;</strong>(파라미터)만 복제하고, <strong>&ldquo;무엇을 배웠는가&rdquo;</strong>(상태)는 버린다.</p>
+<p>프로토타입 패턴에서 &ldquo;원본의 상태를 그대로 복제&quot;하는 경우와 다르다. scikit-learn의 <code>clone()</code>은 <strong>&ldquo;설정 프로토타입&rdquo;</strong> 에 가깝다. 이 선택이 왜 맞는지는 아래에서 다시 본다.</p>
+<hr>
+<h2 id="clone이-실제로-하는-일">clone()이 실제로 하는 일</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># sklearn/base.py (단순화)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clone</span>(estimator, <span style="color:#f92672">*</span>, safe<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># __sklearn_clone__ 프로토콜이 있으면 위임</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> hasattr(estimator, <span style="color:#e6db74">&#34;__sklearn_clone__&#34;</span>) <span style="color:#f92672">and</span> <span style="color:#f92672">not</span> inspect<span style="color:#f92672">.</span>isclass(estimator):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> estimator<span style="color:#f92672">.</span>__sklearn_clone__()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> _clone_parametrized(estimator, safe<span style="color:#f92672">=</span>safe)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_clone_parametrized</span>(estimator, <span style="color:#f92672">*</span>, safe<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># list, tuple, dict 같은 컨테이너는 재귀적으로 복제</span>
+</span></span><span style="display:flex;"><span>    estimator_type <span style="color:#f92672">=</span> type(estimator)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> estimator_type <span style="color:#f92672">in</span> (list, tuple, set, frozenset):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> estimator_type([clone(e, safe<span style="color:#f92672">=</span>safe) <span style="color:#66d9ef">for</span> e <span style="color:#f92672">in</span> estimator])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> estimator_type <span style="color:#f92672">is</span> dict:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> {k: clone(v, safe<span style="color:#f92672">=</span>safe) <span style="color:#66d9ef">for</span> k, v <span style="color:#f92672">in</span> estimator<span style="color:#f92672">.</span>items()}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># get_params()가 없으면 sklearn estimator가 아님</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> hasattr(estimator, <span style="color:#e6db74">&#34;get_params&#34;</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> safe:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> copy<span style="color:#f92672">.</span>deepcopy(estimator)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">TypeError</span>(<span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    klass <span style="color:#f92672">=</span> estimator<span style="color:#f92672">.</span>__class__
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. 생성자 파라미터만 꺼냄 (학습된 상태는 제외)</span>
+</span></span><span style="display:flex;"><span>    new_object_params <span style="color:#f92672">=</span> estimator<span style="color:#f92672">.</span>get_params(deep<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. 파라미터 값도 재귀적으로 clone</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> name, param <span style="color:#f92672">in</span> new_object_params<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>        new_object_params[name] <span style="color:#f92672">=</span> clone(param, safe<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. 새 인스턴스 생성 — 학습 전 상태</span>
+</span></span><span style="display:flex;"><span>    new_object <span style="color:#f92672">=</span> klass(<span style="color:#f92672">**</span>new_object_params)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> new_object
+</span></span></code></pre></div><p>세 단계로 요약된다.</p>
+<ol>
+<li><code>get_params(deep=False)</code> — <code>__init__</code>에 넘긴 파라미터만 가져온다</li>
+<li>각 파라미터 값을 재귀 <code>clone</code> — 중첩 estimator도 복제</li>
+<li><code>klass(**params)</code>로 새 인스턴스 생성</li>
+</ol>
+<p><code>copy.deepcopy(estimator)</code> 한 줄이 아닌 이유는 학습된 상태를 <strong>의도적으로 빼기 위해서다.</strong></p>
+<hr>
+<h2 id="get_params--무엇을-복제할지-알려주는-인터페이스">get_params() — 무엇을 복제할지 알려주는 인터페이스</h2>
+<p><code>clone()</code>이 동작하려면 estimator가 <code>get_params()</code>를 구현해야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># sklearn/base.py — BaseEstimator.get_params()</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_params</span>(self, deep<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>):
+</span></span><span style="display:flex;"><span>    out <span style="color:#f92672">=</span> dict()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> key <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_get_param_names():  <span style="color:#75715e"># __init__ 파라미터 이름 목록</span>
+</span></span><span style="display:flex;"><span>        value <span style="color:#f92672">=</span> getattr(self, key)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> deep <span style="color:#f92672">and</span> hasattr(value, <span style="color:#e6db74">&#34;get_params&#34;</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># 중첩 estimator면 그것의 파라미터도 포함</span>
+</span></span><span style="display:flex;"><span>            deep_items <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span>get_params()<span style="color:#f92672">.</span>items()
+</span></span><span style="display:flex;"><span>            out<span style="color:#f92672">.</span>update((key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;__&#34;</span> <span style="color:#f92672">+</span> k, val) <span style="color:#66d9ef">for</span> k, val <span style="color:#f92672">in</span> deep_items)
+</span></span><span style="display:flex;"><span>        out[key] <span style="color:#f92672">=</span> value
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> out
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_get_param_names</span>(cls):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># inspect로 __init__ 시그니처를 읽는다</span>
+</span></span><span style="display:flex;"><span>    init <span style="color:#f92672">=</span> cls<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>
+</span></span><span style="display:flex;"><span>    init_signature <span style="color:#f92672">=</span> inspect<span style="color:#f92672">.</span>signature(init)
+</span></span><span style="display:flex;"><span>    parameters <span style="color:#f92672">=</span> [p <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> init_signature<span style="color:#f92672">.</span>parameters<span style="color:#f92672">.</span>values()
+</span></span><span style="display:flex;"><span>                  <span style="color:#66d9ef">if</span> p<span style="color:#f92672">.</span>name <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;self&#34;</span> <span style="color:#f92672">and</span> p<span style="color:#f92672">.</span>kind <span style="color:#f92672">!=</span> p<span style="color:#f92672">.</span>VAR_KEYWORD]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> sorted([p<span style="color:#f92672">.</span>name <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> parameters])
+</span></span></code></pre></div><p><code>inspect.signature</code>로 <code>__init__</code>의 파라미터 이름을 꺼내고, 그 이름으로 <code>self.속성</code>을 읽는다.</p>
+<p>즉 scikit-learn의 규칙은 이것이다.</p>
+<blockquote>
+<p><code>__init__</code>에서 받은 파라미터는 반드시 <code>self.파라미터명 = 파라미터</code>로 저장해야 한다.</p></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyEstimator</span>(BaseEstimator):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, alpha<span style="color:#f92672">=</span><span style="color:#ae81ff">1.0</span>, max_iter<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>alpha <span style="color:#f92672">=</span> alpha        <span style="color:#75715e"># 규칙 준수 ✅</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>max_iter <span style="color:#f92672">=</span> max_iter  <span style="color:#75715e"># 규칙 준수 ✅</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># self.alpha_ = None     # 학습 결과는 _로 끝나는 이름 사용 (관례)</span>
+</span></span></code></pre></div><p>이 규칙을 지키면 <code>get_params()</code>가 자동으로 동작하고, <code>clone()</code>도 자동으로 동작한다.</p>
+<hr>
+<h2 id="pipeline-안의-clone--중첩-복제">Pipeline 안의 clone — 중첩 복제</h2>
+<p>Pipeline은 여러 단계(전처리 → 모델)를 묶는다. clone은 이를 재귀적으로 복제한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.pipeline <span style="color:#f92672">import</span> Pipeline
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.preprocessing <span style="color:#f92672">import</span> StandardScaler
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.linear_model <span style="color:#f92672">import</span> LogisticRegression
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>pipe <span style="color:#f92672">=</span> Pipeline([
+</span></span><span style="display:flex;"><span>    (<span style="color:#e6db74">&#34;scaler&#34;</span>, StandardScaler()),
+</span></span><span style="display:flex;"><span>    (<span style="color:#e6db74">&#34;clf&#34;</span>, LogisticRegression(C<span style="color:#f92672">=</span><span style="color:#ae81ff">0.1</span>))
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cloned <span style="color:#f92672">=</span> clone(pipe)
+</span></span></code></pre></div><p>내부에서 일어나는 일:</p>
+<pre tabindex="0"><code>clone(pipe)
+  └─ pipe.get_params(deep=False)
+       → {&#34;steps&#34;: [(&#34;scaler&#34;, StandardScaler()), (&#34;clf&#34;, LogisticRegression(C=0.1))]}
+  └─ clone(steps 리스트) — 리스트니까 원소 각각 재귀
+       ├─ clone((&#34;scaler&#34;, StandardScaler()))
+       └─ clone((&#34;clf&#34;, LogisticRegression(C=0.1)))
+            └─ LogisticRegression.get_params(deep=False)
+                 → {&#34;C&#34;: 0.1, &#34;solver&#34;: &#34;lbfgs&#34;, ...}
+            └─ LogisticRegression(C=0.1, solver=&#34;lbfgs&#34;, ...)
+</code></pre><p>Pipeline 전체가 복제되고, 각 단계도 학습 전 상태로 초기화된다.</p>
+<hr>
+<h2 id="sklearn_--확장-포인트"><strong>sklearn_clone</strong> — 확장 포인트</h2>
+<p>v1.3부터 클래스에 <code>__sklearn_clone__</code>이 있으면 <code>clone()</code>이 이를 먼저 호출한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># sklearn/base.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clone</span>(estimator, <span style="color:#f92672">*</span>, safe<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> hasattr(estimator, <span style="color:#e6db74">&#34;__sklearn_clone__&#34;</span>) <span style="color:#f92672">and</span> <span style="color:#f92672">not</span> inspect<span style="color:#f92672">.</span>isclass(estimator):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> estimator<span style="color:#f92672">.</span>__sklearn_clone__()  <span style="color:#75715e"># 커스텀 복제 로직에 위임</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> _clone_parametrized(estimator, safe<span style="color:#f92672">=</span>safe)
+</span></span></code></pre></div><p>기본 <code>_clone_parametrized</code>로는 복제가 어려운 객체가 있다.</p>
+<ul>
+<li><code>random_state</code>가 <code>np.random.RandomState</code> 인스턴스인 경우</li>
+<li>외부 라이브러리 wrapping estimator (XGBoost, LightGBM 등)</li>
+<li>복제 시 특별한 초기화가 필요한 경우</li>
+</ul>
+<p>이런 경우 <code>__sklearn_clone__</code>을 직접 구현해서 복제 방식을 제어할 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MySpecialEstimator</span>(BaseEstimator):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, model_path, config):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>model_path <span style="color:#f92672">=</span> model_path
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>config <span style="color:#f92672">=</span> config
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__sklearn_clone__</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 파일에서 설정만 다시 읽어서 새 인스턴스 생성</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> MySpecialEstimator(
+</span></span><span style="display:flex;"><span>            model_path<span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>model_path,
+</span></span><span style="display:flex;"><span>            config<span style="color:#f92672">=</span>copy<span style="color:#f92672">.</span>deepcopy(self<span style="color:#f92672">.</span>config)
+</span></span><span style="display:flex;"><span>        )
+</span></span></code></pre></div><p>프로토타입 포스트의 <code>clone()</code> 메서드를 오버라이드하는 것과 같은 구조다.</p>
+<hr>
+<h2 id="왜-deepcopy를-안-쓰나">왜 deepcopy를 안 쓰나</h2>
+<p>가장 직관적인 구현은 <code>copy.deepcopy(estimator)</code>다. 왜 이렇게 하지 않을까?</p>
+<ol>
+<li>
+<p><strong>학습된 상태까지 복사된다</strong> — numpy 배열인 <code>coef_</code>, <code>feature_importances_</code> 등이 통째로 복사된다. GridSearchCV에서 수십 번 호출되면 메모리 낭비가 크다.</p>
+</li>
+<li>
+<p><strong>외부 리소스가 복제된다</strong> — DB 커넥션, 파일 핸들 같은 것이 있으면 <code>deepcopy</code>가 실패하거나 의도치 않게 복제된다.</p>
+</li>
+<li>
+<p><strong>&ldquo;아직 학습 안 된 상태&quot;가 보장되지 않는다</strong> — GridSearchCV 입장에서 clone 결과가 반드시 미학습 상태임을 보장받아야 한다.</p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># clone() — 파라미터만 복제, 빠르고 예측 가능</span>
+</span></span><span style="display:flex;"><span>fresh <span style="color:#f92672">=</span> clone(estimator)       <span style="color:#75715e"># 항상 미학습 상태 보장</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># deepcopy — 전부 복제, 느리고 학습 상태 포함</span>
+</span></span><span style="display:flex;"><span>copy_of <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>deepcopy(estimator)  <span style="color:#75715e"># 학습 상태까지 그대로</span>
+</span></span></code></pre></div><p>**&ldquo;무엇을 복제할지 명시적으로 정의한다&rdquo;**는 것이 프로토타입 패턴의 핵심이다. scikit-learn은 <code>get_params()</code> 인터페이스로 &ldquo;복제 대상&quot;을 명시적으로 정의하고, deepcopy의 &ldquo;전부 복사&quot;를 쓰지 않는다.</p>
+<hr>
+<h2 id="실제로-clone이-쓰이는-곳">실제로 clone이 쓰이는 곳</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># cross_validate — fold마다 clone</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">cross_validate</span>(estimator, X, y, <span style="color:#f92672">...</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> train, test <span style="color:#f92672">in</span> cv<span style="color:#f92672">.</span>split(X, y):
+</span></span><span style="display:flex;"><span>        clone_estimator <span style="color:#f92672">=</span> clone(estimator)  <span style="color:#75715e"># 매 fold마다 새 모델</span>
+</span></span><span style="display:flex;"><span>        clone_estimator<span style="color:#f92672">.</span>fit(X[train], y[train])
+</span></span><span style="display:flex;"><span>        scores<span style="color:#f92672">.</span>append(clone_estimator<span style="color:#f92672">.</span>score(X[test], y[test]))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># GridSearchCV — 파라미터 조합마다 clone</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fit</span>(self, X, y):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> params <span style="color:#f92672">in</span> param_grid:
+</span></span><span style="display:flex;"><span>        cloned <span style="color:#f92672">=</span> clone(self<span style="color:#f92672">.</span>estimator)
+</span></span><span style="display:flex;"><span>        cloned<span style="color:#f92672">.</span>set_params(<span style="color:#f92672">**</span>params)
+</span></span><span style="display:flex;"><span>        cloned<span style="color:#f92672">.</span>fit(X_train, y_train)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Pipeline — 각 step을 clone</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fit</span>(self, X, y):
+</span></span><span style="display:flex;"><span>    cloned_steps <span style="color:#f92672">=</span> [(name, clone(est)) <span style="color:#66d9ef">for</span> name, est <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>steps]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> name, est <span style="color:#f92672">in</span> cloned_steps:
+</span></span><span style="display:flex;"><span>        X <span style="color:#f92672">=</span> est<span style="color:#f92672">.</span>fit_transform(X)
+</span></span></code></pre></div><p>모두 같은 패턴이다. <strong>원본을 건드리지 않고, 설정이 같은 새 인스턴스가 필요할 때</strong> clone을 쓴다.</p>
+<hr>
+<h2 id="prototype-패턴의-교훈--무엇을-복제할지-설계가-필요하다">Prototype 패턴의 교훈 — &ldquo;무엇을 복제할지 설계가 필요하다&rdquo;</h2>
+<p>프로토타입 포스트에서 가장 중요한 부분은 이거였다.</p>
+<blockquote>
+<p>얕은 복사와 깊은 복사를 의도적으로 나눠야 한다.</p></blockquote>
+<p>scikit-learn의 clone이 보여주는 것은 그 이상이다.</p>
+<blockquote>
+<p>deepcopy와 &ldquo;선택적 복제&rdquo; 사이에서 <strong>&ldquo;무엇을 복제에 포함시킬 것인가&quot;를 명시적으로 설계해야 한다.</strong></p></blockquote>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th><code>clone()</code></th>
+          <th><code>copy.deepcopy()</code></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>복제 대상</td>
+          <td><code>get_params()</code> 반환값만</td>
+          <td>모든 속성</td>
+      </tr>
+      <tr>
+          <td>학습된 상태</td>
+          <td>제외</td>
+          <td>포함</td>
+      </tr>
+      <tr>
+          <td>속도</td>
+          <td>빠름</td>
+          <td>느림</td>
+      </tr>
+      <tr>
+          <td>결과 보장</td>
+          <td>항상 미학습</td>
+          <td>학습 상태 그대로</td>
+      </tr>
+      <tr>
+          <td>확장</td>
+          <td><code>__sklearn_clone__</code></td>
+          <td><code>__deepcopy__</code></td>
+      </tr>
+  </tbody>
+</table>
+<p>scikit-learn은 &ldquo;복제에 포함할 것&rdquo;(<code>get_params</code>)과 &ldquo;복제에서 제외할 것&rdquo;(학습된 상태)을 <code>_</code>로 끝나는 속성 이름 관례로 나눈다.</p>
+<pre tabindex="0"><code>self.C = 1.0        # __init__ 파라미터 → clone에 포함
+self.coef_ = None   # 학습 결과 → clone에 미포함 (언더스코어로 끝남)
+</code></pre><p>이 규칙 하나로 <code>get_params()</code>와 <code>clone()</code>이 자동으로 올바르게 동작한다.</p>
+<hr>
+<h2 id="한-줄-정리">한 줄 정리</h2>
+<blockquote>
+<p>scikit-learn의 <code>clone()</code>은 &ldquo;객체를 통째로 복사&quot;하는 대신, <code>get_params()</code> 인터페이스로 <strong>&ldquo;복제에 포함할 것&quot;을 명시적으로 정의</strong>하고 그것만 복제한다. 프로토타입 패턴에서 <code>clone()</code> 메서드 안에서 어떤 필드를 복사할지 직접 제어해야 하는 이유가 실제 코드에서 정확히 드러난다.</p></blockquote>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/scikit-learn/" rel="tag">scikit-learn</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/prototype/" rel="tag">Prototype</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/python/" rel="tag">Python</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-prototype/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/sklearn-prototype/">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-singleton/">Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-singleton/">Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-abs-factory/">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (7)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (12)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>
