@@ -358,3 +358,82 @@ Prototype Pattern은 **기존 객체를 복제하여 새 객체를 생성하는 
 즉:
 
 > "처음부터 만들지 말고, 있는 걸 복사해서 고쳐 쓰자."
+
+---
+
+## 부록: 쓴이가 헷갈린 개념 교정
+
+### 상속 + 클래스 변수로 관리해도 Prototype인가?
+
+`Monster`를 상속한 `Goblin`을 정의하고, shallow copy 대상 필드를 클래스 변수로 선언하는 방식에 대한 질문이다.
+
+결론부터 말하면 **상속 구조와 클래스 변수 관리는 Prototype 패턴과 충돌하지 않는다.** 다만 클래스 변수를 어떤 역할로 쓰느냐에 따라 구분이 필요하다.
+
+```python
+class Goblin(Monster):
+    _SHALLOW_FIELDS = ("name", "hp", "attack", "defense", "sprite_data")
+    _DEEP_FIELDS = ("skills",)
+
+    def clone(self):
+        cloned = self.__class__.__new__(self.__class__)
+        for f in self._SHALLOW_FIELDS:
+            setattr(cloned, f, getattr(self, f))
+        for f in self._DEEP_FIELDS:
+            setattr(cloned, f, copy.deepcopy(getattr(self, f)))
+        return cloned
+```
+
+이처럼 **복제 메타데이터(어떤 필드를 얕게/깊게 복사할지)를 클래스 변수로 선언**하는 것은 Prototype이 맞다. "필드마다 선택적 복사"를 선언적으로 관리하는 구현 방식일 뿐이다.
+
+반면 아래 두 경우는 주의가 필요하다.
+
+- **클래스 변수 기본값만 쓰고 매번 `__init__`으로 새로 생성**: 복제가 없으므로 Prototype이 아니다. Factory나 단순 기본값 설정에 가깝다.
+- **mutable 상태를 클래스 변수로 공유**: `copy.copy()`를 써도 인스턴스별 독립이 보장되지 않는다. 한 인스턴스의 `skills`를 바꾸면 다른 인스턴스도 영향받는다. Prototype의 "독립된 복제본" 의도와 맞지 않는다.
+
+요약:
+
+| 구성 | Prototype인가? |
+|------|----------------|
+| `Goblin(Monster)` + `clone()`으로 인스턴스 복제 | O |
+| shallow/deep 대상 필드 목록을 클래스 변수로 선언 | O (구현 디테일) |
+| 클래스 변수 기본값 → 프로토타입 인스턴스 1개 생성 → `clone()` | O |
+| 클래스 변수 기본값만 쓰고 매번 생성자로 생성 | X (다른 패턴) |
+| mutable 상태를 클래스 변수로 공유 | X (버그 + 패턴 의도 불일치) |
+
+핵심은 하나다. **복제의 주체는 항상 인스턴스**여야 한다. 클래스 변수는 복제 로직이나 기본값을 관리하는 보조 수단일 수 있지만, 복제 자체가 없다면 Prototype이라고 부를 수 없다.
+
+---
+
+### sklearn의 `clone()`을 읽으며 교정된 개념들
+
+sklearn 코드(`sklearn/base.py`)의 `clone()` 구현과 `get_params()`를 분석하면서 반복적으로 교정된 개념들을 정리한다.
+
+**`C=0.1`이 fold 분할 비율과 관련 있다는 오해**
+
+`C`는 정규화 강도 하이퍼파라미터이고 데이터 분할 비율과 무관하다. fold 분할은 `cross_validate()`가 결정하며, 5-fold면 20%씩 검증셋으로 뺀다. `C=0.1`은 5개 fold 모두에서 동일하게 유지된다.
+
+**`get_params(deep=...)`의 `deep` 의미**
+
+`deep`은 "중첩 estimator의 하이퍼파라미터를 얼마나 깊이 읽느냐"를 제어한다.
+
+- `deep=False`: Pipeline 자신의 하이퍼파라미터만 반환. 내부 객체는 덩어리째 값으로 포함.
+- `deep=True`: 내부 `StandardScaler`, `LogisticRegression`의 하이퍼파라미터까지 `clf__C` 형태로 펼쳐서 반환.
+
+학습된 가중치(`coef_`)는 `deep` 값과 무관하게 항상 제외된다. `deep`은 fold별 설정이나 학습 깊이와 관계없다.
+
+**`get_params()`가 `coef_`를 "제거"한다는 오해**
+
+`get_params()`는 제거하는 것이 아니라 **처음부터 조회하지 않는** 것이다. `__init__` 시그니처를 `inspect`로 읽고, 그 파라미터 이름으로만 `getattr`를 호출한다. `coef_`는 `__init__` 파라미터가 아니므로 목록 자체에 포함되지 않는다.
+
+**`clone()`이 Builder/Composite 패턴과 같다는 오해**
+
+- Builder는 "없는 것을 단계적으로 조립"하고, Prototype은 "있는 것을 참고해서 재현"한다. 목적이 다르다.
+- `get_params()`의 재귀 구조는 Composite처럼 보이지만, Composite의 핵심 조건(단일/복합 객체를 동일 인터페이스로 취급)을 만족하지 않는다. sklearn의 중첩 구조는 "복제와 탐색을 위한 재귀 프로토콜"에 가깝다.
+
+**Prototype 패턴의 핵심이 "얕은 복사"라는 오해**
+
+얕은/깊은 복사는 구현 수단일 뿐이다. Prototype 패턴의 핵심은 세 가지다.
+
+1. **복제 책임의 내재화**: 어떻게 복사할지를 객체 스스로 정의한다.
+2. **선택적 복제 설계**: 필드마다 얕은/깊은 복사를 의도적으로 선택한다.
+3. **인스턴스 기반 생성**: 클래스가 아닌 기존 인스턴스를 기준으로 새 객체를 만든다.

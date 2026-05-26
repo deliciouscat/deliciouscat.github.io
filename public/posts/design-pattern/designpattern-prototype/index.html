@@ -421,6 +421,86 @@ new로 처음부터 만드는 대신, 이미 존재하는 객체를 복사해서
 <p>즉:</p>
 <blockquote>
 <p>&ldquo;처음부터 만들지 말고, 있는 걸 복사해서 고쳐 쓰자.&rdquo;</p></blockquote>
+<hr>
+<h2 id="부록-쓴이가-헷갈린-개념-교정">부록: 쓴이가 헷갈린 개념 교정</h2>
+<h3 id="상속--클래스-변수로-관리해도-prototype인가">상속 + 클래스 변수로 관리해도 Prototype인가?</h3>
+<p><code>Monster</code>를 상속한 <code>Goblin</code>을 정의하고, shallow copy 대상 필드를 클래스 변수로 선언하는 방식에 대한 질문이다.</p>
+<p>결론부터 말하면 <strong>상속 구조와 클래스 변수 관리는 Prototype 패턴과 충돌하지 않는다.</strong> 다만 클래스 변수를 어떤 역할로 쓰느냐에 따라 구분이 필요하다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Goblin</span>(Monster):
+</span></span><span style="display:flex;"><span>    _SHALLOW_FIELDS <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;hp&#34;</span>, <span style="color:#e6db74">&#34;attack&#34;</span>, <span style="color:#e6db74">&#34;defense&#34;</span>, <span style="color:#e6db74">&#34;sprite_data&#34;</span>)
+</span></span><span style="display:flex;"><span>    _DEEP_FIELDS <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;skills&#34;</span>,)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clone</span>(self):
+</span></span><span style="display:flex;"><span>        cloned <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>__class__<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(self<span style="color:#f92672">.</span>__class__)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> f <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_SHALLOW_FIELDS:
+</span></span><span style="display:flex;"><span>            setattr(cloned, f, getattr(self, f))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> f <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_DEEP_FIELDS:
+</span></span><span style="display:flex;"><span>            setattr(cloned, f, copy<span style="color:#f92672">.</span>deepcopy(getattr(self, f)))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cloned
+</span></span></code></pre></div><p>이처럼 <strong>복제 메타데이터(어떤 필드를 얕게/깊게 복사할지)를 클래스 변수로 선언</strong>하는 것은 Prototype이 맞다. &ldquo;필드마다 선택적 복사&quot;를 선언적으로 관리하는 구현 방식일 뿐이다.</p>
+<p>반면 아래 두 경우는 주의가 필요하다.</p>
+<ul>
+<li><strong>클래스 변수 기본값만 쓰고 매번 <code>__init__</code>으로 새로 생성</strong>: 복제가 없으므로 Prototype이 아니다. Factory나 단순 기본값 설정에 가깝다.</li>
+<li><strong>mutable 상태를 클래스 변수로 공유</strong>: <code>copy.copy()</code>를 써도 인스턴스별 독립이 보장되지 않는다. 한 인스턴스의 <code>skills</code>를 바꾸면 다른 인스턴스도 영향받는다. Prototype의 &ldquo;독립된 복제본&rdquo; 의도와 맞지 않는다.</li>
+</ul>
+<p>요약:</p>
+<table>
+  <thead>
+      <tr>
+          <th>구성</th>
+          <th>Prototype인가?</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>Goblin(Monster)</code> + <code>clone()</code>으로 인스턴스 복제</td>
+          <td>O</td>
+      </tr>
+      <tr>
+          <td>shallow/deep 대상 필드 목록을 클래스 변수로 선언</td>
+          <td>O (구현 디테일)</td>
+      </tr>
+      <tr>
+          <td>클래스 변수 기본값 → 프로토타입 인스턴스 1개 생성 → <code>clone()</code></td>
+          <td>O</td>
+      </tr>
+      <tr>
+          <td>클래스 변수 기본값만 쓰고 매번 생성자로 생성</td>
+          <td>X (다른 패턴)</td>
+      </tr>
+      <tr>
+          <td>mutable 상태를 클래스 변수로 공유</td>
+          <td>X (버그 + 패턴 의도 불일치)</td>
+      </tr>
+  </tbody>
+</table>
+<p>핵심은 하나다. <strong>복제의 주체는 항상 인스턴스</strong>여야 한다. 클래스 변수는 복제 로직이나 기본값을 관리하는 보조 수단일 수 있지만, 복제 자체가 없다면 Prototype이라고 부를 수 없다.</p>
+<hr>
+<h3 id="sklearn의-clone을-읽으며-교정된-개념들">sklearn의 <code>clone()</code>을 읽으며 교정된 개념들</h3>
+<p>sklearn 코드(<code>sklearn/base.py</code>)의 <code>clone()</code> 구현과 <code>get_params()</code>를 분석하면서 반복적으로 교정된 개념들을 정리한다.</p>
+<p><strong><code>C=0.1</code>이 fold 분할 비율과 관련 있다는 오해</strong></p>
+<p><code>C</code>는 정규화 강도 하이퍼파라미터이고 데이터 분할 비율과 무관하다. fold 분할은 <code>cross_validate()</code>가 결정하며, 5-fold면 20%씩 검증셋으로 뺀다. <code>C=0.1</code>은 5개 fold 모두에서 동일하게 유지된다.</p>
+<p><strong><code>get_params(deep=...)</code>의 <code>deep</code> 의미</strong></p>
+<p><code>deep</code>은 &ldquo;중첩 estimator의 하이퍼파라미터를 얼마나 깊이 읽느냐&quot;를 제어한다.</p>
+<ul>
+<li><code>deep=False</code>: Pipeline 자신의 하이퍼파라미터만 반환. 내부 객체는 덩어리째 값으로 포함.</li>
+<li><code>deep=True</code>: 내부 <code>StandardScaler</code>, <code>LogisticRegression</code>의 하이퍼파라미터까지 <code>clf__C</code> 형태로 펼쳐서 반환.</li>
+</ul>
+<p>학습된 가중치(<code>coef_</code>)는 <code>deep</code> 값과 무관하게 항상 제외된다. <code>deep</code>은 fold별 설정이나 학습 깊이와 관계없다.</p>
+<p><strong><code>get_params()</code>가 <code>coef_</code>를 &ldquo;제거&quot;한다는 오해</strong></p>
+<p><code>get_params()</code>는 제거하는 것이 아니라 <strong>처음부터 조회하지 않는</strong> 것이다. <code>__init__</code> 시그니처를 <code>inspect</code>로 읽고, 그 파라미터 이름으로만 <code>getattr</code>를 호출한다. <code>coef_</code>는 <code>__init__</code> 파라미터가 아니므로 목록 자체에 포함되지 않는다.</p>
+<p><strong><code>clone()</code>이 Builder/Composite 패턴과 같다는 오해</strong></p>
+<ul>
+<li>Builder는 &ldquo;없는 것을 단계적으로 조립&quot;하고, Prototype은 &ldquo;있는 것을 참고해서 재현&quot;한다. 목적이 다르다.</li>
+<li><code>get_params()</code>의 재귀 구조는 Composite처럼 보이지만, Composite의 핵심 조건(단일/복합 객체를 동일 인터페이스로 취급)을 만족하지 않는다. sklearn의 중첩 구조는 &ldquo;복제와 탐색을 위한 재귀 프로토콜&quot;에 가깝다.</li>
+</ul>
+<p><strong>Prototype 패턴의 핵심이 &ldquo;얕은 복사&quot;라는 오해</strong></p>
+<p>얕은/깊은 복사는 구현 수단일 뿐이다. Prototype 패턴의 핵심은 세 가지다.</p>
+<ol>
+<li><strong>복제 책임의 내재화</strong>: 어떻게 복사할지를 객체 스스로 정의한다.</li>
+<li><strong>선택적 복제 설계</strong>: 필드마다 얕은/깊은 복사를 의도적으로 선택한다.</li>
+<li><strong>인스턴스 기반 생성</strong>: 클래스가 아닌 기존 인스턴스를 기준으로 새 객체를 만든다.</li>
+</ol>
 
 		</div>
 		<footer class="post__footer">
