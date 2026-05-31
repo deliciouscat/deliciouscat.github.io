@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CPython on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/cpython/</link>
+    <description>Recent content in CPython on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 31 May 2026 19:00:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/cpython/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Chain of Responsibility는 실전에서 이렇게 쓰인다 — Python urllib OpenerDirector</title>
+      <link>http://localhost:1313/posts/code-reading/urllib-cor/</link>
+      <pubDate>Sun, 31 May 2026 19:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/urllib-cor/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-chain-of-responsibility/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 책임 연쇄&lt;/a&gt;를 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;urllibrequest가-뭔지-3줄&#34;&gt;urllib.request가 뭔지 3줄&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;urllib.request&lt;/code&gt;는 Python 표준 라이브러리에 포함된 HTTP 클라이언트 모듈이다.&lt;br&gt;&#xA;&lt;code&gt;requests&lt;/code&gt; 같은 외부 라이브러리 없이도 URL을 열고, 리다이렉트를 따라가고, 인증을 처리할 수 있다.&lt;br&gt;&#xA;CPython 소스에서 &lt;code&gt;Lib/urllib/request.py&lt;/code&gt; 한 파일에 약 2100줄로 구현되어 있다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;문제-http-요청-하나를-처리하는-데-얼마나-많은-단계가-필요한가&#34;&gt;문제: &amp;ldquo;HTTP 요청 하나를 처리하는 데 얼마나 많은 단계가 필요한가&amp;rdquo;&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;urllib.request.urlopen(&amp;quot;https://example.com&amp;quot;)&lt;/code&gt; 한 줄을 실행하면 내부에서 이런 일들이 일어난다.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;1. 프록시 설정이 있으면 요청을 프록시로 라우팅&#xA;2. 실제 TCP 연결을 맺고 HTTP 요청 전송&#xA;3. 응답이 301/302 리다이렉트면 새 URL로 다시 요청&#xA;4. 응답이 401 Unauthorized면 인증 헤더를 붙여 재시도&#xA;5. 응답이 4xx/5xx면 HTTPError로 변환&#xA;6. 최종 응답을 file-like 객체로 포장해서 반환&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;이걸 하나의 거대한 함수에 다 넣을 수도 있다. 하지만 요구사항은 끝없이 바뀐다. HTTPS가 추가되고, 쿠키 지원이 필요해지고, FTP도 처리해야 하고, 커스텀 인증 방식도 끼워 넣어야 한다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

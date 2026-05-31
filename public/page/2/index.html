@@ -89,6 +89,77 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/agents/05_1_run-loop/" rel="bookmark">
+			Pydantic-AI 05-1: 실행 단계 이해하기 (Run → Retry → Result)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T13:00:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 05. Agent 실행 흐름 설계 — 1/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI Agent의 내부 실행 루프 구조를 이해한다. Graph 기반이 아닌 <code>run → tool call → retry → result</code>의 선형 루프로 동작하는 방식을 깊이 있게 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-agent-실행-루프-전체-구조">1. Agent 실행 루프 전체 구조</h3>
+<p><strong><code>agent.run()</code> 호출 시 내부에서 일어나는 일</strong></p>
+<p>Pydantic-AI Agent의 실행은 단일 진입점 <code>agent.run()</code>으로 시작된다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>result <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> agent<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;사용자 질문&#34;</span>,
+</span></span><span style="display:flex;"><span>    deps<span style="color:#f92672">=</span>my_dependencies,
+</span></span><span style="display:flex;"><span>    message_history<span style="color:#f92672">=</span>previous_messages,
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>내부적으로는 다음과 같은 순서로 진행된다:</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/05_1_run-loop/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/03_3_result-validator/" rel="bookmark">
+			Pydantic-AI 03-3: Agent 응답 가로채기 (Result Validator)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T11:20:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 3/5</p></blockquote>
+<h2 id="개요">개요</h2>
+<p><code>@agent.result_validator</code>를 사용하면 Agent가 반환한 결과를 가로채서 추가 검증을 수행하고, 기준에 미달하면 재시도를 요청할 수 있다. Pydantic-AI의 품질 보증 메커니즘이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-result-validator란">1. Result Validator란?</h3>
+<p>Pydantic-AI의 <code>result_validator</code>는 Agent가 반환한 결과를 검증하는 2차 방어선이다.</p>
+<p><strong>Pydantic 모델 검증 vs Result Validator</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic <span style="color:#f92672">import</span> BaseModel, Field
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pydantic_ai <span style="color:#f92672">import</span> Agent, ModelRetry, RunContext
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookingRequest</span>(BaseModel):
+</span></span><span style="display:flex;"><span>    hotel_name: str
+</span></span><span style="display:flex;"><span>    check_in: str  <span style="color:#75715e"># 1차: Pydantic이 str 타입 검증</span>
+</span></span><span style="display:flex;"><span>    check_out: str
+</span></span><span style="display:flex;"><span>    guests: int <span style="color:#f92672">=</span> Field(ge<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)  <span style="color:#75715e"># 1차: 1명 이상 검증</span>
+</span></span></code></pre></div><p>Pydantic 스키마 검증만으로는 다음과 같은 비즈니스 로직을 검증할 수 없다:</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/agents/03_3_result-validator/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/agents/02_3_run-context/" rel="bookmark">
 			Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)
 			</a>
@@ -490,121 +561,6 @@
 <li>제품 추천 Agent: 상품 DB 검색 → 맞춤 추천</li>
 </ul>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/06_4_parallel/" rel="bookmark">
-			Pydantic-AI 06-4: 병렬 Agent 실행 (Parallel Execution)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T14:30:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 06. Multi-Agent — 다중 에이전트 협업 — 4/4</p></blockquote>
-<h2 id="개요">개요</h2>
-<p><code>asyncio</code>를 활용하여 여러 Agent를 동시에 실행하는 패턴을 다룬다. 독립적인 작업을 병렬로 처리하여 전체 실행 시간을 단축하는 방법이다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-병렬-실행이-유효한-경우">1. 병렬 실행이 유효한 경우</h3>
-<ul>
-<li>독립적인 작업의 동시 처리</li>
-<li>여러 소스에서 정보를 동시에 수집</li>
-<li>병렬 처리의 이점과 비용 고려</li>
-</ul>
-<h3 id="2-asynciogather-기반-병렬-실행">2. <code>asyncio.gather()</code> 기반 병렬 실행</h3>
-<ul>
-<li>여러 <code>agent.run()</code> 코루틴을 동시에 실행</li>
-<li><code>asyncio.gather(*tasks)</code> 패턴</li>
-<li>결과 수집과 병합</li>
-</ul>
-<h3 id="3-asynciotaskgroup-활용">3. <code>asyncio.TaskGroup</code> 활용</h3>
-<ul>
-<li>Python 3.11+ <code>TaskGroup</code>을 활용한 구조화된 동시성</li>
-<li>예외 처리와 취소 전파</li>
-<li><code>TaskGroup</code> vs <code>gather</code>의 차이점</li>
-</ul>
-<h3 id="4-병렬-결과-통합">4. 병렬 결과 통합</h3>
-<ul>
-<li>여러 Agent의 결과를 하나의 최종 답변으로 종합</li>
-<li>통합 Agent 패턴: 병렬 결과 → 종합 Agent</li>
-<li>결과 충돌 시 해결 전략 (투표, 우선순위 등)</li>
-</ul>
-<h3 id="5-동시성-제어">5. 동시성 제어</h3>
-<ul>
-<li>세마포어(Semaphore)를 통한 동시 실행 수 제한</li>
-<li>API Rate Limit 고려한 병렬도 조절</li>
-<li>공유 자원 접근 시 주의사항</li>
-</ul>
-<h3 id="6-실전-예제">6. 실전 예제</h3>
-<ul>
-<li>다국어 번역: 각 언어별 Agent 병렬 실행</li>
-<li>다관점 분석: 긍정/부정/중립 분석 Agent 동시 실행</li>
-<li>데이터 파이프라인: 여러 데이터 소스 동시 수집</li>
-</ul>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/06_3_pipeline/" rel="bookmark">
-			Pydantic-AI 06-3: 단계별 Agent 파이프라인 구성 (Pipeline Composition)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T14:20:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 06. Multi-Agent — 다중 에이전트 협업 — 3/4</p></blockquote>
-<h2 id="개요">개요</h2>
-<p>한 Agent의 결과를 다음 Agent의 입력으로 연결하는 파이프라인 패턴을 다룬다. 복잡한 작업을 단계별로 분해하여 순차적으로 처리하는 구조이다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-파이프라인-패턴이란">1. 파이프라인 패턴이란?</h3>
-<ul>
-<li>Agent A의 출력 → Agent B의 입력 → Agent C의 입력</li>
-<li>Unix 파이프(<code>|</code>)와의 유사성</li>
-<li>Graph 기반 워크플로우와의 차이점</li>
-</ul>
-<h3 id="2-기본-파이프라인-구현">2. 기본 파이프라인 구현</h3>
-<ul>
-<li>순차적 <code>agent.run()</code> 호출 체이닝</li>
-<li>이전 Agent의 <code>result.data</code>를 다음 Agent의 프롬프트에 포함</li>
-<li>구조화된 결과(<code>BaseModel</code>)를 다음 Agent에 전달하기</li>
-</ul>
-<h3 id="3-타입-안전한-파이프라인">3. 타입 안전한 파이프라인</h3>
-<ul>
-<li>Agent별 <code>result_type</code> 정의로 단계 간 인터페이스 명확화</li>
-<li>Agent A: <code>result_type=AnalysisResult</code> → Agent B: 프롬프트에 <code>AnalysisResult</code> 포함</li>
-<li>Pydantic 모델 간 변환과 검증</li>
-</ul>
-<h3 id="4-조건부-파이프라인">4. 조건부 파이프라인</h3>
-<ul>
-<li>이전 단계의 결과에 따라 다음 단계 분기</li>
-<li>파이프라인 중간에 사람의 개입(Human-in-the-loop) 삽입</li>
-<li>실패 시 조기 종료 vs 대체 경로</li>
-</ul>
-<h3 id="5-파이프라인-에러-처리">5. 파이프라인 에러 처리</h3>
-<ul>
-<li>중간 단계 실패 시 전체 파이프라인 처리</li>
-<li>부분 결과 보존과 재시도</li>
-<li>보상 트랜잭션(Compensating Transaction) 패턴</li>
-</ul>
-<h3 id="6-실전-예제">6. 실전 예제</h3>
-<ul>
-<li>문서 분석 파이프라인: 추출 Agent → 분류 Agent → 요약 Agent</li>
-<li>코드 리뷰 파이프라인: 분석 Agent → 제안 Agent → 포매팅 Agent</li>
-</ul>
-	</div>
 </article>
 </main>
 
@@ -626,11 +582,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/urllib-cor/">Chain of Responsibility는 실전에서 이렇게 쓰인다 — Python urllib OpenerDirector</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-chain-of-responsibility/">Vibe Coding을 위한 디자인 패턴 - 책임 연쇄(Chain of Responsibility)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/sklearn-prototype/">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-singleton/">Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-singleton/">Vibe Coding을 위한 디자인 패턴 - 싱글톤(Singleton)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-abs-factory/">Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</a></li>
 		</ul>
 	</div>
 </div>
@@ -662,7 +618,9 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
@@ -676,21 +634,23 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (7)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (8)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (12)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (14)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
