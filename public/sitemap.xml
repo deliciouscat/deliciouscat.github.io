@@ -9,7 +9,28 @@
     <lastmod>2099-10-14T12:55:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2026-05-31T19:00:00+09:00</lastmod>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/defold/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/games/defold-1/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/gamedev/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/categories/games/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/chain-of-responsibility/</loc>
     <lastmod>2026-05-31T19:00:00+09:00</lastmod>
@@ -24,9 +45,6 @@
     <lastmod>2026-05-31T19:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/python/</loc>
-    <lastmod>2026-05-31T19:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/</loc>
     <lastmod>2026-05-31T19:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/urllib/</loc>

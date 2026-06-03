@@ -89,6 +89,63 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/agents/07_1_rag/" rel="bookmark">
+			Pydantic-AI 07-1: 지식 베이스와 Agent 연결하기 (RAG &#43; Tools)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T15:00:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 07. 지식 베이스 — Agent 지식 공유 — 1/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>검색 도구(Retrieval Tool)를 통해 Agent가 외부 지식 베이스에 접근하는 RAG(Retrieval-Augmented Generation) 패턴을 Pydantic-AI에서 구현하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-rag의-기본-개념">1. RAG의 기본 개념</h3>
+<ul>
+<li>Retrieval-Augmented Generation이란?</li>
+<li>LLM의 지식 한계와 RAG의 필요성</li>
+<li>RAG의 기본 흐름: 질문 → 검색 → 컨텍스트 주입 → 생성</li>
+</ul>
+<h3 id="2-pydantic-ai에서-rag-구현하기">2. Pydantic-AI에서 RAG 구현하기</h3>
+<ul>
+<li>검색 기능을 도구(Tool)로 등록하는 패턴</li>
+<li><code>@agent.tool</code>로 검색 함수 정의</li>
+<li>검색 결과를 LLM이 활용하는 방식</li>
+</ul>
+<h3 id="3-벡터-검색-도구-구현">3. 벡터 검색 도구 구현</h3>
+<ul>
+<li>임베딩 생성과 유사도 검색 기본 원리</li>
+<li>검색 도구의 인터페이스 설계</li>
+<li>검색 결과 포매팅: LLM이 이해하기 쉬운 형태로 반환</li>
+</ul>
+<h3 id="4-검색-파라미터-설계">4. 검색 파라미터 설계</h3>
+<ul>
+<li>검색 쿼리를 LLM이 생성하도록 설계</li>
+<li>필터 조건(날짜, 카테고리 등)을 파라미터로 노출</li>
+<li>Top-K, 유사도 임계값 등 검색 옵션</li>
+</ul>
+<h3 id="5-의존성으로-검색-클라이언트-주입">5. 의존성으로 검색 클라이언트 주입</h3>
+<ul>
+<li><code>RunContext[DepsType]</code>를 통해 벡터 DB 클라이언트 주입</li>
+<li>테스트 시 Mock 검색 클라이언트 교체</li>
+<li>환경별 검색 엔진 전환</li>
+</ul>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<ul>
+<li>문서 QA Agent: PDF 문서 검색 → 답변 생성</li>
+<li>제품 추천 Agent: 상품 DB 검색 → 맞춤 추천</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/agents/06_4_parallel/" rel="bookmark">
 			Pydantic-AI 06-4: 병렬 Agent 실행 (Parallel Execution)
 			</a>
@@ -605,65 +662,6 @@
 <li>샘플링 비율 조정을 통한 비용 관리</li>
 </ul>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/03_5_usage-limits/" rel="bookmark">
-			Pydantic-AI 03-5: 사용량 추적과 제한 (Usage &amp; Limits)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T11:40:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 03. Agent와의 상호작용 — 5/5</p></blockquote>
-<h2 id="개요">개요</h2>
-<p>프로덕션 환경에서 Agent의 비용과 호출 횟수를 제어하는 것은 필수이다. <code>Usage</code>와 <code>UsageLimits</code>를 통한 사용량 추적 및 제한 방법을 다룬다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-왜-사용량-제한이-필요한가">1. 왜 사용량 제한이 필요한가?</h3>
-<ul>
-<li>무한 루프 도구 호출의 위험</li>
-<li>API 비용 폭증 시나리오</li>
-<li>프로덕션 안전장치의 필요성</li>
-</ul>
-<h3 id="2-usage-객체-이해하기">2. <code>Usage</code> 객체 이해하기</h3>
-<ul>
-<li><code>RunResult.usage()</code> — 실행 후 사용량 확인</li>
-<li>요청 토큰(request_tokens), 응답 토큰(response_tokens)</li>
-<li>총 토큰과 요청 횟수 추적</li>
-</ul>
-<h3 id="3-usagelimits-설정하기">3. <code>UsageLimits</code> 설정하기</h3>
-<ul>
-<li><code>agent.run(prompt, usage_limits=UsageLimits(...))</code></li>
-<li><code>request_limit</code> — 최대 모델 요청 횟수</li>
-<li><code>request_tokens_limit</code> — 최대 요청 토큰 수</li>
-<li><code>response_tokens_limit</code> — 최대 응답 토큰 수</li>
-<li><code>total_tokens_limit</code> — 총 토큰 제한</li>
-</ul>
-<h3 id="4-제한-초과-시-동작">4. 제한 초과 시 동작</h3>
-<ul>
-<li><code>UsageLimitExceeded</code> 예외 처리</li>
-<li>제한 초과 전 마지막 유효 결과 활용</li>
-</ul>
-<h3 id="5-사용량-모니터링-패턴">5. 사용량 모니터링 패턴</h3>
-<ul>
-<li>여러 실행에 걸친 누적 사용량 추적</li>
-<li>사용자별 / 세션별 사용량 관리</li>
-<li>대시보드 연동을 위한 로깅</li>
-</ul>
-<h3 id="6-비용-최적화-전략">6. 비용 최적화 전략</h3>
-<ul>
-<li>모델별 토큰 비용 비교</li>
-<li>적절한 제한값 설정 가이드라인</li>
-<li>캐싱을 통한 중복 호출 방지</li>
-</ul>
-	</div>
 </article>
 </main>
 
@@ -685,11 +683,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/urllib-cor/">Chain of Responsibility는 실전에서 이렇게 쓰인다 — Python urllib OpenerDirector</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-chain-of-responsibility/">Vibe Coding을 위한 디자인 패턴 - 책임 연쇄(Chain of Responsibility)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/sklearn-prototype/">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-singleton/">Singleton은 실전에서 이렇게 쓰인다 — Django App Registry</a></li>
 		</ul>
 	</div>
 </div>
@@ -705,6 +703,8 @@
 				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
 			<li class="widget__item">
 				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
 			<li class="widget__item">
 				<a class="widget__link" href="/categories/generals/">Generals</a></li>
 			<li class="widget__item">
@@ -725,11 +725,13 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
@@ -745,6 +747,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (8)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (14)</a>
@@ -756,6 +759,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>

@@ -6,8 +6,36 @@
     <description>Recent content in Tags on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 31 May 2026 19:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jun 2026 15:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Defold</title>
+      <link>http://localhost:1313/tags/defold/</link>
+      <pubDate>Wed, 03 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/defold/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>GameDev</title>
+      <link>http://localhost:1313/tags/gamedev/</link>
+      <pubDate>Wed, 03 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/gamedev/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>게임엔진</title>
+      <link>http://localhost:1313/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/</link>
+      <pubDate>Wed, 03 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>튜토리얼</title>
+      <link>http://localhost:1313/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/</link>
+      <pubDate>Wed, 03 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Chain of Responsibility</title>
       <link>http://localhost:1313/tags/chain-of-responsibility/</link>

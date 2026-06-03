@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Games on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/categories/games/</link>
+    <description>Recent content in Games on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 03 Jun 2026 15:00:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/games/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</title>
+      <link>http://localhost:1313/posts/games/defold-1/</link>
+      <pubDate>Wed, 03 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/games/defold-1/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;시리즈&lt;/strong&gt;: Defold 입문 — 1편: 기본 개념과 에디터 이해&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;개요&#34;&gt;개요&lt;/h2&gt;&#xA;&lt;p&gt;Defold는 무료 크로스플랫폼 2D 게임 엔진이다. 이 글에서는 Defold를 처음 접하는 개발자를 위해 엔진의 핵심 구성 요소, 에디터 레이아웃, 그리고 애플리케이션 라이프사이클을 정리한다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;1-defold의-기본-블록-게임-오브젝트&#34;&gt;1. Defold의 기본 블록: 게임 오브젝트&lt;/h2&gt;&#xA;&lt;p&gt;Defold에서 모든 것의 출발점은 &lt;strong&gt;게임 오브젝트(Game Object)&lt;/strong&gt; 다.&lt;/p&gt;&#xA;&lt;p&gt;게임 오브젝트는 세 가지를 기본으로 가진다.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;ID&lt;/strong&gt; — 오브젝트를 식별하는 고유 값&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;URL 주소&lt;/strong&gt; — 메시징 시스템에서 오브젝트를 가리키는 주소&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;트랜스폼(Transform)&lt;/strong&gt; — 위치(Position), 회전(Rotation), 크기(Scale)&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;이것만으로는 아무것도 보이지 않는다. 게임 오브젝트 자체는 껍데기이고, 실제 기능은 &lt;strong&gt;컴포넌트(Component)&lt;/strong&gt; 를 붙여서 만든다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
