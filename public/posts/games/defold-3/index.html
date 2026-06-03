@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Defold 게임 엔진 입문 — 첫 슈팅 게임 (플레이어 이동) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/games/defold-3/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Defold 게임 엔진 입문 — 첫 슈팅 게임 (플레이어 이동)">
+  <meta property="og:description" content="원본 유튜브
+시리즈: Defold 입문 — 3편: 간단한 슈팅 게임 만들기 (1/2)
+이전: 1편 기본 구조 · 2편 컴포넌트 개요
+개요 갤러가·스페이스 인베이더 같은 고전 슈팅 게임은 게임 개발 입문에 적합하다. 이 글에서는 Defold로 플레이어 우주선 하나를 화면에 띄우고, 좌우 화살표로 움직이게 하는 것까지를 단계별로 진행한다. 적·충돌·총알은 다음 편에서 이어서 다룬다.
+1. 설치와 새 프로젝트 defold.com에서 OS에 맞는 버전을 받는다. 압축을 풀고 실행하면 되며, 별도 설치 과정은 없다. Steam으로 받을 수도 있다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-03T15:00:00+09:00">
+    <meta property="article:modified_time" content="2026-06-03T15:00:00+09:00">
+    <meta property="article:tag" content="Defold">
+    <meta property="article:tag" content="게임엔진">
+    <meta property="article:tag" content="튜토리얼">
+    <meta property="article:tag" content="GameDev">
+    <meta property="article:tag" content="Lua">
+    <meta property="article:tag" content="슈팅게임">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Defold 게임 엔진 입문 — 첫 슈팅 게임 (플레이어 이동)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-03T15:00:00&#43;09:00">June 03, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/games/" rel="category">Games</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p><a href="https://youtu.be/HjJ-oDz-GcI?si=Lyo0PfdE6bUGiK7q">원본 유튜브</a></p>
+<blockquote>
+<p><strong>시리즈</strong>: Defold 입문 — 3편: 간단한 슈팅 게임 만들기 (1/2)<br>
+이전: <a href="/posts/games/defold-1/">1편 기본 구조</a> · <a href="/posts/games/defold-2/">2편 컴포넌트 개요</a></p></blockquote>
+<h2 id="개요">개요</h2>
+<p>갤러가·스페이스 인베이더 같은 고전 슈팅 게임은 게임 개발 입문에 적합하다. 이 글에서는 Defold로 <strong>플레이어 우주선 하나를 화면에 띄우고, 좌우 화살표로 움직이게</strong> 하는 것까지를 단계별로 진행한다. 적·충돌·총알은 다음 편에서 이어서 다룬다.</p>
+<hr>
+<h2 id="1-설치와-새-프로젝트">1. 설치와 새 프로젝트</h2>
+<p><a href="https://defold.com/">defold.com</a>에서 OS에 맞는 버전을 받는다. 압축을 풀고 실행하면 되며, 별도 설치 과정은 없다. Steam으로 받을 수도 있다.</p>
+<p>에디터를 열고 <strong>Empty Project</strong> 템플릿으로 새 프로젝트를 만든 뒤 <strong>Create New Project</strong>를 클릭한다. 템플릿이 내려받아지면 편집기가 열린다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart LR
+    A[&#34;defold.com 다운로드&#34;] --&gt; B[&#34;Empty Project 생성&#34;]
+    B --&gt; C[&#34;game.project 열기&#34;]
+    C --&gt; D[&#34;Bootstrap Collection 편집&#34;]
+</code></pre><hr>
+<h2 id="2-bootstrap과-첫-스프라이트-hello-world">2. Bootstrap과 첫 스프라이트 (Hello World)</h2>
+<p><code>game.project</code>에서 프로젝트 이름 등 기본 설정을 확인한다. <strong>Bootstrap</strong> 탭의 <strong>Bootstrap Collection</strong>을 연다. 비어 있으면 여기서 씬을 구성한다.</p>
+<ol>
+<li>게임 오브젝트 추가</li>
+<li><strong>Sprite</strong> 컴포넌트 추가</li>
+<li>내장 이미지 소스 선택 → 기본 애니메이션 중 하나(예: 방사형 그라데이션 블롭) 지정</li>
+<li>게임 오브젝트를 약간 위·오른쪽으로 이동</li>
+<li>저장 후 빌드·실행</li>
+</ol>
+<table>
+  <thead>
+      <tr>
+          <th>단축키</th>
+          <th>동작</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>F</code></td>
+          <td>선택한 컴포넌트에 뷰 맞추기 (View → Frame Selection)</td>
+      </tr>
+      <tr>
+          <td><code>Ctrl/Cmd + S</code></td>
+          <td>저장 (탭 이름 옆 <code>*</code> = 미저장)</td>
+      </tr>
+      <tr>
+          <td><code>Ctrl/Cmd + B</code></td>
+          <td>빌드·실행</td>
+      </tr>
+      <tr>
+          <td><code>Ctrl/Cmd + N</code></td>
+          <td>새 파일 생성</td>
+      </tr>
+  </tbody>
+</table>
+<p>메뉴에서도 동일한 명령을 쓸 수 있으며, 메뉴 항목 옆에 단축키가 표시된다. 빌드는 <strong>Project → Build</strong>에서도 가능하다.</p>
+<p>지금까지 한 일을 정리하면 다음과 같다.</p>
+<ul>
+<li><strong>main.collection</strong>에 스프라이트가 붙은 게임 오브젝트 하나</li>
+<li>Properties에서 <strong>Atlas</strong>와 그 안의 <strong>애니메이션(단일 프레임)</strong> 선택</li>
+<li>위치·회전·스케일 외에 <strong>Material</strong>, <strong>Blend Mode</strong> 등도 있으나 기본값 유지</li>
+</ul>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
+    GP[&#34;game.project\nBootstrap → main.collection&#34;]
+    MC[&#34;main.collection&#34;]
+    GO[&#34;게임 오브젝트&#34;]
+    SP[&#34;Sprite 컴포넌트\nAtlas + 애니메이션&#34;]
+
+    GP --&gt; MC
+    MC --&gt; GO
+    GO --&gt; SP
+</code></pre><blockquote>
+<p>컬렉션·게임 오브젝트에 바로 붙일 수 있는 컴포넌트도 있고, <strong>Script</strong>처럼 프로젝트에 <strong>별도 파일</strong>로 만든 뒤 연결해야 하는 것도 있다.</p></blockquote>
+<hr>
+<h2 id="3-스크립트-파일-만들기">3. 스크립트 파일 만들기</h2>
+<p>플레이어 입력과 이동에는 <strong>Script</strong>가 필요하다.</p>
+<p><strong>File → New</strong> (<code>Ctrl/Cmd + N</code>) → <strong>Script</strong> 선택 → 이름 예: <code>player</code> → <strong>Create Script</strong>.<br>
+또는 Assets 패널에서 우클릭 → <strong>New → Script</strong>.</p>
+<p>생성된 스크립트에는 <code>init</code>, <code>final</code>, <code>update</code> 등 라이프사이클 함수가 기본으로 들어 있다. 이 튜토리얼에서는 <strong><code>init</code></strong> 과 <strong><code>on_input</code></strong> 만 남기고 나머지는 삭제해도 된다.</p>
+<p>Defold 스크립트는 <strong>Lua</strong>로 작성한다. <a href="https://defold.com/ref/stable/go/">Defold Lua API</a>와 <a href="https://defold.com/manuals/input/">입력 처리</a> 문서를 함께 보면 좋다.</p>
+<hr>
+<h2 id="4-입력-포커스와-on_input">4. 입력 포커스와 <code>on_input</code></h2>
+<p>스크립트가 키 입력을 받으려면, 해당 게임 오브젝트가 <strong>입력 포커스</strong>를 가져야 한다. <code>init</code>에서 다음을 호출한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">init</span>(self)
+</span></span><span style="display:flex;"><span>    msg.post(<span style="color:#e6db74">&#34;.&#34;</span>, <span style="color:#e6db74">&#34;acquire_input_focus&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p><code>.</code>은 <strong>이 게임 오브젝트 자신</strong>을 가리키는 URL 약어다. <code>&quot;acquire_input_focus&quot;</code> 메시지를내면 이후 <code>on_input</code>이 호출된다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
+    participant K as 키보드
+    participant E as Defold 엔진
+    participant S as player.script
+    participant GO as 게임 오브젝트
+
+    Note over S,GO: init()
+    S-&gt;&gt;GO: acquire_input_focus
+    K-&gt;&gt;E: 화살표 키
+    E-&gt;&gt;S: on_input(action_id, action)
+    S-&gt;&gt;GO: go.set_position (이동)
+</code></pre><hr>
+<h2 id="5-input-binding과-action_id-해시">5. Input Binding과 <code>action_id</code> (해시)</h2>
+<p><code>on_input</code>의 <code>action_id</code>는 <strong>해시된 문자열</strong>이다. 엔진이 문자열 비교 대신 숫자 ID로 동작을 구분하므로 효율적이며, Defold 입력 설계상 <code>action_id</code>는 해시로 다룬다.</p>
+<p>프로젝트의 <strong>input binding</strong> 파일을 연다.</p>
+<ol>
+<li><code>+</code>로 트리거 추가</li>
+<li><strong>Key Trigger</strong>에서 <code>left</code> 선택 → 키보드 왼쪽 화살표에 매핑</li>
+<li><strong>action_id</strong>에 <code>left</code> 입력</li>
+<li>동일하게 <code>right</code> + 오른쪽 화살표 설정</li>
+<li>저장</li>
+</ol>
+<table>
+  <thead>
+      <tr>
+          <th>Input Binding</th>
+          <th>스크립트에서 비교</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>action_id: <code>left</code></td>
+          <td><code>action_id == hash(&quot;left&quot;)</code></td>
+      </tr>
+      <tr>
+          <td>action_id: <code>right</code></td>
+          <td><code>action_id == hash(&quot;right&quot;)</code></td>
+      </tr>
+  </tbody>
+</table>
+<p>스크립트에서 방향별 분기 예시:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">on_input</span>(self, action_id, action)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> action_id <span style="color:#f92672">==</span> hash(<span style="color:#e6db74">&#34;left&#34;</span>) <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">-- 왼쪽 이동</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elseif</span> action_id <span style="color:#f92672">==</span> hash(<span style="color:#e6db74">&#34;right&#34;</span>) <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">-- 오른쪽 이동</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><hr>
+<h2 id="6-게임-오브젝트-위치-이동-go-api">6. 게임 오브젝트 위치 이동 (GO API)</h2>
+<p>이동에는 <strong>Game Object API</strong> (<code>go.*</code>)를 쓴다.</p>
+<ol>
+<li><code>go.get_position()</code>으로 현재 위치를 테이블로 받는다</li>
+<li><code>x</code>를 줄이거나 늘린다</li>
+<li><code>go.set_position(pos)</code>로 반영한다</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">on_input</span>(self, action_id, action)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> action_id <span style="color:#f92672">==</span> hash(<span style="color:#e6db74">&#34;left&#34;</span>) <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">local</span> pos <span style="color:#f92672">=</span> go.get_position()
+</span></span><span style="display:flex;"><span>        pos.x <span style="color:#f92672">=</span> pos.x <span style="color:#f92672">-</span> <span style="color:#ae81ff">0.1</span>
+</span></span><span style="display:flex;"><span>        go.set_position(pos)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elseif</span> action_id <span style="color:#f92672">==</span> hash(<span style="color:#e6db74">&#34;right&#34;</span>) <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">local</span> pos <span style="color:#f92672">=</span> go.get_position()
+</span></span><span style="display:flex;"><span>        pos.x <span style="color:#f92672">=</span> pos.x <span style="color:#f92672">+</span> <span style="color:#ae81ff">0.1</span>
+</span></span><span style="display:flex;"><span>        go.set_position(pos)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p>저장 후 빌드하면 화살표로 우주선을 좌우로 움직일 수 있다. 아직 스크립트는 <strong>파일만</strong> 있고 게임 오브젝트에 <strong>연결되지 않았다면</strong> 아래 단계가 필요하다.</p>
+<hr>
+<h2 id="7-스크립트를-컴포넌트로-연결">7. 스크립트를 컴포넌트로 연결</h2>
+<p><code>main.collection</code>의 Outline에서 게임 오브젝트 우클릭 → <strong>Add Component File</strong> → <code>player.script</code> 선택 → OK.</p>
+<p>저장(<code>Ctrl/Cmd + S</code>) 후 빌드(<code>Ctrl/Cmd + B</code>)하여 입력이 동작하는지 확인한다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart LR
+    F[&#34;player.script\n(프로젝트 파일)&#34;]
+    GO[&#34;게임 오브젝트&#34;]
+    C[&#34;Script 컴포넌트&#34;]
+
+    F --&gt;|&#34;Add Component File&#34;| C
+    C --&gt; GO
+</code></pre><hr>
+<h2 id="8-커스텀-스프라이트-에셋과-atlas">8. 커스텀 스프라이트: 에셋과 Atlas</h2>
+<p>내장 블롭 대신 우주선 이미지를 쓰려면 프로젝트에 에셋을 넣는다.</p>
+<ol>
+<li>프로젝트 폴더에 <code>assets</code> 디렉터리 생성 (이름은 자유)</li>
+<li>이미지를 드래그 앤 드롭 (직접 그리거나 <a href="https://itch.io/">itch.io</a> 등에서 구할 수 있음)</li>
+<li><strong>File → New → Atlas</strong> 생성</li>
+<li>Atlas Outline에서 <strong>Add Animation Group</strong></li>
+<li>ID를 <code>player</code> 등으로 변경, 재생 모드 예: <strong>None</strong> (단일 정지 프레임)</li>
+<li>애니메이션 우클릭 → <strong>Add Images</strong> → 우주선 이미지 선택</li>
+</ol>
+<p>Atlas는 최적화를 위해 <strong>2의 거듭제곱</strong> 크기로 맞춰지는 경우가 많다. 지금은 신경 쓰지 않아도 된다.</p>
+<p><code>main.collection</code>으로 돌아가 스프라이트 Properties에서:</p>
+<ul>
+<li><strong>Image</strong>: 방금 만든 Atlas</li>
+<li><strong>Default Animation</strong>: <code>player</code> 애니메이션</li>
+</ul>
+<p>저장 후 다시 빌드하면 커스텀 우주선이 보인다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
+    IMG[&#34;assets/ 우주선.png&#34;]
+    AT[&#34;Atlas\n애니메이션 그룹 player&#34;]
+    SP[&#34;Sprite 컴포넌트&#34;]
+    GO[&#34;게임 오브젝트&#34;]
+
+    IMG --&gt; AT
+    AT --&gt; SP
+    SP --&gt; GO
+</code></pre><blockquote>
+<p><strong>Assets 패널</strong>은 OS의 프로젝트 폴더와 1:1로 맞는다. 탐색기에서 파일을 넣으면 에디터에 보이고, 에디터에서 넣으면 디스크에도 반영된다.</p></blockquote>
+<hr>
+<h2 id="9-이번-편에서-만든-것">9. 이번 편에서 만든 것</h2>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TB
+    subgraph Project[&#34;프로젝트&#34;]
+        GP[&#34;game.project&#34;]
+        IB[&#34;input binding\nleft / right&#34;]
+        PS[&#34;player.script&#34;]
+        AT[&#34;Atlas + player 애니메이션&#34;]
+        AS[&#34;assets/ 이미지&#34;]
+    end
+
+    subgraph Runtime[&#34;실행 시&#34;]
+        MC[&#34;main.collection&#34;]
+        GO[&#34;플레이어 GO&#34;]
+        SPR[&#34;Sprite&#34;]
+        SCR[&#34;Script&#34;]
+    end
+
+    GP --&gt; MC
+    AS --&gt; AT
+    AT --&gt; SPR
+    PS --&gt; SCR
+    IB --&gt; SCR
+    MC --&gt; GO
+    GO --&gt; SPR &amp; SCR
+</code></pre><table>
+  <thead>
+      <tr>
+          <th>단계</th>
+          <th>내용</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>씬 구성</td>
+          <td>Bootstrap → <code>main.collection</code>에 게임 오브젝트 + Sprite</td>
+      </tr>
+      <tr>
+          <td>에디터</td>
+          <td>저장·빌드·뷰 맞추기 단축키</td>
+      </tr>
+      <tr>
+          <td>로직</td>
+          <td><code>player.script</code> — <code>init</code>, <code>on_input</code>, <code>go.get/set_position</code></td>
+      </tr>
+      <tr>
+          <td>입력</td>
+          <td>Input binding + <code>hash(&quot;left&quot;)</code> / <code>hash(&quot;right&quot;)</code></td>
+      </tr>
+      <tr>
+          <td>그래픽</td>
+          <td>Atlas에 애니메이션 그룹 → 스프라이트에 연결</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="다음-편-예고">다음 편 예고</h2>
+<p>다음 글에서는 같은 프로젝트를 이어서 <strong>적</strong>, <strong>충돌 오브젝트</strong>, <strong>총알</strong>을 추가하고 액션이 있는 게임플레이 루프를 만든다.</p>
+<hr>
+<h2 id="참고">참고</h2>
+<ul>
+<li><a href="https://defold.com/manuals/introduction/">Defold — Getting Started</a></li>
+<li><a href="https://defold.com/manuals/input/">Defold — Input</a></li>
+<li><a href="https://defold.com/ref/stable/go/">go.* API</a></li>
+</ul>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/defold/" rel="tag">Defold</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" rel="tag">게임엔진</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" rel="tag">튜토리얼</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/gamedev/" rel="tag">GameDev</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/lua/" rel="tag">Lua</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" rel="tag">슈팅게임</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/code-reading/urllib-cor/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Chain of Responsibility는 실전에서 이렇게 쓰인다 — Python urllib OpenerDirector</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/games/defold-4/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-6/">Defold 게임 엔진 입문 — 메시징과 주소 지정</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-5/">Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-4/">Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (8)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (14)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

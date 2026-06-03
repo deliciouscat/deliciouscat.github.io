@@ -89,6 +89,297 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/agents/05_4_model-agnostic/" rel="bookmark">
+			Pydantic-AI 05-4: 모델 교체 전략 (Model-Agnostic Design)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T13:30:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 05. Agent 실행 흐름 설계 — 4/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI는 모델에 종속되지 않는 설계를 지향한다. OpenAI, Anthropic, Google Gemini 등 다양한 모델 간 전환 방법과 전략을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-model-agnostic-설계-철학">1. Model-Agnostic 설계 철학</h3>
+<ul>
+<li>Pydantic-AI가 모델 추상화를 제공하는 이유</li>
+<li>모델 독립적 코드의 이점: 비용 최적화, 벤더 종속 방지</li>
+</ul>
+<h3 id="2-지원-모델과-설정">2. 지원 모델과 설정</h3>
+<ul>
+<li>OpenAI (<code>&quot;openai:gpt-4o&quot;</code>, <code>&quot;openai:gpt-4o-mini&quot;</code>)</li>
+<li>Anthropic (<code>&quot;anthropic:claude-sonnet&quot;</code>)</li>
+<li>Google Gemini (<code>&quot;google/gemini-2.5-flash&quot;</code>)</li>
+<li>Groq (<code>&quot;groq:llama-3.3-70b-versatile&quot;</code>)</li>
+<li>기타 OpenAI 호환 모델 연동</li>
+</ul>
+<h3 id="3-모델-전환-방법">3. 모델 전환 방법</h3>
+<ul>
+<li>생성 시 모델 지정: <code>Agent(model=&quot;...&quot;)</code></li>
+<li>실행 시 모델 오버라이드: <code>agent.run(prompt, model=&quot;...&quot;)</code></li>
+<li>환경변수 기반 동적 전환</li>
+</ul>
+<h3 id="4-모델별-차이점과-대응">4. 모델별 차이점과 대응</h3>
+<ul>
+<li>도구 호출 지원 수준 차이</li>
+<li>구조화된 출력 지원 여부</li>
+<li>토큰 제한, 비용, 속도 비교표</li>
+</ul>
+<h3 id="5-모델-fallback-패턴">5. 모델 Fallback 패턴</h3>
+<ul>
+<li>1차 모델 실패 시 대체 모델로 전환</li>
+<li>비용 최적화: 간단한 작업은 저렴한 모델, 복잡한 작업은 고성능 모델</li>
+<li>A/B 테스트를 위한 모델 라우팅</li>
+</ul>
+<h3 id="6-테스트용-모델">6. 테스트용 모델</h3>
+<ul>
+<li><code>TestModel</code> — 결정적 응답을 반환하는 테스트 전용 모델</li>
+<li><code>FunctionModel</code> — 커스텀 로직으로 응답을 생성하는 모델</li>
+<li>CI/CD에서 실제 API 호출 없이 테스트하기</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/05_2_branching/" rel="bookmark">
+			Pydantic-AI 05-2: 도구 기반 분기 처리 (Branching with Tools)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T13:10:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 05. Agent 실행 흐름 설계 — 2/4</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic-AI는 그래프(Node/Edge) 기반 분기 대신, 도구 반환값에 따라 LLM이 자연스럽게 분기를 결정하는 방식을 사용한다. 이 패턴으로 복잡한 흐름을 설계하는 방법을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-graph-기반-분기-vs-tool-기반-분기">1. Graph 기반 분기 vs Tool 기반 분기</h3>
+<ul>
+<li>LangGraph의 Node/Edge/State 패턴</li>
+<li>Pydantic-AI의 &ldquo;도구 반환값 → LLM 판단 → 다음 도구 호출&rdquo; 패턴</li>
+<li>각 방식의 장단점 비교</li>
+</ul>
+<h3 id="2-도구-반환값을-통한-흐름-제어">2. 도구 반환값을 통한 흐름 제어</h3>
+<ul>
+<li>도구가 반환하는 문자열이 LLM의 다음 행동을 유도</li>
+<li>&ldquo;성공&rdquo; / &ldquo;실패&rdquo; / &ldquo;추가 정보 필요&rdquo; 분기 설계</li>
+<li>도구 반환값에 힌트를 포함시키는 전략</li>
+</ul>
+<h3 id="3-조건부-도구-등록">3. 조건부 도구 등록</h3>
+<ul>
+<li>상황에 따라 다른 도구 세트를 Agent에 제공</li>
+<li><code>Agent(tools=[...])</code> 동적 구성</li>
+<li>의존성 기반 도구 필터링</li>
+</ul>
+<h3 id="4-순차-도구-호출-패턴">4. 순차 도구 호출 패턴</h3>
+<ul>
+<li>데이터 수집 → 분석 → 결과 반환 파이프라인</li>
+<li>도구 간 데이터 전달 (도구 반환값 → LLM → 다음 도구 인자)</li>
+<li>중간 결과 축적 패턴</li>
+</ul>
+<h3 id="5-재귀적-도구-호출">5. 재귀적 도구 호출</h3>
+<ul>
+<li>도구가 자기 자신의 재호출을 유도하는 패턴</li>
+<li>트리 탐색, 페이지네이션 처리</li>
+<li>무한 루프 방지를 위한 안전장치</li>
+</ul>
+<h3 id="6-실전-예제">6. 실전 예제</h3>
+<ul>
+<li>고객 문의 분류 → 전문 처리 흐름</li>
+<li>데이터 검증 → 보정 → 최종 확인 파이프라인</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/04_3_debugging/" rel="bookmark">
+			Pydantic-AI 04-3: Agent 디버깅 전략 (Debugging)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T12:20:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 04. 관측성(Observability) — Logfire 연동 — 3/3</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Agent가 예상과 다르게 동작할 때, 로그와 추적 데이터를 기반으로 문제를 진단하는 전략을 다룬다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-agent-디버깅의-어려움">1. Agent 디버깅의 어려움</h3>
+<ul>
+<li>비결정적(non-deterministic) 동작의 특성</li>
+<li>&ldquo;왜 이 도구를 선택했는가?&ldquo;를 추적하는 문제</li>
+<li>재현 가능한 테스트의 중요성</li>
+</ul>
+<h3 id="2-메시지-이력-기반-디버깅">2. 메시지 이력 기반 디버깅</h3>
+<ul>
+<li><code>RunResult.all_messages()</code>로 전체 대화 흐름 확인</li>
+<li>각 턴에서 LLM이 받은 입력과 생성한 출력 비교</li>
+<li>도구 호출 인자와 반환값 검증</li>
+</ul>
+<h3 id="3-logfire를-활용한-시각적-디버깅">3. Logfire를 활용한 시각적 디버깅</h3>
+<ul>
+<li>실패한 실행의 Trace 분석</li>
+<li>도구 호출 순서와 인자 확인</li>
+<li>재시도 발생 지점과 원인 파악</li>
+</ul>
+<h3 id="4-일반적인-문제-패턴과-해결법">4. 일반적인 문제 패턴과 해결법</h3>
+<ul>
+<li>도구를 호출하지 않는 경우 → 도구 설명(docstring) 개선</li>
+<li>잘못된 인자로 도구를 호출하는 경우 → 타입 힌트 강화</li>
+<li>무한 도구 호출 루프 → <code>UsageLimits</code> 설정</li>
+<li>검증 실패가 반복되는 경우 → 결과 스키마 / 프롬프트 조정</li>
+</ul>
+<h3 id="5-테스트-전략">5. 테스트 전략</h3>
+<ul>
+<li><code>TestModel</code> / <code>FunctionModel</code>을 활용한 결정적 테스트</li>
+<li>Mock 의존성으로 외부 서비스 격리</li>
+<li>스냅샷 테스트: 메시지 이력 비교</li>
+</ul>
+<h3 id="6-프로덕션-모니터링">6. 프로덕션 모니터링</h3>
+<ul>
+<li>알림 설정: 재시도 임계치 초과, 응답 시간 이상</li>
+<li>에러율 추적과 모델 성능 모니터링</li>
+<li>인시던트 대응 플레이북</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/04_2_tracing/" rel="bookmark">
+			Pydantic-AI 04-2: Agent 실행 흐름 시각화 (Tracing)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T12:10:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 04. 관측성(Observability) — Logfire 연동 — 2/3</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Logfire Tracing을 활용하면 Agent의 실행 흐름 — 도구 호출, 재시도, 모델 요청 등 — 을 시각적으로 추적할 수 있다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-추적tracing의-기본-개념">1. 추적(Tracing)의 기본 개념</h3>
+<ul>
+<li>Span, Trace, Attribute의 정의</li>
+<li>OpenTelemetry 표준과 Logfire의 관계</li>
+<li>분산 추적(Distributed Tracing)의 원리</li>
+</ul>
+<h3 id="2-agent-실행-추적-구조">2. Agent 실행 추적 구조</h3>
+<ul>
+<li>최상위 Span: <code>agent.run()</code> 실행</li>
+<li>하위 Span: 모델 요청, 도구 호출, 검증</li>
+<li>Span 간 부모-자식 관계</li>
+</ul>
+<h3 id="3-도구-호출-추적">3. 도구 호출 추적</h3>
+<ul>
+<li>도구 이름, 인자, 반환값 기록</li>
+<li>도구 실행 시간 측정</li>
+<li>도구 내부에서 추가 Span 생성하기</li>
+</ul>
+<h3 id="4-재시도-추적">4. 재시도 추적</h3>
+<ul>
+<li>검증 실패 → 재시도 흐름 시각화</li>
+<li><code>ModelRetry</code> 발생 시 기록되는 정보</li>
+<li>재시도 횟수와 성공까지의 시간 분석</li>
+</ul>
+<h3 id="5-커스텀-span-추가하기">5. 커스텀 Span 추가하기</h3>
+<ul>
+<li><code>logfire.span()</code> 컨텍스트 매니저</li>
+<li>도구 함수 내부의 세부 작업 추적</li>
+<li>사용자 정의 속성(attribute) 추가</li>
+</ul>
+<h3 id="6-추적-데이터-분석">6. 추적 데이터 분석</h3>
+<ul>
+<li>병목 구간 식별 (느린 도구, 과도한 재시도)</li>
+<li>모델별 응답 시간 비교</li>
+<li>실행 패턴 분석과 최적화 방향 도출</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/agents/04_1_logfire/" rel="bookmark">
+			Pydantic-AI 04-1: Logfire 실행과 설정
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T12:00:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: 04. 관측성(Observability) — Logfire 연동 — 1/3</p></blockquote>
+<h2 id="개요">개요</h2>
+<p>Pydantic Logfire는 Pydantic 생태계의 관측성(Observability) 도구로, Agent의 실행 과정을 추적하고 시각화할 수 있다. LangChain의 LangSmith/Studio에 대응하는 도구이다.</p>
+<hr>
+<h2 id="세부-목차">세부 목차</h2>
+<h3 id="1-logfire란">1. Logfire란?</h3>
+<ul>
+<li>Pydantic 팀이 만든 관측성 플랫폼</li>
+<li>OpenTelemetry 기반 추적 시스템</li>
+<li>LangSmith / LangFuse와의 비교</li>
+</ul>
+<h3 id="2-logfire-설치와-초기-설정">2. Logfire 설치와 초기 설정</h3>
+<ul>
+<li><code>pip install logfire</code> 및 의존성</li>
+<li><code>logfire.configure()</code> 기본 설정</li>
+<li>프로젝트 토큰 발급 및 환경변수 설정</li>
+</ul>
+<h3 id="3-pydantic-ai와-logfire-연동">3. Pydantic-AI와 Logfire 연동</h3>
+<ul>
+<li><code>logfire.instrument_pydantic_ai()</code> 한 줄 연동</li>
+<li>자동으로 추적되는 항목: Agent 실행, 도구 호출, 모델 요청</li>
+<li>추적 범위(span) 구조 이해</li>
+</ul>
+<h3 id="4-logfire-대시보드-둘러보기">4. Logfire 대시보드 둘러보기</h3>
+<ul>
+<li>웹 대시보드 접근 및 기본 인터페이스</li>
+<li>실행 타임라인 읽는 법</li>
+<li>필터링과 검색</li>
+</ul>
+<h3 id="5-로컬-개발-환경에서의-활용">5. 로컬 개발 환경에서의 활용</h3>
+<ul>
+<li><code>logfire.configure(send_to_logfire=False)</code> — 로컬 전용 모드</li>
+<li>콘솔 출력으로 추적 정보 확인</li>
+<li>개발 vs 프로덕션 설정 분리</li>
+</ul>
+<h3 id="6-환경별-설정-관리">6. 환경별 설정 관리</h3>
+<ul>
+<li>환경변수 기반 설정 전환</li>
+<li>민감 정보(API 키, 사용자 데이터) 마스킹</li>
+<li>샘플링 비율 조정을 통한 비용 관리</li>
+</ul>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/agents/03_5_usage-limits/" rel="bookmark">
 			Pydantic-AI 03-5: 사용량 추적과 제한 (Usage &amp; Limits)
 			</a>
@@ -363,242 +654,12 @@
 <li>이전 대화 맥락을 활용한 후속 질문 처리</li>
 </ul>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/02_2_tool-schema/" rel="bookmark">
-			Pydantic-AI 02-2: Agent에게 사용설명서 제공하기 (Tool Schema)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T10:30:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 02. Agent에게 도구 쥐어주기 — 2/4</p></blockquote>
-<h2 id="개요">개요</h2>
-<p>Pydantic-AI는 함수 시그니처와 docstring을 기반으로 도구의 JSON 스키마를 자동 생성한다. 이 스키마가 LLM이 도구를 이해하고 올바르게 호출하는 &ldquo;사용설명서&rdquo; 역할을 한다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-스키마-자동-생성-원리">1. 스키마 자동 생성 원리</h3>
-<ul>
-<li>함수 시그니처 → JSON Schema 변환 과정</li>
-<li><code>Annotated</code> 타입 힌트의 활용</li>
-<li>Pydantic-AI가 읽는 정보: 파라미터명, 타입, 기본값, docstring</li>
-</ul>
-<h3 id="2-docstring의-역할">2. docstring의 역할</h3>
-<ul>
-<li>Google 스타일 docstring 작성법</li>
-<li><code>Args:</code> 섹션이 파라미터 설명으로 변환되는 과정</li>
-<li>함수 설명(첫 줄)이 도구 설명이 되는 규칙</li>
-</ul>
-<h3 id="3-타입-힌트를-통한-스키마-제어">3. 타입 힌트를 통한 스키마 제어</h3>
-<ul>
-<li><code>Literal</code> — 선택지 제한</li>
-<li><code>Optional</code> / <code>Union</code> — 선택적 파라미터</li>
-<li><code>Annotated[int, Field(ge=0, le=100)]</code> — 값 범위 제약</li>
-</ul>
-<h3 id="4-agenttool-vs-agenttool_plain">4. <code>@agent.tool</code> vs <code>@agent.tool_plain</code></h3>
-<ul>
-<li><code>tool</code>: <code>RunContext</code>를 첫 번째 인자로 받음</li>
-<li><code>tool_plain</code>: 컨텍스트 없이 순수 함수로 동작</li>
-<li>언제 어떤 것을 선택해야 하는가</li>
-</ul>
-<h3 id="5-커스텀-스키마-오버라이드">5. 커스텀 스키마 오버라이드</h3>
-<ul>
-<li><code>Tool()</code> 객체를 직접 생성하여 세밀한 제어</li>
-<li>파라미터 이름 변경, 설명 커스텀</li>
-</ul>
-<h3 id="6-좋은-도구-스키마-설계-원칙">6. 좋은 도구 스키마 설계 원칙</h3>
-<ul>
-<li>LLM이 이해하기 쉬운 파라미터 네이밍</li>
-<li>명확한 반환값 설명의 중요성</li>
-<li>과도한 파라미터 vs 적절한 추상화</li>
-</ul>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/01_1_agent/" rel="bookmark">
-			Pydantic-AI 01-1: Agent 정의와 생성
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-13T10:00:00&#43;09:00">February 13, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 01. Agent의 기본 구조 — 1/3</p></blockquote>
-<h2 id="개요">개요</h2>
-<p><code>Agent</code> 클래스는 Pydantic-AI의 핵심 진입점이다. 이 글에서는 Agent를 정의하고 생성하는 방법을 다룬다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-agent-클래스란">1. Agent 클래스란?</h3>
-<ul>
-<li>Pydantic-AI에서 Agent의 역할과 위치</li>
-<li>LangChain의 AgentExecutor와의 차이점</li>
-</ul>
-<h3 id="2-agent-생성-기본">2. Agent 생성 기본</h3>
-<ul>
-<li><code>Agent()</code> 생성자의 주요 매개변수</li>
-<li><code>model</code> 설정: 문자열 기반 모델 지정 (<code>&quot;openai:gpt-4&quot;</code>, <code>&quot;google/gemini-2.5-flash&quot;</code> 등)</li>
-<li><code>instructions</code> (system prompt) 작성법</li>
-</ul>
-<h3 id="3-system-prompt-설계">3. System Prompt 설계</h3>
-<ul>
-<li>정적 system prompt: 문자열 직접 전달</li>
-<li>동적 system prompt: <code>@agent.system_prompt</code> 데코레이터 (미리보기)</li>
-<li>효과적인 system prompt 작성 가이드라인</li>
-</ul>
-<h3 id="4-모델-설정과-교체">4. 모델 설정과 교체</h3>
-<ul>
-<li>지원 모델 목록 (OpenAI, Anthropic, Google, Groq 등)</li>
-<li><code>model</code> 파라미터의 문자열 형식 이해</li>
-<li>환경변수 기반 API 키 관리</li>
-</ul>
-<h3 id="5-agent-실행-방법">5. Agent 실행 방법</h3>
-<ul>
-<li><code>agent.run()</code> — 비동기 실행</li>
-<li><code>agent.run_sync()</code> — 동기 실행</li>
-<li><code>RunResult</code> 객체의 구조</li>
-</ul>
-<h3 id="6-첫-번째-agent-만들기">6. 첫 번째 Agent 만들기</h3>
-<ul>
-<li>최소 코드로 Agent 생성 및 실행</li>
-<li>응답 확인과 기본 동작 이해</li>
-</ul>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/introduce/myproject-260112/" rel="bookmark">
-			프로젝트 소개: WizPerch - Chrome Extention 기반 SNS engine
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-01-12T18:00:00&#43;09:00">January 12, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/who-am-i/" rel="category">Who Am I</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="wizperch-프로젝트">WizPerch 프로젝트</h1>
-<h3 id="문제의식">문제의식</h3>
-<p>개인적으로 인터넷 환경에서의 toxic한 의사소통 경험, 필터버블, 컨텐츠의 플랫폼 종속성 등에 문제의식을 가지고 있습니다. 소셜미디어 구축 엔진을 오픈소스화하여 서비스 운영자가 추천 시스템 운영권을 가질 수 있도록 하는 것을 목표로 합니다. (Semi-Decentralization)</p>
-<h3 id="프로젝트로-다음과-같은-방법으로-이-문제를-해결해보고자-했습니다">프로젝트로 다음과 같은 방법으로 이 문제를 해결해보고자 했습니다.</h3>
-<ul>
-<li>Chrome Extention 형태의 온라인 커뮤니티를 만들어 컨텐츠 생산자가 ownership을 가질 수 있게 한다.</li>
-<li>Agentic AI + Knowledge Tracing 기반의 웹페이지 추천으로 motivated reasoning(본인의 기존 입장에 맞는 근거자료를 편취하게 되는 것)을 막는다.</li>
-<li>누구나 추천 Agent 설계를 쉽게 할 수 있도록 극도로 추상화된 프레임워크를 만든다.</li>
-</ul>
-<h3 id="사용자-유입을-위한-utility-기능">사용자 유입을 위한 utility 기능</h3>
-<p>위의 개발 동기는 사용자 관점이 아니기 때문에, 시너지가 있는 다른 기능으로 유저를 끌어모으고자 합니다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/introduce/myproject-260112/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-stratagy/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-20T18:00:00&#43;09:00">November 20, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="strategy-pattern-전략-패턴">Strategy Pattern (전략 패턴)</h1>
-<p>Strategy Pattern은 <strong>알고리즘군을 정의하고 각각을 캡슐화하여(-&gt; 전략을 여럿 두어) 교환 가능하게 만드는</strong> 디자인 패턴이다.
-클라이언트는 알고리즘의 구체적인 구현과 독립적으로 <strong>런타임에 알고리즘(전략)을 선택</strong>할 수 있다.</p>
-<p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PaymentStrategy</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">pass</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CreditCard</span>(PaymentStrategy):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with Credit Card&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PayPal</span>(PaymentStrategy):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pay</span>(self, amount): <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Paid </span><span style="color:#e6db74">{</span>amount<span style="color:#e6db74">}</span><span style="color:#e6db74"> with PayPal&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ShoppingCart</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, strategy: PaymentStrategy):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_strategy</span>(self, strategy: PaymentStrategy):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>strategy <span style="color:#f92672">=</span> strategy
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">checkout</span>(self, amount):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>strategy<span style="color:#f92672">.</span>pay(amount)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 런타임에 전략 변경</span>
-</span></span><span style="display:flex;"><span>cart <span style="color:#f92672">=</span> ShoppingCart(CreditCard())
-</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">100</span>))  <span style="color:#75715e"># Paid 100 with Credit Card</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>cart<span style="color:#f92672">.</span>set_strategy(PayPal())
-</span></span><span style="display:flex;"><span>print(cart<span style="color:#f92672">.</span>checkout(<span style="color:#ae81ff">200</span>))  <span style="color:#75715e"># Paid 200 with PayPal</span>
-</span></span></code></pre></div><p>→ <code>ShoppingCart</code>는 구체적인 결제 방식을 알 필요 없이, <code>PaymentStrategy</code> 인터페이스만 알면 된다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-stratagy/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/resources/alexkarp-westerncivil/" rel="bookmark">
-			Alex Karp의 &#34;서구 문명&#34; 개념
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-11-12T22:50:00&#43;09:00">November 12, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/resources/" rel="category">Resources</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p><a href="https://app.liner.com/ko/search/s/18821459/t/89903816?msg-entry-type=main"><strong>Liner를 통해 정리된 내용임</strong></a></p>
-<details>
-<summary>주요 개념</summary>
-<div markdown="1">
-<p><strong>철학/이론적 배경</strong></p>
-<ul>
-<li><strong>프랑크푸르트 학파/비판 이론(Critical Theory)</strong> - 카프가 박사과정을 밟은 곳이면서도 동시에 비판하는 사상</li>
-<li><strong>신고전주의 사회 이론</strong> - 카프의 박사 학위 분야</li>
-<li><strong>문화 상대주의(Cultural Relativism)</strong> - 카프가 강하게 반대하는 입장</li>
-<li><strong>사무엘 헌팅턴(Samuel P. Huntington)</strong> - &ldquo;문명의 충돌&rdquo; 저자, 카프가 인용하는 학자</li>
-<li><strong>탈콧 파슨스(Talcott Parsons)</strong> - 카프 박사논문에서 다룬 사회학자</li>
-</ul>
-<p><strong>기업/조직</strong></p>
-<ul>
-<li><strong>팔란티어 테크놀로지스(Palantir Technologies)</strong> - 데이터 분석 기업의 구체적 역할과 제품</li>
-<li><strong>인큐텔(In-Q-Tel)</strong> - CIA 벤처캐피털, 팔란티어 초기 투자자</li>
-<li><strong>ICE(미국 이민세관집행국)</strong> - 논란이 된 팔란티어 고객</li>
-</ul>
-<p><strong>정치/군사 개념</strong></p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/resources/alexkarp-westerncivil/">Read more…</a>
-	</div>
 </article>
 </main>
 
 <div class="pagination">
 	<a class="pagination__item pagination__item--prev btn" href="/page/3/">«</a>
-	<span class="pagination__item pagination__item--current">4/5</span>
+	<span class="pagination__item pagination__item--current">4/6</span>
 	<a class="pagination__item pagination__item--next btn" href="/page/5/">»</a>
 </div>
 
@@ -614,11 +675,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/urllib-cor/">Chain of Responsibility는 실전에서 이렇게 쓰인다 — Python urllib OpenerDirector</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-chain-of-responsibility/">Vibe Coding을 위한 디자인 패턴 - 책임 연쇄(Chain of Responsibility)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/sklearn-prototype/">Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-6/">Defold 게임 엔진 입문 — 메시징과 주소 지정</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-5/">Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-4/">Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</a></li>
 		</ul>
 	</div>
 </div>
@@ -653,21 +714,28 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (2)</a>
@@ -675,22 +743,24 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (8)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (14)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>

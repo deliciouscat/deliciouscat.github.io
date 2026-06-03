@@ -1,6 +1,6 @@
 ---
 title: "Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)"
-date: 2026-06-03T16:30:00+09:00
+date: 2026-06-03T15:00:00+09:00
 draft: false
 categories: ["Games"]
 tags: ["Defold", "게임엔진", "튜토리얼", "GameDev", "Lua", "슈팅게임", "Collision", "Factory"]

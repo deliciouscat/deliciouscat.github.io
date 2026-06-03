@@ -1,6 +1,6 @@
 ---
 title: "Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)"
-date: 2026-06-03T17:00:00+09:00
+date: 2026-06-03T15:00:00+09:00
 draft: false
 categories: ["Games"]
 tags: ["Defold", "게임엔진", "튜토리얼", "GameDev", "Lua", "슈팅게임", "Particle", "GUI", "Sound"]

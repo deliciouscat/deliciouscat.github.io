@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Component on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/component/</link>
+    <description>Recent content in Component on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 03 Jun 2026 15:30:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/component/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Defold 게임 엔진 입문 — 컴포넌트 전체 개요</title>
+      <link>http://localhost:1313/posts/games/defold-2/</link>
+      <pubDate>Wed, 03 Jun 2026 15:30:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/games/defold-2/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;시리즈&lt;/strong&gt;: Defold 입문 — 2편: 컴포넌트 종류와 역할&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;개요&#34;&gt;개요&lt;/h2&gt;&#xA;&lt;p&gt;Defold는 다양한 기능을 바로 사용할 수 있는 빌트인 컴포넌트를 제공한다. 이 글에서는 각 컴포넌트가 무엇을 하는지, 언제 쓰는지를 정리한다. 세부 사용법은 이후 편에서 다루고, 여기서는 &amp;ldquo;무엇이 있는가&amp;quot;에 집중한다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;1-복습-게임-오브젝트와-컬렉션&#34;&gt;1. 복습: 게임 오브젝트와 컬렉션&lt;/h2&gt;&#xA;&lt;p&gt;1편의 내용을 간단히 짚고 넘어간다.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;게임 오브젝트&lt;/strong&gt;: 고유 ID + 트랜스폼(위치·회전·스케일)을 가진 기본 단위&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;컴포넌트&lt;/strong&gt;: 게임 오브젝트에 부착하여 기능을 추가하는 단위&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;컬렉션&lt;/strong&gt;: 게임 오브젝트를 묶는 단위 (예: 지형, 코인, 장애물, 체크포인트가 포함된 레벨)&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-mermaid&#34; data-lang=&#34;mermaid&#34;&gt;flowchart TD&#xA;    C[&amp;#34;컬렉션 (Collection)\n예: Level-1&amp;#34;]&#xA;    G1[&amp;#34;게임 오브젝트\n예: Player&amp;#34;]&#xA;    G2[&amp;#34;게임 오브젝트\n예: Coin&amp;#34;]&#xA;    G3[&amp;#34;게임 오브젝트\n예: Platform&amp;#34;]&#xA;    Comp1[&amp;#34;Sprite\nCollision Object\nScript&amp;#34;]&#xA;    Comp2[&amp;#34;Sprite\nFactory&amp;#34;]&#xA;    Comp3[&amp;#34;Tile Map\nCollision Object&amp;#34;]&#xA;&#xA;    C --&amp;gt; G1 &amp;amp; G2 &amp;amp; G3&#xA;    G1 --&amp;gt; Comp1&#xA;    G2 --&amp;gt; Comp2&#xA;    G3 --&amp;gt; Comp3&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;hr&gt;&#xA;&lt;h2 id=&#34;2-컴포넌트-전체-지도&#34;&gt;2. 컴포넌트 전체 지도&lt;/h2&gt;&#xA;&lt;p&gt;Defold의 컴포넌트는 역할에 따라 다섯 범주로 나눌 수 있다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

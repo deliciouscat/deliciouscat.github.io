@@ -9,27 +9,72 @@
     <lastmod>2099-10-14T12:55:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/component/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/defold/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/games/defold-2/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/gamedev/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/categories/games/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/</loc>
+    <lastmod>2026-06-03T15:30:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/collision/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/games/defold-1/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/gamedev/</loc>
+    <loc>http://localhost:1313/posts/games/defold-6/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/games/</loc>
+    <loc>http://localhost:1313/posts/games/defold-5/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>http://localhost:1313/posts/games/defold-4/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/</loc>
+    <loc>http://localhost:1313/posts/games/defold-3/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/</loc>
+    <loc>http://localhost:1313/tags/ecs/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/factory/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/gui/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/lua/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/messaging/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/particle/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/sound/</loc>
+    <lastmod>2026-06-03T15:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/</loc>
     <lastmod>2026-06-03T15:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/chain-of-responsibility/</loc>
@@ -96,9 +141,6 @@
     <lastmod>2026-05-14T15:41:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/abstract-factory/</loc>
-    <lastmod>2026-05-08T15:44:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/factory/</loc>
     <lastmod>2026-05-08T15:44:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/design-pattern/designpattern-abs-factory/</loc>

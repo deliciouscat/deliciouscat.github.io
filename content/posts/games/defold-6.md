@@ -1,6 +1,6 @@
 ---
 title: "Defold 게임 엔진 입문 — 메시징과 주소 지정"
-date: 2026-06-03T17:30:00+09:00
+date: 2026-06-03T15:00:00+09:00
 draft: false
 categories: ["Games"]
 tags: ["Defold", "게임엔진", "튜토리얼", "GameDev", "Lua", "Messaging", "ECS"]

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/games/defold-5/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)">
+  <meta property="og:description" content="원본 유튜브
+시리즈: Defold 입문 — 5편: 슈팅 게임 마무리 (이펙트·UI)
+이전: 4편 적·충돌·팩토리 · 3편 · 1편 · 2편
+개요 4편까지 만든 프로토타입은 비행·발사·격추가 되지만, 아직 “게임” 느낌은 부족하다. 이 글에서는 파괴 애니메이션, 파티클, 사운드, GUI·점수를 붙여 갤러그 스타일 클론을 한 단계 다듬는다.
+flowchart LR A[&#34;스프라이트 파괴 애니&#34;] --&gt; B[&#34;Particle FX 폭발&#34;] B --&gt; C[&#34;Sound&#34;] C --&gt; D[&#34;GUI &#43; 메시징\n점수·생명&#34;] 1. 적 파괴 스프라이트 애니메이션 Atlas에 전체 프레임 시퀀스를 넣는다 (예: enemy_death).">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-03T15:00:00+09:00">
+    <meta property="article:modified_time" content="2026-06-03T15:00:00+09:00">
+    <meta property="article:tag" content="Defold">
+    <meta property="article:tag" content="게임엔진">
+    <meta property="article:tag" content="튜토리얼">
+    <meta property="article:tag" content="GameDev">
+    <meta property="article:tag" content="Lua">
+    <meta property="article:tag" content="슈팅게임">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-03T15:00:00&#43;09:00">June 03, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/games/" rel="category">Games</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<p><a href="https://youtu.be/4r-L51jen_I?si=TKVRLk_W7OY889hW">원본 유튜브</a></p>
+<blockquote>
+<p><strong>시리즈</strong>: Defold 입문 — 5편: 슈팅 게임 마무리 (이펙트·UI)<br>
+이전: <a href="/posts/games/defold-4/">4편 적·충돌·팩토리</a> · <a href="/posts/games/defold-3/">3편</a> · <a href="/posts/games/defold-1/">1편</a> · <a href="/posts/games/defold-2/">2편</a></p></blockquote>
+<h2 id="개요">개요</h2>
+<p><a href="/posts/games/defold-4/">4편</a>까지 만든 프로토타입은 비행·발사·격추가 되지만, 아직 “게임” 느낌은 부족하다. 이 글에서는 <strong>파괴 애니메이션</strong>, <strong>파티클</strong>, <strong>사운드</strong>, <strong>GUI·점수</strong>를 붙여 갤러그 스타일 클론을 한 단계 다듬는다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart LR
+    A[&#34;스프라이트 파괴 애니&#34;] --&gt; B[&#34;Particle FX 폭발&#34;]
+    B --&gt; C[&#34;Sound&#34;]
+    C --&gt; D[&#34;GUI + 메시징\n점수·생명&#34;]
+</code></pre><hr>
+<h2 id="1-적-파괴-스프라이트-애니메이션">1. 적 파괴 스프라이트 애니메이션</h2>
+<p>Atlas에 <strong>전체 프레임 시퀀스</strong>를 넣는다 (예: <code>enemy_death</code>).</p>
+<ol>
+<li><strong>Add Animation Group</strong> → ID: <code>enemy_death</code></li>
+<li><strong>Add Images</strong>로 모든 프레임 추가</li>
+<li>Outline에서 **Alt + ↑/↓**로 재생 순서 조정, 필요 시 프레임 복제</li>
+<li>재생 모드: <strong>한 번만 앞으로</strong> (Once Forward)</li>
+<li><strong>FPS</strong> 조정 후 <code>Space</code>로 미리보기</li>
+</ol>
+<p>4편에서는 충돌 시 바로 <code>go.delete</code> 했다. 이제 <strong>애니메이션 재생 후</strong> 삭제한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">on_message</span>(self, message_id, message, sender)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> message_id <span style="color:#f92672">==</span> hash(<span style="color:#e6db74">&#34;trigger_response&#34;</span>) <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> message.enter <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>            sprite.play_flipbook(<span style="color:#e6db74">&#34;#sprite&#34;</span>, <span style="color:#e6db74">&#34;enemy_death&#34;</span>, <span style="color:#66d9ef">function</span>()
+</span></span><span style="display:flex;"><span>                go.delete(<span style="color:#e6db74">&#34;.&#34;</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">end</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><ul>
+<li><code>sprite.play_flipbook</code>: 스프라이트 컴포넌트(<code>#sprite</code>)에서 Atlas 애니메이션 재생</li>
+<li><strong>세 번째 인수(콜백)</strong>: 재생이 끝난 뒤에만 호출 — <strong>Once</strong> 모드에서만 동작</li>
+<li><code>go.delete(&quot;.&quot;)</code>를 콜백 안으로 옮겨, 재생 중 조기 삭제를 막는다</li>
+</ul>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
+    participant BL as bullet
+    participant EN as enemy
+    participant SP as sprite
+
+    BL-&gt;&gt;EN: trigger_response
+    EN-&gt;&gt;SP: play_flipbook enemy_death
+    SP-&gt;&gt;EN: 콜백 (재생 완료)
+    EN-&gt;&gt;EN: go.delete
+</code></pre><hr>
+<h2 id="2-파티클-폭발-particle-fx">2. 파티클 폭발 (Particle FX)</h2>
+<p><strong>Particle FX</strong>는 전용 에디터 뷰와 <strong>커브 에디터</strong>(하단)를 갖는 컴포넌트다. 파티클 수명 동안 속성을 곡선으로 애니메이션할 수 있다.</p>
+<h3 id="리소스-만들기">리소스 만들기</h3>
+<ol>
+<li>Assets → <strong>Particle FX</strong> 추가 (예: <code>explosion</code>)</li>
+<li>에디터에서 <code>Space</code>로 방출 시작/정지</li>
+<li>이미터 타입 예: <strong>Sphere</strong></li>
+<li>속성을 바꿔 보며 감을 익힌다</li>
+</ol>
+<h3 id="폭발에-맞는-설정-요약">폭발에 맞는 설정 요약</h3>
+<table>
+  <thead>
+      <tr>
+          <th>항목</th>
+          <th>권장</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>초기 속도</td>
+          <td>낮춤 (밀도감)</td>
+      </tr>
+      <tr>
+          <td>수명</td>
+          <td>짧게</td>
+      </tr>
+      <tr>
+          <td>재생 모드</td>
+          <td><strong>Once</strong>, 지속 시간 매우 짧게</td>
+      </tr>
+      <tr>
+          <td>Emission Space</td>
+          <td><strong>World</strong> (총알 삭제 후에도 월드에 파티클 유지)</td>
+      </tr>
+      <tr>
+          <td>Spawn rate</td>
+          <td>약간 상향 (최대 파티클 128 한도 참고)</td>
+      </tr>
+      <tr>
+          <td>색상</td>
+          <td>녹/파랑 낮춰 빨강·주황 톤</td>
+      </tr>
+      <tr>
+          <td>Life Color / Life Alpha</td>
+          <td>커브 에디터로 수명 끝에서 페이드아웃</td>
+      </tr>
+  </tbody>
+</table>
+<p>커브 에디터: 값 옆 버튼 → 곡선 추가. 휠 확대/축소, 가운데 버튼으로 패닝. Life Alpha는 0=시작, 1=끝(정규화).</p>
+<h3 id="bullet에-연결">bullet에 연결</h3>
+<ol>
+<li><code>bullet</code> 게임 오브젝트 → <strong>Add Component File</strong> → <code>explosion</code> 파티클 FX</li>
+<li><code>bullet.script</code> 충돌 처리 부분에 추가:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span>particlefx.play(<span style="color:#e6db74">&#34;#explosion&#34;</span>)
+</span></span></code></pre></div><p><code>Space</code>로 스케일이 적절한지 확인한 뒤, 적 명중 시 폭발이 나오는지 테스트한다.</p>
+<hr>
+<h2 id="3-총알이-적을-빗나갈-때-삭제">3. 총알이 적을 빗나갈 때 삭제</h2>
+<p>적에 맞지 않은 총알이 화면 위로 계속 쌓이는 문제를 고친다. <code>go.animate</code>의 <strong>완료 콜백</strong>을 쓴다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">init</span>(self)
+</span></span><span style="display:flex;"><span>    go.animate(<span style="color:#e6db74">&#34;.&#34;</span>, <span style="color:#e6db74">&#34;position.y&#34;</span>, go.PLAYBACK_ONCE_FORWARD, <span style="color:#ae81ff">500</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#66d9ef">function</span>()
+</span></span><span style="display:flex;"><span>        go.delete(<span style="color:#e6db74">&#34;.&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><ul>
+<li>인수 순서: 목표, 시간, <strong>delay</strong>(기본 0) 등 — 문서와 에디터 힌트 참고</li>
+<li>콜백 안에서 <code>go.delete(&quot;.&quot;)</code> — 인자 생략 시 <strong>이 스크립트가 붙은 게임 오브젝트</strong> 삭제</li>
+</ul>
+<p>맞았을 때는 충돌 처리에서 삭제하고, 빗나갔을 때는 애니메이션 종료 후 삭제한다.</p>
+<hr>
+<h2 id="4-사운드">4. 사운드</h2>
+<p>WAV 등을 <code>assets/</code>에 넣고 <strong>Sound</strong> 타입 리소스 컴포넌트를 만든다.</p>
+<h3 id="폭발음-boom">폭발음 (<code>boom</code>)</h3>
+<ol>
+<li><strong>Sound</strong> 컴포넌트 → <code>boom</code>, 사운드 리소스 지정</li>
+<li><code>enemy</code> 게임 오브젝트에 <strong>Add Component File</strong></li>
+<li>파괴 시점 스크립트:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span>sound.play(<span style="color:#e6db74">&#34;#boom&#34;</span>)
+</span></span></code></pre></div><table>
+  <thead>
+      <tr>
+          <th>속성</th>
+          <th>설명</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Group</td>
+          <td>SFX / BGM 등 묶음 볼륨 제어</td>
+      </tr>
+      <tr>
+          <td>Gain</td>
+          <td>0~1 볼륨</td>
+      </tr>
+      <tr>
+          <td>Pan</td>
+          <td>-1(왼쪽) ~ +1(오른쪽)</td>
+      </tr>
+      <tr>
+          <td>Speed</td>
+          <td>재생 속도 (0.5 = 절반, 2 = 2배)</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="발사음-플레이어">발사음 (플레이어)</h3>
+<p>레트로 총소리 Sound 컴포넌트를 <code>player</code>에 추가하고, <code>factory.create</code> 직전·직후에 <code>sound.play(&quot;#...&quot;)</code> 호출.</p>
+<h3 id="배경음악">배경음악</h3>
+<p>Sound 컴포넌트에서 <strong>반복 재생</strong>, 반복 횟수 <strong>0</strong> = 무한 반복. <code>player.script</code>의 <code>init</code>에서:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span>sound.play(<span style="color:#e6db74">&#34;#music&#34;</span>)
+</span></span></code></pre></div><p>복잡한 게임에서는 전용 “오디오 매니저” 게임 오브젝트에 BGM을 두는 경우가 많다.</p>
+<hr>
+<h2 id="5-gui-컴포넌트">5. GUI 컴포넌트</h2>
+<p>Defold <strong>GUI</strong>는 게임 화면 위에 그리는 UI 레이어다.</p>
+<ol>
+<li><strong>GUI</strong> 리소스 생성 → 이름 예: <code>main</code></li>
+<li>흰 프레임 = 게임 창. Outline에서 노드 추가:</li>
+</ol>
+<table>
+  <thead>
+      <tr>
+          <th>노드</th>
+          <th>용도</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Box</strong></td>
+          <td>직사각형 (생명 아이콘 등), 텍스처·Manual/Auto Size</td>
+      </tr>
+      <tr>
+          <td><strong>Text</strong></td>
+          <td>문자열 (점수)</td>
+      </tr>
+      <tr>
+          <td>Pie / Template / Particle FX</td>
+          <td>기타</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="설정-순서">설정 순서</h3>
+<ol>
+<li>GUI 루트 <strong>Texture</strong>: <code>game.atlas</code></li>
+<li>Box → 우주선 텍스처, 구석 배치</li>
+<li><strong>Text</strong> 노드를 Box <strong>자식</strong>으로 두면 부모 이동 시 함께 이동</li>
+<li>GUI <strong>Font</strong>: 내장 시스템 폰트 등 지정 → Text 노드에도 폰트 선택</li>
+<li>반대쪽 구석에 점수용 Text 추가</li>
+<li>노드 ID: <code>lives</code>, <code>score</code> (코드에서 구분)</li>
+</ol>
+<h3 id="씬에-붙이기">씬에 붙이기</h3>
+<p><code>main.collection</code>에 <code>interface</code> 게임 오브젝트 추가 → <strong>Add Component File</strong> → <code>main.gui</code>.</p>
+<hr>
+<h2 id="6-gui-스크립트와-메시징">6. GUI 스크립트와 메시징</h2>
+<p>GUI 전용 스크립트는 일반 스크립트와 비슷하지만 <em><em>gui.</em> API</em>*를 쓴다.</p>
+<ol>
+<li>Assets → <strong>GUI Script</strong> 추가</li>
+<li>GUI <code>main</code> 루트 속성에서 해당 스크립트 지정</li>
+<li><code>on_message</code>만 남기고 디버그:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">on_message</span>(self, message_id, message, sender)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Hello!&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><h3 id="적--gui로-메시지">적 → GUI로 메시지</h3>
+<p><code>enemy.script</code> 파괴 처리에서:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span>msg.post(<span style="color:#e6db74">&#34;/interface#main&#34;</span>, <span style="color:#e6db74">&#34;enemy_death&#34;</span>)
+</span></span></code></pre></div><ul>
+<li><code>/interface</code>: 게임 오브젝트 ID</li>
+<li><code>#main</code>: GUI 컴포넌트 이름</li>
+<li><code>&quot;enemy_death&quot;</code>: <code>message_id</code> (나중에 lives 등과 구분)</li>
+</ul>
+<p>빌드 후 적 격추 → 콘솔에 출력되면 수신 성공.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">sequenceDiagram
+    participant ES as enemy.script
+    participant GUI as interface#main
+    participant GS as gui.script
+
+    ES-&gt;&gt;GUI: msg.post enemy_death
+    GUI-&gt;&gt;GS: on_message
+    GS-&gt;&gt;GS: score++, gui.set_text
+</code></pre><h3 id="점수-표시">점수 표시</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-lua" data-lang="lua"><span style="display:flex;"><span><span style="color:#66d9ef">local</span> score <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">on_message</span>(self, message_id, message, sender)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> message_id <span style="color:#f92672">==</span> hash(<span style="color:#e6db74">&#34;enemy_death&#34;</span>) <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>        score <span style="color:#f92672">=</span> score <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">local</span> node <span style="color:#f92672">=</span> gui.get_node(<span style="color:#e6db74">&#34;score&#34;</span>)
+</span></span><span style="display:flex;"><span>        gui.set_text(node, score)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><ul>
+<li><code>gui.get_node(&quot;score&quot;)</code>: Outline에 지정한 텍스트 노드 ID</li>
+<li><code>gui.set_text(node, score)</code>: 숫자는 자동으로 문자열 변환</li>
+</ul>
+<p><code>enemy.script</code>의 <code>message_id</code>와 GUI의 <code>hash(&quot;enemy_death&quot;)</code>를 <strong>동일하게</strong> 맞춘다.</p>
+<hr>
+<h2 id="7-연습-과제-시리즈-마무리">7. 연습 과제 (시리즈 마무리)</h2>
+<p>튜토리얼에서 다루지 않은 확장:</p>
+<table>
+  <thead>
+      <tr>
+          <th>과제</th>
+          <th>힌트</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>적이 플레이어 방향으로 발사</td>
+          <td>적 Factory + bullet 프로토타입</td>
+      </tr>
+      <tr>
+          <td>플레이어 피격 시 생명 감소</td>
+          <td><code>msg.post</code> → GUI, <code>lives</code> 노드</td>
+      </tr>
+      <tr>
+          <td>생명 0</td>
+          <td>게임 오버 UI, 재시작 버튼</td>
+      </tr>
+      <tr>
+          <td>적 AI·움직임·업그레이드</td>
+          <td>1~4편에서 익힌 GO·Factory·Script 확장</td>
+      </tr>
+  </tbody>
+</table>
+<p>이 시리즈로 <strong>기본 갤러그 클론</strong> 골격은 갖춰졌다. 이후는 문서·예제·커뮤니티를 참고해 깊이를 더하면 된다.</p>
+<hr>
+<h2 id="8-이번-편에서-만든-것">8. 이번 편에서 만든 것</h2>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TB
+    subgraph VFX[&#34;비주얼&#34;]
+        AT[&#34;Atlas enemy_death&#34;]
+        PF[&#34;explosion.particlefx&#34;]
+    end
+
+    subgraph Audio[&#34;오디오&#34;]
+        BOOM[&#34;boom Sound&#34;]
+        GUN[&#34;발사 Sound&#34;]
+        BGM[&#34;BGM Sound&#34;]
+    end
+
+    subgraph UI[&#34;UI&#34;]
+        G[&#34;main.gui\nlives · score&#34;]
+        GS[&#34;gui.script&#34;]
+        IF[&#34;interface GO&#34;]
+    end
+
+    EN[&#34;enemy.script&#34;] --&gt; AT
+    EN --&gt; BOOM
+    EN --&gt;|&#34;msg.post&#34;| GS
+    BL[&#34;bullet.script&#34;] --&gt; PF
+    PL[&#34;player.script&#34;] --&gt; GUN &amp; BGM
+    G --&gt; GS
+    IF --&gt; G
+</code></pre><table>
+  <thead>
+      <tr>
+          <th>항목</th>
+          <th>API / 리소스</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>파괴 애니</td>
+          <td><code>sprite.play_flipbook</code> + 완료 콜백</td>
+      </tr>
+      <tr>
+          <td>폭발</td>
+          <td><code>particlefx.play</code>, World emission</td>
+      </tr>
+      <tr>
+          <td>총알 정리</td>
+          <td><code>go.animate</code> 완료 콜백 → <code>go.delete</code></td>
+      </tr>
+      <tr>
+          <td>사운드</td>
+          <td><code>sound.play</code>, 반복·Gain·Group</td>
+      </tr>
+      <tr>
+          <td>UI</td>
+          <td><code>gui.get_node</code>, <code>gui.set_text</code></td>
+      </tr>
+      <tr>
+          <td>통신</td>
+          <td><code>msg.post(&quot;/interface#main&quot;, ...)</code></td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="참고">참고</h2>
+<ul>
+<li><a href="https://defold.com/manuals/particlefx/">Particle FX</a></li>
+<li><a href="https://defold.com/manuals/sound/">Sounds</a></li>
+<li><a href="https://defold.com/manuals/gui/">GUI</a></li>
+<li><a href="https://defold.com/manuals/message-passing/">Messaging</a></li>
+<li><a href="https://defold.com/ref/stable/sprite/">sprite.* API</a></li>
+<li><a href="https://defold.com/ref/stable/gui/">gui.* API</a></li>
+<li><a href="https://forum.defold.com/">Defold 포럼</a> · <a href="https://www.defold.com/discord/">Discord</a></li>
+</ul>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/defold/" rel="tag">Defold</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" rel="tag">게임엔진</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" rel="tag">튜토리얼</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/gamedev/" rel="tag">GameDev</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/lua/" rel="tag">Lua</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" rel="tag">슈팅게임</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/particle/" rel="tag">Particle</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/gui/" rel="tag">GUI</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/sound/" rel="tag">Sound</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/games/defold-4/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</p>
+		</a>
+	</div>
+	<div class="pager__item pager__item--next">
+		<a class="pager__link" href="/posts/games/defold-6/" rel="next">
+			<span class="pager__subtitle">Next&thinsp;»</span>
+			<p class="pager__title">Defold 게임 엔진 입문 — 메시징과 주소 지정</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-6/">Defold 게임 엔진 입문 — 메시징과 주소 지정</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-5/">Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-4/">Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (8)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (14)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

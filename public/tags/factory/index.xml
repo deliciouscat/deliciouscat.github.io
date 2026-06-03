@@ -6,8 +6,15 @@
     <description>Recent content in Factory on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 08 May 2026 15:44:00 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jun 2026 15:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/factory/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</title>
+      <link>http://localhost:1313/posts/games/defold-4/</link>
+      <pubDate>Wed, 03 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/games/defold-4/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://youtu.be/CcgunSGKkYE?si=wRW9H8qzSFMz445X&#34;&gt;원본 유튜브&lt;/a&gt;&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;시리즈&lt;/strong&gt;: Defold 입문 — 4편: 간단한 슈팅 게임 만들기 (2/2)&lt;br&gt;&#xA;이전: &lt;a href=&#34;http://localhost:1313/posts/games/defold-3/&#34;&gt;3편 플레이어 이동&lt;/a&gt; · &lt;a href=&#34;http://localhost:1313/posts/games/defold-1/&#34;&gt;1편&lt;/a&gt; · &lt;a href=&#34;http://localhost:1313/posts/games/defold-2/&#34;&gt;2편&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;개요&#34;&gt;개요&lt;/h2&gt;&#xA;&lt;p&gt;&lt;a href=&#34;http://localhost:1313/posts/games/defold-3/&#34;&gt;3편&lt;/a&gt;에서 만든 프로젝트를 이어서 &lt;strong&gt;적 우주선&lt;/strong&gt;, &lt;strong&gt;총알&lt;/strong&gt;, &lt;strong&gt;충돌 감지&lt;/strong&gt;, &lt;strong&gt;팩토리로 동적 생성&lt;/strong&gt;까지 구현한다. 스페이스 인베이더·갤러그·Warblade에서 영감을 받은 2D 슈팅의 핵심 루프를 완성하는 단계다.&lt;/p&gt;&#xA;&lt;p&gt;충돌·팩토리만 배우고 싶다면 새 Empty Project에서도 동일한 절차를 따를 수 있다.&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-mermaid&#34; data-lang=&#34;mermaid&#34;&gt;flowchart LR&#xA;    A[&amp;#34;enemy / bullet\n게임 오브젝트 파일&amp;#34;] --&amp;gt; B[&amp;#34;Collision + Group/Mask&amp;#34;]&#xA;    B --&amp;gt; C[&amp;#34;스크립트로 충돌 처리&amp;#34;]&#xA;    C --&amp;gt; D[&amp;#34;Factory + timer\n동적 총알 발사&amp;#34;]&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;hr&gt;&#xA;&lt;h2 id=&#34;1-적-게임-오브젝트-프로토타입&#34;&gt;1. 적 게임 오브젝트 (프로토타입)&lt;/h2&gt;&#xA;&lt;p&gt;3편에서는 &lt;code&gt;main.collection&lt;/code&gt; 안에 플레이어를 직접 만들었다. &lt;strong&gt;팩토리&lt;/strong&gt;로 런타임에 생성하려면, 먼저 &lt;strong&gt;게임 오브젝트 파일&lt;/strong&gt;(&lt;code&gt;.go&lt;/code&gt;)이 필요하다. 이 파일이 &lt;strong&gt;프로토타입&lt;/strong&gt; 역할을 한다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)</title>
       <link>http://localhost:1313/posts/design-pattern/designpattern-abs-factory/</link>
