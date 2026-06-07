@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>결합도 on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/</link>
+    <description>Recent content in 결합도 on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 07 Jun 2026 21:40:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</title>
+      <link>http://localhost:1313/posts/code-reading/django-facade/</link>
+      <pubDate>Sun, 07 Jun 2026 21:40:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/django-facade/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-facade/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 퍼사드&lt;/a&gt;를 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;들어가기-전에&#34;&gt;들어가기 전에&lt;/h2&gt;&#xA;&lt;p&gt;퍼사드 패턴을 공부할 때 가장 헷갈리는 지점이 하나 있다.&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;&amp;ldquo;Facade는 결합도를 낮추는 패턴&amp;quot;이라는데, 정작 Facade 자신은 여러 서브시스템에 결합되잖아?&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;p&gt;맞다. 그리고 이게 핵심이다. &lt;strong&gt;Facade는 결합을 없애는 패턴이 아니라, 결합이 생길 수밖에 없는 지점을 의식적으로 한 곳에 모으는 패턴이다.&lt;/strong&gt; 이 문장을 코드로 가장 노골적으로 증명하는 파일이 Django의 &lt;code&gt;django/shortcuts.py&lt;/code&gt;다.&lt;/p&gt;&#xA;&lt;p&gt;소스: &lt;a href=&#34;https://github.com/django/django/blob/main/django/shortcuts.py&#34;&gt;django/shortcuts.py&lt;/a&gt;&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;파일-첫-주석부터가-선언이다&#34;&gt;파일 첫 주석부터가 선언이다&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;shortcuts.py&lt;/code&gt;는 파일 맨 위 docstring에서 자신이 무슨 일을 하는 모듈인지 대놓고 말한다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

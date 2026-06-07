@@ -89,6 +89,71 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/code-reading/sklearn-prototype/" rel="bookmark">
+			Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-23T16:06:00&#43;09:00">May 23, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p>이전 글 <a href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입</a>을 읽었다는 가정 하에 쓴다.</p></blockquote>
+<h2 id="scikit-learn이-뭔지-3줄">scikit-learn이 뭔지 3줄</h2>
+<p>scikit-learn은 Python으로 머신러닝 모델을 만들 때 쓰는 라이브러리다.<br>
+<code>LogisticRegression()</code>, <code>RandomForestClassifier()</code> 같은 모델을 만들고 <code>.fit(X, y)</code>로 학습시킨다.<br>
+GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이브러리 중 하나다.</p>
+<hr>
+<h2 id="문제-같은-설정의-모델을-여러-번-학습해야-한다">문제: &ldquo;같은 설정의 모델을 여러 번 학습해야 한다&rdquo;</h2>
+<p>GridSearchCV(하이퍼파라미터 탐색), 교차검증(cross-validation), 앙상블 모델에는 공통 문제가 있다.</p>
+<pre tabindex="0"><code>GridSearchCV
+  └─ LogisticRegression(C=0.1)을 5-fold 교차검증으로 평가
+       ├─ fold 1: 모델 학습 → 평가 → 버림
+       ├─ fold 2: 모델 학습 → 평가 → 버림
+       ├─ fold 3: 모델 학습 → 평가 → 버림
+       ├─ fold 4: 모델 학습 → 평가 → 버림
+       └─ fold 5: 모델 학습 → 평가 → 버림
+</code></pre><p><strong>fold마다 &ldquo;아직 학습 안 된, 같은 설정의 새 모델&quot;이 필요하다.</strong></p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/code-reading/sklearn-prototype/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/design-pattern/designpattern-prototype/" rel="bookmark">
+			Vibe Coding을 위한 디자인 패턴 - 프로토타입(Prototype)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-23T15:30:00&#43;09:00">May 23, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p>Prototype Pattern은 <strong>기존 객체를 복제(clone)하여 새로운 객체를 생성하는</strong> 생성 디자인 패턴이다.</p>
+<p><code>new</code>로 처음부터 만드는 대신, 이미 존재하는 객체를 복사해서 새 객체를 만든다. 복제 대상이 되는 원본 객체를 프로토타입(Prototype)이라고 부른다.</p>
+<h2 id="왜-복제가-필요한가">왜 복제가 필요한가?</h2>
+<p>객체를 만들 때 다음과 같은 상황이 있다.</p>
+<ol>
+<li><strong>생성 비용이 크다</strong> — DB에서 데이터를 조회하거나, 복잡한 계산을 거쳐야 객체가 완성되는 경우</li>
+<li><strong>비슷한 객체를 여러 개 만들어야 한다</strong> — 기본 설정이 같고 일부만 다른 객체를 반복 생성하는 경우</li>
+<li><strong>클라이언트가 구체 클래스를 몰라야 한다</strong> — 인터페이스만 알고 있는 상태에서 같은 타입의 객체를 만들어야 하는 경우</li>
+</ol>
+<p>이런 상황에서 매번 <code>new</code>를 호출하고, 생성자에 파라미터를 하나하나 넘기고, 초기화 로직을 반복하는 건 비효율적이다. 프로토타입 패턴은 &ldquo;이미 만들어진 객체를 복사하면 된다&quot;는 발상으로 이 문제를 해결한다.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-prototype/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/code-reading/django-singleton/" rel="bookmark">
 			Singleton은 실전에서 이렇게 쓰인다 — Django App Registry
 			</a>
@@ -379,81 +444,6 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/posts/agents/03_3_result-validator/">Read more…</a>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/02_3_run-context/" rel="bookmark">
-			Pydantic-AI 02-3: Agent의 센서 읽기 (RunContext &amp; Dependencies)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T10:40:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 02. Agent에게 도구 쥐어주기 — 3/4</p></blockquote>
-<h2 id="개요">개요</h2>
-<p><code>RunContext[DepsType]</code>는 Pydantic-AI의 의존성 주입(DI) 시스템의 핵심이다. 도구 함수에 데이터베이스 연결, API 클라이언트 등 외부 의존성을 안전하게 전달하는 방법을 다룬다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-의존성-주입이란">1. 의존성 주입이란?</h3>
-<p><strong>전통적인 DI 패턴과 Pydantic-AI의 접근법 비교</strong></p>
-<p>전통적인 의존성 주입 프레임워크(Spring, FastAPI Depends 등)는 생성자나 함수 파라미터를 통해 의존성을 주입한다.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 전통적 DI (FastAPI 스타일)</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> fastapi <span style="color:#f92672">import</span> Depends
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_db_session</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> DatabaseSession()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.get</span>(<span style="color:#e6db74">&#34;/users&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">list_users</span>(db: DatabaseSession <span style="color:#f92672">=</span> Depends(get_db_session)):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> db<span style="color:#f92672">.</span>query(User)<span style="color:#f92672">.</span>all()
-</span></span></code></pre></div><p>Pydantic-AI는 이와 유사하지만, <strong>Agent 실행 시점</strong>에 의존성을 전달하는 방식을 사용한다:</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/agents/02_3_run-context/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/agents/01_2_structured-result/" rel="bookmark">
-			Pydantic-AI 01-2: Agent의 출력을 검증하기 (Structured Result)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-02-14T10:10:00&#43;09:00">February 14, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/agents/" rel="category">Agents</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p><strong>시리즈</strong>: 01. Agent의 기본 구조 — 2/3</p></blockquote>
-<h2 id="개요">개요</h2>
-<p>Pydantic-AI의 핵심 강점은 Agent 응답을 Pydantic <code>BaseModel</code>로 타입 안전하게 검증할 수 있다는 점이다.</p>
-<hr>
-<h2 id="세부-목차">세부 목차</h2>
-<h3 id="1-왜-구조화된-결과가-필요한가">1. 왜 구조화된 결과가 필요한가?</h3>
-<p><strong>자유 텍스트 응답의 한계</strong></p>
-<p>LLM이 자유 텍스트로만 응답하면 파싱과 검증이 어렵다:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 자유 텍스트 응답 예시</span>
-</span></span><span style="display:flex;"><span>response <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;사용자 정보: 이름은 홍길동이고, 나이는 30세, 이메일은 hong@example.com입니다.&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 파싱 필요</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re
-</span></span><span style="display:flex;"><span>name <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;이름은 (.+?)이고&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)  <span style="color:#75715e"># 불안정</span>
-</span></span><span style="display:flex;"><span>age <span style="color:#f92672">=</span> int(re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;나이는 (\d+)세&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>))
-</span></span><span style="display:flex;"><span>email <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;이메일은 (.+?)입니다&#39;</span>, response)<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
-</span></span></code></pre></div><p>문제점:</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/agents/01_2_structured-result/">Read more…</a>
-	</div>
 </article>
 </main>
 
@@ -475,11 +465,11 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-facade/">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-facade/">Vibe Coding을 위한 디자인 패턴 - 퍼사드(Facade)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-6/">Defold 게임 엔진 입문 — 메시징과 주소 지정</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-5/">Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-4/">Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)</a></li>
 		</ul>
 	</div>
 </div>
@@ -522,8 +512,9 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
@@ -538,7 +529,7 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
@@ -546,11 +537,12 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (8)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (9)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (14)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (16)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
@@ -562,6 +554,7 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8D%BC%EC%82%AC%EB%93%9C/" title="퍼사드">퍼사드 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
 	</div>
