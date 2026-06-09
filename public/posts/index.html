@@ -90,6 +90,35 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/code-reading/django-facade/" rel="bookmark">
+			Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-07T21:40:00&#43;09:00">June 07, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p>이전 글 <a href="/posts/design-pattern/designpattern-facade/">Vibe Coding을 위한 디자인 패턴 - 퍼사드</a>를 읽었다는 가정 하에 쓴다.</p></blockquote>
+<h2 id="들어가기-전에">들어가기 전에</h2>
+<h3 id="결합도란">결합도란?</h3>
+<p><strong>결합도(coupling)</strong> 는 코드 조각끼리 서로를 얼마나 알고 의존하는지를 말한다.</p>
+<ul>
+<li>A가 B의 <strong>내부 구현</strong>을 알아야만 동작하면, A와 B는 <strong>강하게 결합</strong>되어 있다.</li>
+<li>결합이 높을수록 B를 바꿀 때 A도 같이 고칠 가능성이 커진다.</li>
+</ul>
+<p>예를 들어 view 함수가 템플릿 렌더링 API와 HTTP 응답 클래스를 <strong>직접</strong> import해서 조립한다면, view는 두 계층 모두와 결합된 셈이다. 이 글에서 말하는 &ldquo;결합을 낮춘다&quot;는 것은 결합이 <strong>사라진다</strong>는 뜻이 아니라, <strong>view 대신 다른 한 곳(shortcuts.py)이 그 결합을 대신 떠안는다</strong>는 뜻이다.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/code-reading/django-facade/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/design-pattern/designpattern-facade/" rel="bookmark">
 			Vibe Coding을 위한 디자인 패턴 - 퍼사드(Facade)
 			</a>
@@ -436,42 +465,6 @@ CPython 소스에서 <code>Lib/urllib/request.py</code> 한 파일에 약 2100�
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-chain-of-responsibility/">Read more…</a>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/code-reading/sklearn-prototype/" rel="bookmark">
-			Prototype은 실전에서 이렇게 쓰인다 — scikit-learn clone()
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-23T16:06:00&#43;09:00">May 23, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<blockquote>
-<p>이전 글 <a href="/posts/design-pattern/designpattern-prototype/">Vibe Coding을 위한 디자인 패턴 - 프로토타입</a>을 읽었다는 가정 하에 쓴다.</p></blockquote>
-<h2 id="scikit-learn이-뭔지-3줄">scikit-learn이 뭔지 3줄</h2>
-<p>scikit-learn은 Python으로 머신러닝 모델을 만들 때 쓰는 라이브러리다.<br>
-<code>LogisticRegression()</code>, <code>RandomForestClassifier()</code> 같은 모델을 만들고 <code>.fit(X, y)</code>로 학습시킨다.<br>
-GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이브러리 중 하나다.</p>
-<hr>
-<h2 id="문제-같은-설정의-모델을-여러-번-학습해야-한다">문제: &ldquo;같은 설정의 모델을 여러 번 학습해야 한다&rdquo;</h2>
-<p>GridSearchCV(하이퍼파라미터 탐색), 교차검증(cross-validation), 앙상블 모델에는 공통 문제가 있다.</p>
-<pre tabindex="0"><code>GridSearchCV
-  └─ LogisticRegression(C=0.1)을 5-fold 교차검증으로 평가
-       ├─ fold 1: 모델 학습 → 평가 → 버림
-       ├─ fold 2: 모델 학습 → 평가 → 버림
-       ├─ fold 3: 모델 학습 → 평가 → 버림
-       ├─ fold 4: 모델 학습 → 평가 → 버림
-       └─ fold 5: 모델 학습 → 평가 → 버림
-</code></pre><p><strong>fold마다 &ldquo;아직 학습 안 된, 같은 설정의 새 모델&quot;이 필요하다.</strong></p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/code-reading/sklearn-prototype/">Read more…</a>
-	</div>
 </article>
 </main>
 
@@ -493,11 +486,11 @@ GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이�
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-facade/">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-facade/">Vibe Coding을 위한 디자인 패턴 - 퍼사드(Facade)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-6/">Defold 게임 엔진 입문 — 메시징과 주소 지정</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-5/">Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)</a></li>
 		</ul>
 	</div>
 </div>
@@ -540,9 +533,9 @@ GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이�
 		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
@@ -557,7 +550,7 @@ GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이�
 		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
@@ -567,9 +560,10 @@ GitHub 스타 61k, 실제 ML 프로젝트에서 가장 많이 쓰이는 라이�
 		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (9)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (15)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (16)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>

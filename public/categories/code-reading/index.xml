@@ -6,8 +6,15 @@
     <description>Recent content in Code Reading on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 31 May 2026 19:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Sun, 07 Jun 2026 21:40:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/categories/code-reading/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</title>
+      <link>http://localhost:1313/posts/code-reading/django-facade/</link>
+      <pubDate>Sun, 07 Jun 2026 21:40:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/django-facade/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-facade/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 퍼사드&lt;/a&gt;를 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;들어가기-전에&#34;&gt;들어가기 전에&lt;/h2&gt;&#xA;&lt;h3 id=&#34;결합도란&#34;&gt;결합도란?&lt;/h3&gt;&#xA;&lt;p&gt;&lt;strong&gt;결합도(coupling)&lt;/strong&gt; 는 코드 조각끼리 서로를 얼마나 알고 의존하는지를 말한다.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;A가 B의 &lt;strong&gt;내부 구현&lt;/strong&gt;을 알아야만 동작하면, A와 B는 &lt;strong&gt;강하게 결합&lt;/strong&gt;되어 있다.&lt;/li&gt;&#xA;&lt;li&gt;결합이 높을수록 B를 바꿀 때 A도 같이 고칠 가능성이 커진다.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;예를 들어 view 함수가 템플릿 렌더링 API와 HTTP 응답 클래스를 &lt;strong&gt;직접&lt;/strong&gt; import해서 조립한다면, view는 두 계층 모두와 결합된 셈이다. 이 글에서 말하는 &amp;ldquo;결합을 낮춘다&amp;quot;는 것은 결합이 &lt;strong&gt;사라진다&lt;/strong&gt;는 뜻이 아니라, &lt;strong&gt;view 대신 다른 한 곳(shortcuts.py)이 그 결합을 대신 떠안는다&lt;/strong&gt;는 뜻이다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Chain of Responsibility는 실전에서 이렇게 쓰인다 — Python urllib OpenerDirector</title>
       <link>http://localhost:1313/posts/code-reading/urllib-cor/</link>

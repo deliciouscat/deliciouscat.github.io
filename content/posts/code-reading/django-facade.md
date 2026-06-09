@@ -10,6 +10,31 @@ tags: ["Python", "Facade", "디자인패턴", "Django", "결합도"]
 
 ## 들어가기 전에
 
+### 결합도란?
+
+**결합도(coupling)** 는 코드 조각끼리 서로를 얼마나 알고 의존하는지를 말한다.
+
+- A가 B의 **내부 구현**을 알아야만 동작하면, A와 B는 **강하게 결합**되어 있다.
+- 결합이 높을수록 B를 바꿀 때 A도 같이 고칠 가능성이 커진다.
+
+예를 들어 view 함수가 템플릿 렌더링 API와 HTTP 응답 클래스를 **직접** import해서 조립한다면, view는 두 계층 모두와 결합된 셈이다. 이 글에서 말하는 "결합을 낮춘다"는 것은 결합이 **사라진다**는 뜻이 아니라, **view 대신 다른 한 곳(shortcuts.py)이 그 결합을 대신 떠안는다**는 뜻이다.
+
+### MVC 패턴이란?
+
+**MVC(Model–View–Controller)** 는 웹 앱을 세 역할로 나누는 대표적인 구조다.
+
+| 역할 | 하는 일 | Django에서 대응 |
+|---|---|---|
+| **Model** | 데이터와 비즈니스 로직 | `models.py`, ORM |
+| **View** | 사용자에게 보여줄 화면 | `templates/` (HTML) |
+| **Controller** | 요청을 받아 Model에서 데이터를 꺼내 View에 넘김 | `views.py`, `urls.py` |
+
+Django는 이름을 **MTV(Model–Template–View)** 로 부르지만, 개념은 같다. Template ≈ MVC의 View, Django View ≈ MVC의 Controller에 해당한다.
+
+이 글에서 `shortcuts.py`가 "MVC의 여러 레벨을 가로지른다"고 한 것은, **한 함수가 Controller(view) 역할과 Template 렌더링·HTTP 응답 같은 다른 계층을 동시에 이어준다**는 뜻이다.
+
+---
+
 퍼사드 패턴을 공부할 때 가장 헷갈리는 지점이 하나 있다.
 
 > "Facade는 결합도를 낮추는 패턴"이라는데, 정작 Facade 자신은 여러 서브시스템에 결합되잖아?
@@ -43,6 +68,10 @@ for convenience's sake.
 ---
 
 ## 예시 1: `render()` — 템플릿 시스템과 응답 객체를 묶는다
+
+> **백엔드 문외한용 한 줄 요약:** `render(request, "page.html", {"name": "Kim"})`는 "이 HTML 템플릿에 이 데이터를 넣어 완성된 웹 페이지를 만들고, 브라우저에 돌려줄 HTTP 응답으로 포장해 반환한다"는 뜻이다.
+>
+> 프론트엔드 감각으로는 React에서 `<Page name="Kim" />`를 렌더한 **결과 HTML**을 HTTP body에 담아 보내는 것과 비슷하다. AI/ML 파이프라인으로 치면, `model.predict(x)` 뒤에 `json.dumps(result)`와 `return Response(...)`까지 한 함수에 묶어 둔 셈이다.
 
 가장 단순한 퍼사드 함수다.
 
@@ -89,6 +118,10 @@ def my_view(request):
 ---
 
 ## 예시 2: `redirect()` — URL 해석의 복잡도를 삼킨다
+
+> **백엔드 문외한용 한 줄 요약:** `redirect("/login/")`는 브라우저에게 "지금 페이지 말고 **저 URL로 다시 요청해**"라고 알려 주는 HTTP 응답(보통 302)을 만든다.
+>
+> 프론트엔드의 `window.location.href = "/login"`이나 Next.js의 `redirect("/login")`과 같은 목적이다. 로그인 성공 후 홈으로 보내기, 글 삭제 후 목록으로 보내기처럼 **"다음에 어디로 갈지"** 를 서버가 지정할 때 쓴다. `redirect("article-detail", pk=3)`처럼 view 이름만 넘겨도, 내부에서 실제 URL로 바꿔 준다.
 
 `redirect()`는 더 흥미롭다. 호출자는 "어디로 보낼지"만 넘기면 되는데, 그 "어디"가 세 가지 형태일 수 있다.
 

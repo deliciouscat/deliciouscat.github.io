@@ -103,14 +103,13 @@
 		<blockquote>
 <p>이전 글 <a href="/posts/design-pattern/designpattern-facade/">Vibe Coding을 위한 디자인 패턴 - 퍼사드</a>를 읽었다는 가정 하에 쓴다.</p></blockquote>
 <h2 id="들어가기-전에">들어가기 전에</h2>
-<p>퍼사드 패턴을 공부할 때 가장 헷갈리는 지점이 하나 있다.</p>
-<blockquote>
-<p>&ldquo;Facade는 결합도를 낮추는 패턴&quot;이라는데, 정작 Facade 자신은 여러 서브시스템에 결합되잖아?</p></blockquote>
-<p>맞다. 그리고 이게 핵심이다. <strong>Facade는 결합을 없애는 패턴이 아니라, 결합이 생길 수밖에 없는 지점을 의식적으로 한 곳에 모으는 패턴이다.</strong> 이 문장을 코드로 가장 노골적으로 증명하는 파일이 Django의 <code>django/shortcuts.py</code>다.</p>
-<p>소스: <a href="https://github.com/django/django/blob/main/django/shortcuts.py">django/shortcuts.py</a></p>
-<hr>
-<h2 id="파일-첫-주석부터가-선언이다">파일 첫 주석부터가 선언이다</h2>
-<p><code>shortcuts.py</code>는 파일 맨 위 docstring에서 자신이 무슨 일을 하는 모듈인지 대놓고 말한다.</p>
+<h3 id="결합도란">결합도란?</h3>
+<p><strong>결합도(coupling)</strong> 는 코드 조각끼리 서로를 얼마나 알고 의존하는지를 말한다.</p>
+<ul>
+<li>A가 B의 <strong>내부 구현</strong>을 알아야만 동작하면, A와 B는 <strong>강하게 결합</strong>되어 있다.</li>
+<li>결합이 높을수록 B를 바꿀 때 A도 같이 고칠 가능성이 커진다.</li>
+</ul>
+<p>예를 들어 view 함수가 템플릿 렌더링 API와 HTTP 응답 클래스를 <strong>직접</strong> import해서 조립한다면, view는 두 계층 모두와 결합된 셈이다. 이 글에서 말하는 &ldquo;결합을 낮춘다&quot;는 것은 결합이 <strong>사라진다</strong>는 뜻이 아니라, <strong>view 대신 다른 한 곳(shortcuts.py)이 그 결합을 대신 떠안는다</strong>는 뜻이다.</p>
 	</div>
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/posts/code-reading/django-facade/">Read more…</a>
