@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator) - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/design-pattern/designpattern-iterator/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)">
+  <meta property="og:description" content="Iterator Pattern (반복자 패턴) Iterator Pattern은 컬렉션(집합 객체)의 내부 표현 방식을 노출하지 않고, 그 요소들에 순차적으로 접근할 수 있게 해주는 행동 디자인 패턴이다. 클라이언트는 컬렉션이 배열인지, 트리인지, 해시맵인지 알 필요 없이 동일한 인터페이스(next(), has_next())로 순회할 수 있다.
+예를 들어 도서 목록을 순회한다고 해보자.
+리스트로 저장된 컬렉션은 인덱스로 접근한다. 트리로 저장된 컬렉션은 전위/중위/후위 순회가 필요하다. 해시맵으로 저장된 컬렉션은 키를 돌면서 값을 꺼낸다. 이렇게 저장 방식이 제각각이지만, 클라이언트는 매번 “다음 요소가 있나? 있으면 하나 줘” 만 묻고 싶을 뿐이다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-15T15:00:00+09:00">
+    <meta property="article:modified_time" content="2026-06-15T15:00:00+09:00">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="반복자">
+    <meta property="article:tag" content="Iterator">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-15T15:00:00&#43;09:00">June 15, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<h1 id="iterator-pattern-반복자-패턴">Iterator Pattern (반복자 패턴)</h1>
+<p>Iterator Pattern은 <strong>컬렉션(집합 객체)의 내부 표현 방식을 노출하지 않고, 그 요소들에 순차적으로 접근할 수 있게</strong> 해주는 행동 디자인 패턴이다.
+클라이언트는 컬렉션이 배열인지, 트리인지, 해시맵인지 알 필요 없이 <strong>동일한 인터페이스(<code>next()</code>, <code>has_next()</code>)로 순회</strong>할 수 있다.</p>
+<p>예를 들어 도서 목록을 순회한다고 해보자.</p>
+<ul>
+<li>리스트로 저장된 컬렉션은 인덱스로 접근한다.</li>
+<li>트리로 저장된 컬렉션은 전위/중위/후위 순회가 필요하다.</li>
+<li>해시맵으로 저장된 컬렉션은 키를 돌면서 값을 꺼낸다.</li>
+</ul>
+<p>이렇게 저장 방식이 제각각이지만, 클라이언트는 매번 <strong>&ldquo;다음 요소가 있나? 있으면 하나 줘&rdquo;</strong> 만 묻고 싶을 뿐이다.</p>
+<p>이때 순회 로직이 컬렉션마다 클라이언트 코드에 흩어지면, 자료구조가 바뀔 때마다 클라이언트도 함께 고쳐야 한다. Iterator는 순회 책임을 별도 객체로 떼어내, 어떤 컬렉션이든 같은 방식으로 다루게 해준다.</p>
+<p>예를 들어:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Iterator</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self): <span style="color:#66d9ef">pass</span>   <span style="color:#75715e"># 다음 요소가 있는지 확인</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self): <span style="color:#66d9ef">pass</span>        <span style="color:#75715e"># 다음 요소를 반환하고 커서를 전진</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Aggregate</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_iterator</span>(self): <span style="color:#66d9ef">pass</span>  <span style="color:#75715e"># 자신을 순회할 반복자를 생성</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookCollection</span>(Aggregate):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>books <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, book): self<span style="color:#f92672">.</span>books<span style="color:#f92672">.</span>append(book)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_iterator</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> BookIterator(self)  <span style="color:#75715e"># 내부 구조를 아는 반복자를 만들어 반환</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BookIterator</span>(Iterator):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, collection):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>collection <span style="color:#f92672">=</span> collection
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>index <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>           <span style="color:#75715e"># 순회 상태(커서)를 반복자가 보관</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>index <span style="color:#f92672">&lt;</span> len(self<span style="color:#f92672">.</span>collection<span style="color:#f92672">.</span>books)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self):
+</span></span><span style="display:flex;"><span>        book <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>collection<span style="color:#f92672">.</span>books[self<span style="color:#f92672">.</span>index]
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>index <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> book
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트는 내부가 리스트인지 모른 채 동일한 방식으로 순회</span>
+</span></span><span style="display:flex;"><span>collection <span style="color:#f92672">=</span> BookCollection()
+</span></span><span style="display:flex;"><span>collection<span style="color:#f92672">.</span>add(<span style="color:#e6db74">&#34;클린 코드&#34;</span>)
+</span></span><span style="display:flex;"><span>collection<span style="color:#f92672">.</span>add(<span style="color:#e6db74">&#34;리팩터링&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>it <span style="color:#f92672">=</span> collection<span style="color:#f92672">.</span>create_iterator()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> it<span style="color:#f92672">.</span>has_next():        <span style="color:#75715e"># 다음 요소 존재 여부만 묻고</span>
+</span></span><span style="display:flex;"><span>    print(it<span style="color:#f92672">.</span>next())        <span style="color:#75715e"># 다음 요소만 꺼낸다</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클린 코드</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 리팩터링</span>
+</span></span></code></pre></div><p>→ <code>BookCollection</code>은 순회 책임을 <code>BookIterator</code>에게 위임하고, 클라이언트는 컬렉션의 내부 표현(리스트)을 전혀 몰라도 된다.</p>
+<h2 id="순회-책임의-분리-separation-of-traversal">순회 책임의 분리 (Separation of Traversal)</h2>
+<p>Iterator Pattern의 핵심은 <strong>순회 로직을 컬렉션 자체에서 분리</strong>하는 것이다. 분리되지 않은 예시를 먼저 보자.</p>
+<p><strong>잘못된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserGroup</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>users <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>cursor <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>          <span style="color:#75715e"># 순회 상태가 컬렉션 안에 섞여 있음</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, user): self<span style="color:#f92672">.</span>users<span style="color:#f92672">.</span>append(user)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">first</span>(self): self<span style="color:#f92672">.</span>cursor <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self): <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>cursor <span style="color:#f92672">&lt;</span> len(self<span style="color:#f92672">.</span>users)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self):
+</span></span><span style="display:flex;"><span>        user <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>users[self<span style="color:#f92672">.</span>cursor]
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>cursor <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> user
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 문제 1: 컬렉션이 &#34;데이터 저장&#34;과 &#34;순회 상태 관리&#34;를 동시에 책임진다 (SRP 위반)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 문제 2: 커서가 하나뿐이라 동시에 두 번 순회할 수 없다</span>
+</span></span></code></pre></div><p>→ 순회 상태(<code>cursor</code>)가 컬렉션 내부에 있어, 같은 컬렉션을 <strong>중첩 순회</strong>하거나 <strong>여러 곳에서 동시에 순회</strong>하면 커서가 충돌한다.</p>
+<p><strong>잘된 예:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Iterator</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserGroup</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>users <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, user): self<span style="color:#f92672">.</span>users<span style="color:#f92672">.</span>append(user)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_iterator</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> UserIterator(self<span style="color:#f92672">.</span>users)  <span style="color:#75715e"># 호출할 때마다 독립적인 반복자 생성</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserIterator</span>(Iterator):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, users):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>users <span style="color:#f92672">=</span> users
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>index <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>           <span style="color:#75715e"># 순회 상태는 각 반복자가 따로 보관</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>index <span style="color:#f92672">&lt;</span> len(self<span style="color:#f92672">.</span>users)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self):
+</span></span><span style="display:flex;"><span>        user <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>users[self<span style="color:#f92672">.</span>index]
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>index <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>group <span style="color:#f92672">=</span> UserGroup()
+</span></span><span style="display:flex;"><span>group<span style="color:#f92672">.</span>add(<span style="color:#e6db74">&#34;Alice&#34;</span>); group<span style="color:#f92672">.</span>add(<span style="color:#e6db74">&#34;Bob&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 두 반복자가 서로의 커서에 영향을 주지 않음 → 중첩 순회 가능</span>
+</span></span><span style="display:flex;"><span>it1 <span style="color:#f92672">=</span> group<span style="color:#f92672">.</span>create_iterator()
+</span></span><span style="display:flex;"><span>it2 <span style="color:#f92672">=</span> group<span style="color:#f92672">.</span>create_iterator()
+</span></span></code></pre></div><p>→ 순회 상태를 반복자 객체로 옮겼기 때문에, 같은 컬렉션을 여러 반복자가 <strong>독립적으로 동시에</strong> 순회할 수 있다.</p>
+<h2 id="내부-표현의-은닉-hiding-internal-representation">내부 표현의 은닉 (Hiding Internal Representation)</h2>
+<p>서로 다른 자료구조라도 같은 <code>Iterator</code> 인터페이스를 제공하면, 클라이언트 코드는 <strong>컬렉션 종류와 무관하게 재사용</strong>된다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Iterator</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self): <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 내부가 리스트인 컬렉션</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ListCollection</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, items): self<span style="color:#f92672">.</span>items <span style="color:#f92672">=</span> items
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_iterator</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> ListIterator(self<span style="color:#f92672">.</span>items)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ListIterator</span>(Iterator):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, items):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>items, self<span style="color:#f92672">.</span>index <span style="color:#f92672">=</span> items, <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self): <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>index <span style="color:#f92672">&lt;</span> len(self<span style="color:#f92672">.</span>items)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self):
+</span></span><span style="display:flex;"><span>        item <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>items[self<span style="color:#f92672">.</span>index]; self<span style="color:#f92672">.</span>index <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> item
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 내부가 트리인 컬렉션 (중위 순회를 반복자 뒤에 숨김)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TreeCollection</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, root): self<span style="color:#f92672">.</span>root <span style="color:#f92672">=</span> root
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_iterator</span>(self):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> TreeIterator(self<span style="color:#f92672">.</span>root)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TreeIterator</span>(Iterator):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, root):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>stack <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_push_left(root)    <span style="color:#75715e"># 복잡한 순회 로직은 반복자 내부에 캡슐화</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_push_left</span>(self, node):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> node:
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>stack<span style="color:#f92672">.</span>append(node)
+</span></span><span style="display:flex;"><span>            node <span style="color:#f92672">=</span> node<span style="color:#f92672">.</span>left
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_next</span>(self): <span style="color:#66d9ef">return</span> len(self<span style="color:#f92672">.</span>stack) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">next</span>(self):
+</span></span><span style="display:flex;"><span>        node <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>stack<span style="color:#f92672">.</span>pop()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_push_left(node<span style="color:#f92672">.</span>right)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> node<span style="color:#f92672">.</span>value
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 클라이언트 코드는 컬렉션 종류와 무관하게 동일하다</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">print_all</span>(collection):
+</span></span><span style="display:flex;"><span>    it <span style="color:#f92672">=</span> collection<span style="color:#f92672">.</span>create_iterator()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> it<span style="color:#f92672">.</span>has_next():
+</span></span><span style="display:flex;"><span>        print(it<span style="color:#f92672">.</span>next())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print_all(ListCollection([<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>]))   <span style="color:#75715e"># 리스트든</span>
+</span></span><span style="display:flex;"><span>print_all(TreeCollection(some_tree))   <span style="color:#75715e"># 트리든 같은 코드로 순회</span>
+</span></span></code></pre></div><p>→ 순회의 복잡함(트리의 중위 순회 등)은 반복자 내부에 숨겨지고, 클라이언트는 <code>has_next()</code>/<code>next()</code>만 안다.</p>
+<h2 id="파이썬의-내장-반복자-프로토콜">파이썬의 내장 반복자 프로토콜</h2>
+<p>파이썬은 Iterator Pattern을 언어 차원에서 지원한다. <code>__iter__</code>와 <code>__next__</code>만 구현하면 <code>for</code> 문이 자동으로 반복자를 사용한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Fibonacci</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, limit):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>limit <span style="color:#f92672">=</span> limit
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__iter__</span>(self):              <span style="color:#75715e"># create_iterator() 역할</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>a, self<span style="color:#f92672">.</span>b <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__next__</span>(self):              <span style="color:#75715e"># next() 역할</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>count <span style="color:#f92672">&gt;=</span> self<span style="color:#f92672">.</span>limit:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">StopIteration</span>      <span style="color:#75715e"># has_next()가 False인 상황을 예외로 표현</span>
+</span></span><span style="display:flex;"><span>        value <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>a
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>a, self<span style="color:#f92672">.</span>b <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>b, self<span style="color:#f92672">.</span>a <span style="color:#f92672">+</span> self<span style="color:#f92672">.</span>b
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> value
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># for 문이 내부적으로 __iter__()와 __next__()를 호출</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> Fibonacci(<span style="color:#ae81ff">5</span>):
+</span></span><span style="display:flex;"><span>    print(n)  <span style="color:#75715e"># 0 1 1 2 3</span>
+</span></span></code></pre></div><p>→ <code>for ... in</code>은 사실 Iterator Pattern의 문법적 설탕(syntactic sugar)이다. <code>StopIteration</code> 예외가 <code>has_next()</code>의 종료 신호 역할을 한다.</p>
+<p>제너레이터를 쓰면 반복자를 더 간결하게 만들 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fibonacci</span>(limit):
+</span></span><span style="display:flex;"><span>    a, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(limit):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> a              <span style="color:#75715e"># yield가 자동으로 순회 상태를 보관</span>
+</span></span><span style="display:flex;"><span>        a, b <span style="color:#f92672">=</span> b, a <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> fibonacci(<span style="color:#ae81ff">5</span>):
+</span></span><span style="display:flex;"><span>    print(n)  <span style="color:#75715e"># 0 1 1 2 3</span>
+</span></span></code></pre></div><h2 id="장점">장점</h2>
+<ol>
+<li>
+<p><strong>내부 표현의 은닉</strong></p>
+<ul>
+<li>클라이언트가 컬렉션이 리스트인지 트리인지 몰라도 순회할 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>여러 순회의 독립성</strong></p>
+<ul>
+<li>같은 컬렉션을 여러 반복자가 각자의 커서로 동시에 순회할 수 있다.</li>
+</ul>
+</li>
+<li>
+<p><strong>다양한 순회 방식 제공</strong></p>
+<ul>
+<li>하나의 컬렉션에 전위/중위/역방향 등 여러 반복자를 둘 수 있다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="단점">단점</h2>
+<ol>
+<li>
+<p><strong>단순한 컬렉션에는 과하다</strong></p>
+<ul>
+<li>그냥 리스트를 <code>for</code>로 도는 경우라면 반복자를 따로 만들 필요가 없다.</li>
+</ul>
+</li>
+<li>
+<p><strong>클래스 수가 늘어난다</strong></p>
+<ul>
+<li>컬렉션마다 대응하는 반복자 클래스가 추가된다.</li>
+</ul>
+</li>
+<li>
+<p><strong>순회 중 변경에 취약할 수 있다</strong></p>
+<ul>
+<li>순회 도중 컬렉션이 수정되면 커서가 어긋날 수 있다(파이썬도 순회 중 수정 시 <code>RuntimeError</code>).</li>
+</ul>
+</li>
+</ol>
+<h2 id="언제-사용해야-할까">언제 사용해야 할까?</h2>
+<ol>
+<li>
+<p><strong>컬렉션의 내부 구조를 숨기고 순회만 노출하고 싶을 때</strong></p>
+<ul>
+<li>데이터베이스 결과 집합(ResultSet) 순회</li>
+<li>파일/스트림의 한 줄씩 읽기</li>
+<li>페이지네이션된 API 응답 순회</li>
+</ul>
+</li>
+<li>
+<p><strong>하나의 컬렉션을 여러 방식으로 순회해야 할 때</strong></p>
+<ul>
+<li>트리의 전위/중위/후위 순회</li>
+<li>정방향/역방향 순회</li>
+<li>필터링된 순회 (특정 조건 요소만)</li>
+</ul>
+</li>
+<li>
+<p><strong>여러 종류의 컬렉션을 동일한 코드로 다루고 싶을 때</strong></p>
+<ul>
+<li>리스트, 트리, 그래프를 같은 인터페이스로 순회</li>
+<li>무한 수열(피보나치 등)의 지연 평가(lazy evaluation)</li>
+</ul>
+</li>
+</ol>
+<h2 id="용어-정리">용어 정리</h2>
+<p><strong>Iterator (반복자)</strong>: <code>has_next()</code>, <code>next()</code> 등 순회 인터페이스를 정의<br>
+<strong>ConcreteIterator (구체적 반복자)</strong>: 특정 컬렉션의 순회와 현재 위치(커서)를 구현<br>
+<strong>Aggregate (집합 객체)</strong>: 반복자를 생성하는 인터페이스(<code>create_iterator()</code>)<br>
+<strong>ConcreteAggregate (구체적 집합 객체)</strong>: 실제 데이터를 보관하고 자신에 맞는 반복자를 반환</p>
+<ol>
+<li>
+<p>도서 컬렉션 예시:</p>
+<ul>
+<li>Iterator → Iterator</li>
+<li>ConcreteIterator → BookIterator</li>
+<li>Aggregate → Aggregate</li>
+<li>ConcreteAggregate → BookCollection</li>
+</ul>
+</li>
+<li>
+<p>파이썬 내장 예시:</p>
+<ul>
+<li>Iterator → <code>__next__</code>을 가진 객체</li>
+<li>Aggregate → <code>__iter__</code>을 가진 객체</li>
+<li>ConcreteIterator/Aggregate → Fibonacci, 제너레이터 등</li>
+</ul>
+</li>
+</ol>
+<h2 id="한-줄-요약">한 줄 요약</h2>
+<p>Iterator는 <strong>&ldquo;컬렉션을 어떻게 순회하느냐&quot;는 책임을 컬렉션 밖으로 떼어내는</strong> 패턴이다.</p>
+<p>즉:</p>
+<blockquote>
+<p>컬렉션은 &ldquo;무엇을 담을지&quot;에 집중하고, 반복자는 &ldquo;어떻게 돌지&quot;에 집중한다.</p></blockquote>
+<hr>
+<h2 id="strategy-패턴과의-관계">Strategy 패턴과의 관계</h2>
+<p>순회 방식(전위/중위/후위)을 교체 가능한 전략으로 본다면 Strategy처럼 보일 수도 있다.
+하지만 Iterator는 <strong>&ldquo;순회&quot;라는 구체적 책임</strong>에 특화되어 있고, 순회 상태(커서)를 보관한다는 점에서 다르다.
+실제로는 <strong>하나의 컬렉션에 여러 종류의 반복자</strong>를 제공하는 식으로, Iterator가 Strategy의 성격을 일부 흡수하는 경우가 많다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TreeCollection</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_preorder_iterator</span>(self): <span style="color:#f92672">...</span>   <span style="color:#75715e"># 전위 순회 반복자</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_inorder_iterator</span>(self): <span style="color:#f92672">...</span>    <span style="color:#75715e"># 중위 순회 반복자</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 같은 데이터, 다른 순회 &#34;전략&#34;을 각각의 반복자로 제공</span>
+</span></span></code></pre></div><hr>
+<h3 id="요약-비교표">요약 비교표</h3>
+<table>
+  <thead>
+      <tr>
+          <th>패턴</th>
+          <th>푸는 질문</th>
+          <th>핵심 관심사</th>
+          <th>흐름</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Iterator</td>
+          <td>&ldquo;이 컬렉션을 어떻게 순회할까?&rdquo;</td>
+          <td>순회 책임의 분리</td>
+          <td>클라이언트가 당겨옴(pull)</td>
+      </tr>
+      <tr>
+          <td>Observer</td>
+          <td>&ldquo;상태가 바뀌면 누구에게 알릴까?&rdquo;</td>
+          <td>상태 변화 알림</td>
+          <td>Subject가 밀어줌(push)</td>
+      </tr>
+      <tr>
+          <td>Strategy</td>
+          <td>&ldquo;어떤 알고리즘을 실행할까?&rdquo;</td>
+          <td>행동의 교체</td>
+          <td>호출 측이 전략 선택</td>
+      </tr>
+      <tr>
+          <td>Composite</td>
+          <td>&ldquo;전체와 부분을 어떻게 같게 다룰까?&rdquo;</td>
+          <td>트리 구조의 일관성</td>
+          <td>재귀적 구성</td>
+      </tr>
+  </tbody>
+</table>
+<p>→ Iterator는 종종 다른 패턴과 함께 쓰인다. 예를 들어 <strong>Composite로 만든 트리를 Iterator로 순회</strong>하면, 복잡한 구조를 평탄한 순차 접근으로 다룰 수 있다.</p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" rel="tag">반복자</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/iterator/" rel="tag">Iterator</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/code-reading/django-facade/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-iterator/">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-facade/">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-facade/">Vibe Coding을 위한 디자인 패턴 - 퍼사드(Facade)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-1/">Defold 게임 엔진 입문 — 기본 구조와 라이프사이클</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/iterator/" title="Iterator">Iterator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (9)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (17)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" title="반복자">반복자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8D%BC%EC%82%AC%EB%93%9C/" title="퍼사드">퍼사드 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

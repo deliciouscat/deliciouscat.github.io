@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>반복자 on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/</link>
+    <description>Recent content in 반복자 on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 04 Dec 2025 18:00:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-iterator/</link>
+      <pubDate>Thu, 04 Dec 2025 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-iterator/</guid>
+      <description>&lt;h1 id=&#34;iterator-pattern-반복자-패턴&#34;&gt;Iterator Pattern (반복자 패턴)&lt;/h1&gt;&#xA;&lt;p&gt;Iterator Pattern은 &lt;strong&gt;컬렉션(집합 객체)의 내부 표현 방식을 노출하지 않고, 그 요소들에 순차적으로 접근할 수 있게&lt;/strong&gt; 해주는 행동 디자인 패턴이다.&#xA;클라이언트는 컬렉션이 배열인지, 트리인지, 해시맵인지 알 필요 없이 &lt;strong&gt;동일한 인터페이스(&lt;code&gt;next()&lt;/code&gt;, &lt;code&gt;has_next()&lt;/code&gt;)로 순회&lt;/strong&gt;할 수 있다.&lt;/p&gt;&#xA;&lt;p&gt;예를 들어 도서 목록을 순회한다고 해보자.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;리스트로 저장된 컬렉션은 인덱스로 접근한다.&lt;/li&gt;&#xA;&lt;li&gt;트리로 저장된 컬렉션은 전위/중위/후위 순회가 필요하다.&lt;/li&gt;&#xA;&lt;li&gt;해시맵으로 저장된 컬렉션은 키를 돌면서 값을 꺼낸다.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;이렇게 저장 방식이 제각각이지만, 클라이언트는 매번 &lt;strong&gt;&amp;ldquo;다음 요소가 있나? 있으면 하나 줘&amp;rdquo;&lt;/strong&gt; 만 묻고 싶을 뿐이다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

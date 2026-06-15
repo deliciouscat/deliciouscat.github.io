@@ -8,9 +8,7 @@ tags: ["Python", "Facade", "디자인패턴", "Django", "결합도"]
 
 > 이전 글 [Vibe Coding을 위한 디자인 패턴 - 퍼사드](/posts/design-pattern/designpattern-facade/)를 읽었다는 가정 하에 쓴다.
 
-## 들어가기 전에
-
-### 결합도란?
+### 복습: 결합도란?
 
 **결합도(coupling)** 는 코드 조각끼리 서로를 얼마나 알고 의존하는지를 말한다.
 
@@ -69,9 +67,7 @@ for convenience's sake.
 
 ## 예시 1: `render()` — 템플릿 시스템과 응답 객체를 묶는다
 
-> **백엔드 문외한용 한 줄 요약:** `render(request, "page.html", {"name": "Kim"})`는 "이 HTML 템플릿에 이 데이터를 넣어 완성된 웹 페이지를 만들고, 브라우저에 돌려줄 HTTP 응답으로 포장해 반환한다"는 뜻이다.
->
-> 프론트엔드 감각으로는 React에서 `<Page name="Kim" />`를 렌더한 **결과 HTML**을 HTTP body에 담아 보내는 것과 비슷하다. AI/ML 파이프라인으로 치면, `model.predict(x)` 뒤에 `json.dumps(result)`와 `return Response(...)`까지 한 함수에 묶어 둔 셈이다.
+`render(request, "page.html", {"name": "Kim"})`는 "이 HTML 템플릿에 이 데이터를 넣어 완성된 웹 페이지를 만들고, 브라우저에 돌려줄 HTTP 응답으로 포장해 반환한다"는 뜻이다.
 
 가장 단순한 퍼사드 함수다.
 
@@ -119,9 +115,7 @@ def my_view(request):
 
 ## 예시 2: `redirect()` — URL 해석의 복잡도를 삼킨다
 
-> **백엔드 문외한용 한 줄 요약:** `redirect("/login/")`는 브라우저에게 "지금 페이지 말고 **저 URL로 다시 요청해**"라고 알려 주는 HTTP 응답(보통 302)을 만든다.
->
-> 프론트엔드의 `window.location.href = "/login"`이나 Next.js의 `redirect("/login")`과 같은 목적이다. 로그인 성공 후 홈으로 보내기, 글 삭제 후 목록으로 보내기처럼 **"다음에 어디로 갈지"** 를 서버가 지정할 때 쓴다. `redirect("article-detail", pk=3)`처럼 view 이름만 넘겨도, 내부에서 실제 URL로 바꿔 준다.
+`redirect("/login/")`는 브라우저에게 "지금 페이지 말고 **저 URL로 다시 요청해**"라고 알려 주는 HTTP 응답(보통 302)을 만든다.
 
 `redirect()`는 더 흥미롭다. 호출자는 "어디로 보낼지"만 넘기면 되는데, 그 "어디"가 세 가지 형태일 수 있다.
 

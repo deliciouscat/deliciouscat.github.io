@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/code-reading/boto3-iterator/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection">
+  <meta property="og:description" content="이전 글 Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)를 읽었다는 가정 하에 쓴다.
+AWS 서비스 이름부터 — S3, EC2, SQS boto3 코드를 읽으려면 글에 나오는 AWS 서비스 이름이 뭘 하는지부터 알아야 한다. 아래 세 가지만 잡고 가면 된다.
+서비스 한 줄 설명 비유 S3 (Simple Storage Service) 파일·이미지·백업 같은 객체(파일) 저장소 Google Drive / Dropbox 같은 클라우드 디스크 EC2 (Elastic Compute Cloud) 가상 서버(컴퓨터) 를 빌려 쓰는 서비스 AWS 데이터센터 안의 원격 PC 한 대 SQS (Simple Queue Service) 서버끼리 메시지를 줄 세워 전달하는 큐 카카오톡 알림 대신, 백엔드 작업을 “잠깐 보관했다가 처리” S3는 버킷(bucket) 안에 객체(object) 를 넣는 구조다. EC2는 인스턴스(instance) 단위로 서버를 띄우고, SQS는 큐(queue) 에 메시지를 넣었다 꺼낸다. boto3에서는 이걸 각각 Python 객체처럼 다룬다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-15T16:10:00+09:00">
+    <meta property="article:modified_time" content="2026-06-15T16:10:00+09:00">
+    <meta property="article:tag" content="Boto3">
+    <meta property="article:tag" content="AWS">
+    <meta property="article:tag" content="Iterator">
+    <meta property="article:tag" content="반복자">
+    <meta property="article:tag" content="디자인패턴">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-15T16:10:00&#43;09:00">June 15, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p>이전 글 <a href="/posts/design-pattern/designpattern-iterator/">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</a>를 읽었다는 가정 하에 쓴다.</p></blockquote>
+<h2 id="aws-서비스-이름부터--s3-ec2-sqs">AWS 서비스 이름부터 — S3, EC2, SQS</h2>
+<p>boto3 코드를 읽으려면 글에 나오는 AWS 서비스 이름이 뭘 하는지부터 알아야 한다. 아래 세 가지만 잡고 가면 된다.</p>
+<table>
+  <thead>
+      <tr>
+          <th>서비스</th>
+          <th>한 줄 설명</th>
+          <th>비유</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>S3</strong> (Simple Storage Service)</td>
+          <td>파일·이미지·백업 같은 <strong>객체(파일) 저장소</strong></td>
+          <td>Google Drive / Dropbox 같은 클라우드 디스크</td>
+      </tr>
+      <tr>
+          <td><strong>EC2</strong> (Elastic Compute Cloud)</td>
+          <td><strong>가상 서버(컴퓨터)</strong> 를 빌려 쓰는 서비스</td>
+          <td>AWS 데이터센터 안의 원격 PC 한 대</td>
+      </tr>
+      <tr>
+          <td><strong>SQS</strong> (Simple Queue Service)</td>
+          <td>서버끼리 <strong>메시지를 줄 세워 전달</strong>하는 큐</td>
+          <td>카카오톡 알림 대신, 백엔드 작업을 &ldquo;잠깐 보관했다가 처리&rdquo;</td>
+      </tr>
+  </tbody>
+</table>
+<p>S3는 <strong>버킷(bucket)</strong> 안에 <strong>객체(object)</strong> 를 넣는 구조다. EC2는 <strong>인스턴스(instance)</strong> 단위로 서버를 띄우고, SQS는 <strong>큐(queue)</strong> 에 메시지를 넣었다 꺼낸다. boto3에서는 이걸 각각 Python 객체처럼 다룬다.</p>
+<hr>
+<h2 id="boto3가-뭔지-3줄">boto3가 뭔지 3줄</h2>
+<p>boto3는 Python에서 AWS를 다루는 공식 SDK다.<br>
+위 서비스들의 버킷·인스턴스·큐를 <code>s3.Bucket(...)</code>, <code>ec2.Instance(...)</code> 같은 <strong>Python 객체</strong>로 조작하게 해준다.<br>
+오늘 볼 코드는 그중에서도 S3 — &ldquo;버킷 안의 객체 수십만 개를 어떻게 <code>for</code> 한 줄로 순회하게 만들었는가&quot;이다.</p>
+<hr>
+<h2 id="문제-100만-개짜리-컬렉션을-어떻게-순회할까">문제: 100만 개짜리 컬렉션을 어떻게 순회할까</h2>
+<p>S3 버킷 하나에 객체가 100만 개 들어 있다고 하자. 우리가 쓰고 싶은 코드는 이렇다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>bucket <span style="color:#f92672">=</span> s3<span style="color:#f92672">.</span>Bucket(<span style="color:#e6db74">&#39;boto3&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> obj <span style="color:#f92672">in</span> bucket<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all():
+</span></span><span style="display:flex;"><span>    print(obj<span style="color:#f92672">.</span>key)
+</span></span></code></pre></div><p>리스트라면 간단하다. 하지만 여기엔 두 가지 현실의 벽이 있다.</p>
+<ul>
+<li>AWS API는 한 번에 최대 1000개씩만 돌려준다 (<strong>페이지네이션</strong>).</li>
+<li>100만 개를 한꺼번에 메모리에 올릴 수 없다 (<strong>지연 평가</strong>).</li>
+</ul>
+<p>반복자 패턴 글에서 본 &ldquo;<strong>컬렉션의 내부 표현을 숨기고 순차 접근만 노출</strong>&ldquo;이 정확히 필요한 상황이다. 클라이언트는 &ldquo;다음 객체 줘&quot;만 알면 되고, <strong>페이지를 넘기는 일·HTTP 요청을 보내는 일은 반복자가 숨겨야 한다.</strong></p>
+<hr>
+<h2 id="해법-__iter__가-곧-반복자">해법: <code>__iter__</code>가 곧 반복자</h2>
+<p>핵심은 <code>ResourceCollection.__iter__</code>다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__iter__</span>(self):
+</span></span><span style="display:flex;"><span>    limit <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>_params<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;limit&#39;</span>, <span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> page <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>pages():       <span style="color:#75715e"># 페이지 단위로 받아온 뒤</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> page:           <span style="color:#75715e"># 그 안의 항목을 하나씩</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">yield</span> item              <span style="color:#75715e"># yield로 흘려보낸다</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> limit <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span> <span style="color:#f92672">and</span> count <span style="color:#f92672">&gt;=</span> limit:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span>
+</span></span></code></pre></div><p>반복자 패턴 글에서 본 파이썬 내장 프로토콜 그대로다. <code>__iter__</code>가 제너레이터(<code>yield</code>)라서, <code>for obj in bucket.objects.all()</code>이 동작할 때 <strong>항목을 미리 다 만들어두지 않는다.</strong> 필요한 순간에 하나씩 꺼내온다.</p>
+<p>패턴 글의 피보나치 예시와 본질이 같다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># designPattern-iterator.md 의 제너레이터 예시</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fibonacci</span>(limit):
+</span></span><span style="display:flex;"><span>    a, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(limit):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> a              <span style="color:#75715e"># yield가 자동으로 순회 상태를 보관</span>
+</span></span><span style="display:flex;"><span>        a, b <span style="color:#f92672">=</span> b, a <span style="color:#f92672">+</span> b
+</span></span></code></pre></div><p><code>yield</code>가 &ldquo;다음 요소가 있나? 있으면 하나 줘&quot;의 종료/진행 상태를 알아서 관리해주므로, <code>has_next()</code>/<code>next()</code>를 직접 구현할 필요가 없다.</p>
+<hr>
+<h2 id="순회-책임의-분리--2단계-제너레이터">순회 책임의 분리 — 2단계 제너레이터</h2>
+<p>boto3가 영리한 점은 순회를 <strong>2층</strong>으로 나눈 것이다.</p>
+<pre tabindex="0"><code>__iter__()   →  &#34;항목 하나씩&#34;   (사용자가 보는 층)
+   └─ pages()  →  &#34;페이지 하나씩&#34; (HTTP/페이지네이션을 처리하는 층)
+</code></pre><p><code>pages()</code>가 실제로 AWS를 호출하는 부분이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pages</span>(self):
+</span></span><span style="display:flex;"><span>    client <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>_parent<span style="color:#f92672">.</span>meta<span style="color:#f92672">.</span>client
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> client<span style="color:#f92672">.</span>can_paginate(self<span style="color:#f92672">.</span>_py_operation_name):
+</span></span><span style="display:flex;"><span>        paginator <span style="color:#f92672">=</span> client<span style="color:#f92672">.</span>get_paginator(self<span style="color:#f92672">.</span>_py_operation_name)
+</span></span><span style="display:flex;"><span>        pages <span style="color:#f92672">=</span> paginator<span style="color:#f92672">.</span>paginate(
+</span></span><span style="display:flex;"><span>            PaginationConfig<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#39;MaxItems&#39;</span>: limit, <span style="color:#e6db74">&#39;PageSize&#39;</span>: page_size},
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">**</span>params,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        pages <span style="color:#f92672">=</span> [getattr(client, self<span style="color:#f92672">.</span>_py_operation_name)(<span style="color:#f92672">**</span>params)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    count <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> page <span style="color:#f92672">in</span> pages:
+</span></span><span style="display:flex;"><span>        page_items <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_handler(self<span style="color:#f92672">.</span>_parent, params, page):
+</span></span><span style="display:flex;"><span>            page_items<span style="color:#f92672">.</span>append(item)
+</span></span><span style="display:flex;"><span>            count <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> limit <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span> <span style="color:#f92672">and</span> count <span style="color:#f92672">&gt;=</span> limit:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> page_items        <span style="color:#75715e"># 페이지 단위로 흘려보냄</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> limit <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span> <span style="color:#f92672">and</span> count <span style="color:#f92672">&gt;=</span> limit:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">break</span>
+</span></span></code></pre></div><p>반복자 패턴 글의 핵심이 &ldquo;<strong>순회 로직을 컬렉션 자체에서 분리</strong>&ldquo;였다. boto3는 거기서 한 걸음 더 나아가, 순회 자체를 <strong>&ldquo;항목 순회&quot;와 &ldquo;페이지 순회&rdquo;</strong> 두 책임으로 또 나눴다.</p>
+<ul>
+<li><code>pages()</code>: AWS API 호출, 페이지네이션, 응답을 자원 객체로 변환(<code>_handler</code>)</li>
+<li><code>__iter__()</code>: 페이지를 펼쳐서 항목을 평탄하게(flatten) 흘려보냄</li>
+</ul>
+<p>덕분에 사용자는 <code>pages()</code>(페이지 덩어리)와 <code>__iter__()</code>(개별 항목) 중 원하는 입도(granularity)를 골라 쓸 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 항목 단위</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> obj <span style="color:#f92672">in</span> bucket<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all(): <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 페이지 단위 (1000개씩 배치 처리하고 싶을 때)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> page <span style="color:#f92672">in</span> bucket<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>pages():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> obj <span style="color:#f92672">in</span> page: <span style="color:#f92672">...</span>
+</span></span></code></pre></div><p>이것이 패턴 글에서 말한 &ldquo;<strong>하나의 컬렉션에 여러 순회 방식을 제공</strong>&ldquo;의 실제 사례다.</p>
+<hr>
+<h2 id="내부-표현의-은닉--paginate-여부조차-숨긴다">내부 표현의 은닉 — paginate 여부조차 숨긴다</h2>
+<p><code>pages()</code>를 보면 <code>can_paginate()</code>로 분기한다. 어떤 AWS 오퍼레이션은 페이지네이션을 지원하고 어떤 건 안 한다. 하지만 <strong>사용자 코드는 그걸 알 필요가 없다.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> client<span style="color:#f92672">.</span>can_paginate(self<span style="color:#f92672">.</span>_py_operation_name):
+</span></span><span style="display:flex;"><span>    pages <span style="color:#f92672">=</span> paginator<span style="color:#f92672">.</span>paginate(<span style="color:#f92672">...</span>)     <span style="color:#75715e"># 페이지네이션 O</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    pages <span style="color:#f92672">=</span> [getattr(client, <span style="color:#f92672">...</span>)(<span style="color:#f92672">**</span>params)]   <span style="color:#75715e"># 페이지네이션 X → 단일 페이지 리스트로 위장</span>
+</span></span></code></pre></div><p>페이지네이션을 지원하지 않는 경우에도 결과를 <code>[단일_페이지]</code> 리스트로 감싸서, 위층의 <code>for page in pages</code>가 <strong>똑같은 코드로 동작</strong>하게 만든다.</p>
+<p>반복자 패턴 글의 표현을 빌리면, 리스트든 트리든 같은 인터페이스로 순회하게 했던 것처럼 — 여기선 <strong>&ldquo;페이지네이션되는 API&quot;든 &ldquo;안 되는 API&quot;든</strong> 같은 순회 인터페이스 뒤로 숨겼다.</p>
+<hr>
+<h2 id="aggregate--iterator-역할-매핑">Aggregate / Iterator 역할 매핑</h2>
+<p>패턴 글의 용어로 boto3 코드를 정리하면 이렇다.</p>
+<table>
+  <thead>
+      <tr>
+          <th>패턴 용어</th>
+          <th>boto3 구현</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Aggregate (집합 객체)</td>
+          <td><code>CollectionManager</code> — <code>all()</code>, <code>filter()</code> 등으로 반복자 생성</td>
+      </tr>
+      <tr>
+          <td>ConcreteAggregate</td>
+          <td><code>s3.Bucket.objects</code> 같은 실제 매니저</td>
+      </tr>
+      <tr>
+          <td>Iterator (반복자)</td>
+          <td><code>ResourceCollection</code> — <code>__iter__</code>를 가진 객체</td>
+      </tr>
+      <tr>
+          <td>순회 상태(커서)</td>
+          <td><code>pages()</code>/<code>__iter__</code>의 <code>count</code>, paginator 내부 토큰</td>
+      </tr>
+  </tbody>
+</table>
+<p><code>CollectionManager</code>는 <strong>반복자가 아니다.</strong> 문서에도 못 박혀 있다.</p>
+<blockquote>
+<p>A collection manager is <strong>not iterable</strong>. You must call one of the methods that return a <code>ResourceCollection</code> before trying to iterate.</p></blockquote>
+<p>이건 패턴 글에서 본 <strong>Aggregate와 Iterator의 분리</strong>를 그대로 지킨 것이다. <code>manager.all()</code>을 호출해야 비로소 순회 가능한 <code>ResourceCollection</code>이 나온다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>sqs<span style="color:#f92672">.</span>queues          <span style="color:#75715e"># CollectionManager — 순회 불가</span>
+</span></span><span style="display:flex;"><span>sqs<span style="color:#f92672">.</span>queues<span style="color:#f92672">.</span>all()    <span style="color:#75715e"># ResourceCollection — 순회 가능</span>
+</span></span></code></pre></div><hr>
+<h2 id="보너스-독립적인-순회--체이닝">보너스: 독립적인 순회 + 체이닝</h2>
+<p>패턴 글에서 강조한 &ldquo;<strong>같은 컬렉션을 여러 반복자가 독립적으로 순회</strong>&ldquo;도 보장된다. <code>filter()</code>/<code>limit()</code> 등이 매번 <code>_clone()</code>으로 <strong>새 컬렉션을 복제</strong>하기 때문이다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_clone</span>(self, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>    params <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>deepcopy(self<span style="color:#f92672">.</span>_params)     <span style="color:#75715e"># 파라미터를 깊은 복사</span>
+</span></span><span style="display:flex;"><span>    merge_dicts(params, kwargs, append_lists<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>__class__(self<span style="color:#f92672">.</span>_model, self<span style="color:#f92672">.</span>_parent, self<span style="color:#f92672">.</span>_handler, <span style="color:#f92672">**</span>params)
+</span></span></code></pre></div><p>원본을 건드리지 않고 복제본을 돌려주므로, 체이닝이 안전하다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>base <span style="color:#f92672">=</span> collection<span style="color:#f92672">.</span>filter(Param1<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>query1 <span style="color:#f92672">=</span> base<span style="color:#f92672">.</span>filter(Param2<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>)   <span style="color:#75715e"># {&#39;Param1&#39;: 1, &#39;Param2&#39;: 2}</span>
+</span></span><span style="display:flex;"><span>query2 <span style="color:#f92672">=</span> base<span style="color:#f92672">.</span>filter(Param3<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)   <span style="color:#75715e"># {&#39;Param1&#39;: 1, &#39;Param3&#39;: 3}</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># base는 여전히 {&#39;Param1&#39;: 1} — 서로 영향 없음</span>
+</span></span></code></pre></div><p>순회 상태(커서)를 반복자 객체로 옮긴 덕분에 가능한, 패턴 글의 &ldquo;잘된 예&quot;와 정확히 같은 구조다.</p>
+<hr>
+<h2 id="패턴-vs-실전--무엇이-달랐나">패턴 vs 실전 — 무엇이 달랐나</h2>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>패턴 글의 교과서 예시</th>
+          <th>boto3 ResourceCollection</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>인터페이스</td>
+          <td><code>has_next()</code> / <code>next()</code></td>
+          <td>파이썬 내장 <code>__iter__</code> + <code>yield</code></td>
+      </tr>
+      <tr>
+          <td>데이터 출처</td>
+          <td>메모리 안의 리스트/트리</td>
+          <td>원격 AWS API (HTTP)</td>
+      </tr>
+      <tr>
+          <td>핵심 추가 과제</td>
+          <td>—</td>
+          <td>페이지네이션, 지연 평가</td>
+      </tr>
+      <tr>
+          <td>순회 입도</td>
+          <td>항목 단위</td>
+          <td>항목(<code>__iter__</code>) / 페이지(<code>pages</code>) 선택</td>
+      </tr>
+      <tr>
+          <td>반복자 생성</td>
+          <td><code>create_iterator()</code></td>
+          <td><code>all()</code> / <code>filter()</code> / <code>_clone()</code></td>
+      </tr>
+  </tbody>
+</table>
+<p>교과서의 <code>has_next()</code>/<code>next()</code>는 파이썬에선 <code>yield</code> 하나로 대체된다. boto3는 거기에 <strong>&ldquo;순회 = 원격 자원을 페이지 단위로 lazy하게 당겨오는 일&rdquo;</strong> 이라는 현실의 무게를 얹었을 뿐, 패턴의 뼈대는 그대로다.</p>
+<hr>
+<h2 id="한-줄-정리">한 줄 정리</h2>
+<blockquote>
+<p>boto3 <code>ResourceCollection</code>은 <strong>&ldquo;100만 개짜리 원격 컬렉션의 페이지네이션과 지연 평가&quot;라는 복잡함을 <code>yield</code> 뒤에 통째로 숨겨</strong>, 사용자에게는 <code>for obj in bucket.objects.all()</code> 한 줄만 남기는 Iterator 패턴의 정석 사례다.</p></blockquote>
+<p>원본 코드: <a href="https://github.com/boto/boto3/blob/develop/boto3/resources/collection.py">boto3/resources/collection.py</a></p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/boto3/" rel="tag">boto3</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/aws/" rel="tag">AWS</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/iterator/" rel="tag">Iterator</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" rel="tag">반복자</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-iterator/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/boto3-iterator/">Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-iterator/">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-facade/">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-facade/">Vibe Coding을 위한 디자인 패턴 - 퍼사드(Facade)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/games/defold-2/">Defold 게임 엔진 입문 — 컴포넌트 전체 개요</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/aws/" title="AWS">AWS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/boto3/" title="Boto3">Boto3 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/iterator/" title="Iterator">Iterator (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (9)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (18)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" title="반복자">반복자 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8D%BC%EC%82%AC%EB%93%9C/" title="퍼사드">퍼사드 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

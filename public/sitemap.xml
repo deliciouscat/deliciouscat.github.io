@@ -293,6 +293,15 @@
     <loc>http://localhost:1313/posts/introduce/myproject-260112/</loc>
     <lastmod>2026-01-12T18:00:00+09:00</lastmod>
   </url><url>
+    <loc>http://localhost:1313/tags/iterator/</loc>
+    <lastmod>2025-12-04T18:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/design-pattern/designpattern-iterator/</loc>
+    <lastmod>2025-12-04T18:00:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/</loc>
+    <lastmod>2025-12-04T18:00:00+09:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/tags/strategy/</loc>
     <lastmod>2025-11-20T18:00:00+09:00</lastmod>
   </url><url>

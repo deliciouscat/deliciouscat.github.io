@@ -342,6 +342,35 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/design-pattern/designpattern-iterator/" rel="bookmark">
+			Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-12-04T18:00:00&#43;09:00">December 04, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<h1 id="iterator-pattern-반복자-패턴">Iterator Pattern (반복자 패턴)</h1>
+<p>Iterator Pattern은 <strong>컬렉션(집합 객체)의 내부 표현 방식을 노출하지 않고, 그 요소들에 순차적으로 접근할 수 있게</strong> 해주는 행동 디자인 패턴이다.
+클라이언트는 컬렉션이 배열인지, 트리인지, 해시맵인지 알 필요 없이 <strong>동일한 인터페이스(<code>next()</code>, <code>has_next()</code>)로 순회</strong>할 수 있다.</p>
+<p>예를 들어 도서 목록을 순회한다고 해보자.</p>
+<ul>
+<li>리스트로 저장된 컬렉션은 인덱스로 접근한다.</li>
+<li>트리로 저장된 컬렉션은 전위/중위/후위 순회가 필요하다.</li>
+<li>해시맵으로 저장된 컬렉션은 키를 돌면서 값을 꺼낸다.</li>
+</ul>
+<p>이렇게 저장 방식이 제각각이지만, 클라이언트는 매번 <strong>&ldquo;다음 요소가 있나? 있으면 하나 줘&rdquo;</strong> 만 묻고 싶을 뿐이다.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-iterator/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/design-pattern/designpattern-stratagy/" rel="bookmark">
 			Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)
 			</a>
@@ -521,66 +550,6 @@
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/posts/api-manuals/vueconvexclerk-1/">Read more…</a>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/api-manuals/convexbackend-1/" rel="bookmark">
-			Convex 튜토리얼
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2025-10-29T17:45:00&#43;09:00">October 29, 2025</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/api-manuals/" rel="category">API Manuals</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="convex-개요">Convex 개요</h1>
-<p>Backend-as-a-Service로, JWT 방식으로 통신하여 사용할 수 있다. 서버리스/비동기처리가 기본인 서비스이기 때문에 Supabase등의 대안보다 관리가 용이하다.</p>
-<h1 id="구조">구조</h1>
-<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">graph TB
-    subgraph convex[&#34;Convex Backend&#34;]
-        subgraph sync[&#34;Sync Engine&#34;]
-            subgraph operations[&#34; &#34;]
-                direction LR
-                mutation[&#34;Mutation&#34;]
-                query[&#34;Query&#34;]
-            end
-            db[(&#34;Database&#34;)]
-        end
-    end
-    
-    subgraph users[&#34; &#34;]
-        direction LR
-        subgraph user_a[&#34;Web App: User A&#34;]
-            client_a[&#34;Client Library&#34;]
-        end
-        
-        subgraph user_b[&#34;Web App: User B&#34;]
-            client_b[&#34;Client Library&#34;]
-        end
-    end
-    
-    client_a --&gt; mutation
-    mutation --&gt; db
-    db --&gt; query
-    query --&gt; client_a
-    query --&gt; client_b
-    
-    style users fill:none,stroke:none
-    style operations fill:none,stroke:none
-    style db fill:#F1FF18
-    style client_a fill:#f5a623
-    style client_b fill:#f5a623
-    
-</code></pre><h2 id="database">Database:</h2>
-<p>Document-Relation DB라는, DocDB와 RDB가 혼합된 형태의 DB를 사용한다. 즉, RDB 테이블에 JSON-like한 구조의 데이터를 저장한다는 말.<br>
-<code>_id</code>는 자동으로 할당되는데, 이것들 통해 RDB처럼 관계를 생성할 수 있으면서도 DocDB의 장점을 살리고 싶었던 듯.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/api-manuals/convexbackend-1/">Read more…</a>
-	</div>
 </article>
 </main>
 
@@ -659,6 +628,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/iterator/" title="Iterator">Iterator (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
@@ -680,8 +650,9 @@
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (16)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (17)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" title="반복자">반복자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
