@@ -6,8 +6,29 @@
     <description>Recent content in Posts on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 07 Jun 2026 21:40:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 20 Jun 2026 17:54:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-flyweight/</link>
+      <pubDate>Sat, 20 Jun 2026 17:54:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-flyweight/</guid>
+      <description>&lt;p&gt;Flyweight Pattern(플라이웨이트 패턴)은 &lt;strong&gt;대량의 유사한 객체들을 효율적으로 공유&lt;/strong&gt;함으로써 메모리 사용량을 줄이는 구조 디자인 패턴이다.&lt;/p&gt;&#xA;&lt;p&gt;핵심 아이디어는 &lt;strong&gt;공유 가능한 상태(intrinsic state)&lt;/strong&gt; 와 &lt;strong&gt;공유 불가능한 상태(extrinsic state)&lt;/strong&gt; 를 분리하는 것이다.&lt;/p&gt;&#xA;&lt;p&gt;예를 들어 텍스트 편집기에서 문자 &lt;code&gt;&#39;A&#39;&lt;/code&gt;가 10만 번 등장한다고 해보자. 각 &lt;code&gt;&#39;A&#39;&lt;/code&gt;마다 글꼴, 색상, 폰트 크기 객체를 따로 만들면 메모리 낭비가 심하다. 하지만 &lt;code&gt;&#39;A&#39;&lt;/code&gt;의 글꼴 정보는 어느 위치에 있든 동일하다. Flyweight는 이 &lt;strong&gt;공통 부분을 하나만 만들어 재사용&lt;/strong&gt;하고, 위치처럼 각 &lt;code&gt;&#39;A&#39;&lt;/code&gt;마다 달라지는 정보만 외부에서 주입한다.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection</title>
+      <link>http://localhost:1313/posts/code-reading/boto3-iterator/</link>
+      <pubDate>Mon, 15 Jun 2026 16:10:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/boto3-iterator/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-iterator/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)&lt;/a&gt;를 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;aws-서비스-이름부터--s3-ec2-sqs&#34;&gt;AWS 서비스 이름부터 — S3, EC2, SQS&lt;/h2&gt;&#xA;&lt;p&gt;boto3 코드를 읽으려면 글에 나오는 AWS 서비스 이름이 뭘 하는지부터 알아야 한다. 아래 세 가지만 잡고 가면 된다.&lt;/p&gt;&#xA;&lt;table&gt;&#xA;  &lt;thead&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;th&gt;서비스&lt;/th&gt;&#xA;          &lt;th&gt;한 줄 설명&lt;/th&gt;&#xA;          &lt;th&gt;비유&lt;/th&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/thead&gt;&#xA;  &lt;tbody&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;S3&lt;/strong&gt; (Simple Storage Service)&lt;/td&gt;&#xA;          &lt;td&gt;파일·이미지·백업 같은 &lt;strong&gt;객체(파일) 저장소&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;Google Drive / Dropbox 같은 클라우드 디스크&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;EC2&lt;/strong&gt; (Elastic Compute Cloud)&lt;/td&gt;&#xA;          &lt;td&gt;&lt;strong&gt;가상 서버(컴퓨터)&lt;/strong&gt; 를 빌려 쓰는 서비스&lt;/td&gt;&#xA;          &lt;td&gt;AWS 데이터센터 안의 원격 PC 한 대&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;SQS&lt;/strong&gt; (Simple Queue Service)&lt;/td&gt;&#xA;          &lt;td&gt;서버끼리 &lt;strong&gt;메시지를 줄 세워 전달&lt;/strong&gt;하는 큐&lt;/td&gt;&#xA;          &lt;td&gt;카카오톡 알림 대신, 백엔드 작업을 &amp;ldquo;잠깐 보관했다가 처리&amp;rdquo;&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;p&gt;S3는 &lt;strong&gt;버킷(bucket)&lt;/strong&gt; 안에 &lt;strong&gt;객체(object)&lt;/strong&gt; 를 넣는 구조다. EC2는 &lt;strong&gt;인스턴스(instance)&lt;/strong&gt; 단위로 서버를 띄우고, SQS는 &lt;strong&gt;큐(queue)&lt;/strong&gt; 에 메시지를 넣었다 꺼낸다. boto3에서는 이걸 각각 Python 객체처럼 다룬다.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-iterator/</link>
+      <pubDate>Mon, 15 Jun 2026 15:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-iterator/</guid>
+      <description>&lt;h1 id=&#34;iterator-pattern-반복자-패턴&#34;&gt;Iterator Pattern (반복자 패턴)&lt;/h1&gt;&#xA;&lt;p&gt;Iterator Pattern은 &lt;strong&gt;컬렉션(집합 객체)의 내부 표현 방식을 노출하지 않고, 그 요소들에 순차적으로 접근할 수 있게&lt;/strong&gt; 해주는 행동 디자인 패턴이다.&#xA;클라이언트는 컬렉션이 배열인지, 트리인지, 해시맵인지 알 필요 없이 &lt;strong&gt;동일한 인터페이스(&lt;code&gt;next()&lt;/code&gt;, &lt;code&gt;has_next()&lt;/code&gt;)로 순회&lt;/strong&gt;할 수 있다.&lt;/p&gt;&#xA;&lt;p&gt;예를 들어 도서 목록을 순회한다고 해보자.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;리스트로 저장된 컬렉션은 인덱스로 접근한다.&lt;/li&gt;&#xA;&lt;li&gt;트리로 저장된 컬렉션은 전위/중위/후위 순회가 필요하다.&lt;/li&gt;&#xA;&lt;li&gt;해시맵으로 저장된 컬렉션은 키를 돌면서 값을 꺼낸다.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;이렇게 저장 방식이 제각각이지만, 클라이언트는 매번 &lt;strong&gt;&amp;ldquo;다음 요소가 있나? 있으면 하나 줘&amp;rdquo;&lt;/strong&gt; 만 묻고 싶을 뿐이다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</title>
       <link>http://localhost:1313/posts/code-reading/django-facade/</link>
@@ -322,13 +343,6 @@
       <pubDate>Mon, 12 Jan 2026 18:00:00 +0900</pubDate>
       <guid>http://localhost:1313/posts/introduce/myproject-260112/</guid>
       <description>&lt;h1 id=&#34;wizperch-프로젝트&#34;&gt;WizPerch 프로젝트&lt;/h1&gt;&#xA;&lt;h3 id=&#34;문제의식&#34;&gt;문제의식&lt;/h3&gt;&#xA;&lt;p&gt;개인적으로 인터넷 환경에서의 toxic한 의사소통 경험, 필터버블, 컨텐츠의 플랫폼 종속성 등에 문제의식을 가지고 있습니다. 소셜미디어 구축 엔진을 오픈소스화하여 서비스 운영자가 추천 시스템 운영권을 가질 수 있도록 하는 것을 목표로 합니다. (Semi-Decentralization)&lt;/p&gt;&#xA;&lt;h3 id=&#34;프로젝트로-다음과-같은-방법으로-이-문제를-해결해보고자-했습니다&#34;&gt;프로젝트로 다음과 같은 방법으로 이 문제를 해결해보고자 했습니다.&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Chrome Extention 형태의 온라인 커뮤니티를 만들어 컨텐츠 생산자가 ownership을 가질 수 있게 한다.&lt;/li&gt;&#xA;&lt;li&gt;Agentic AI + Knowledge Tracing 기반의 웹페이지 추천으로 motivated reasoning(본인의 기존 입장에 맞는 근거자료를 편취하게 되는 것)을 막는다.&lt;/li&gt;&#xA;&lt;li&gt;누구나 추천 Agent 설계를 쉽게 할 수 있도록 극도로 추상화된 프레임워크를 만든다.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;사용자-유입을-위한-utility-기능&#34;&gt;사용자 유입을 위한 utility 기능&lt;/h3&gt;&#xA;&lt;p&gt;위의 개발 동기는 사용자 관점이 아니기 때문에, 시너지가 있는 다른 기능으로 유저를 끌어모으고자 합니다.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</title>
-      <link>http://localhost:1313/posts/design-pattern/designpattern-iterator/</link>
-      <pubDate>Thu, 04 Dec 2025 18:00:00 +0900</pubDate>
-      <guid>http://localhost:1313/posts/design-pattern/designpattern-iterator/</guid>
-      <description>&lt;h1 id=&#34;iterator-pattern-반복자-패턴&#34;&gt;Iterator Pattern (반복자 패턴)&lt;/h1&gt;&#xA;&lt;p&gt;Iterator Pattern은 &lt;strong&gt;컬렉션(집합 객체)의 내부 표현 방식을 노출하지 않고, 그 요소들에 순차적으로 접근할 수 있게&lt;/strong&gt; 해주는 행동 디자인 패턴이다.&#xA;클라이언트는 컬렉션이 배열인지, 트리인지, 해시맵인지 알 필요 없이 &lt;strong&gt;동일한 인터페이스(&lt;code&gt;next()&lt;/code&gt;, &lt;code&gt;has_next()&lt;/code&gt;)로 순회&lt;/strong&gt;할 수 있다.&lt;/p&gt;&#xA;&lt;p&gt;예를 들어 도서 목록을 순회한다고 해보자.&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;리스트로 저장된 컬렉션은 인덱스로 접근한다.&lt;/li&gt;&#xA;&lt;li&gt;트리로 저장된 컬렉션은 전위/중위/후위 순회가 필요하다.&lt;/li&gt;&#xA;&lt;li&gt;해시맵으로 저장된 컬렉션은 키를 돌면서 값을 꺼낸다.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;이렇게 저장 방식이 제각각이지만, 클라이언트는 매번 &lt;strong&gt;&amp;ldquo;다음 요소가 있나? 있으면 하나 줘&amp;rdquo;&lt;/strong&gt; 만 묻고 싶을 뿐이다.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Vibe Coding을 위한 디자인 패턴 - 전략패턴(Strategy)</title>

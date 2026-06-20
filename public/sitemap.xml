@@ -9,10 +9,49 @@
     <lastmod>2099-10-14T12:55:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2026-06-07T21:40:00+09:00</lastmod>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/categories/computer-science/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/flyweight/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/vibe-coding/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/design-pattern/designpattern-flyweight/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%ED%94%8C%EB%9D%BC%EC%9D%B4%EC%9B%A8%EC%9D%B4%ED%8A%B8/</loc>
+    <lastmod>2026-06-20T17:54:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/aws/</loc>
+    <lastmod>2026-06-15T16:10:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/boto3/</loc>
+    <lastmod>2026-06-15T16:10:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/categories/code-reading/</loc>
-    <lastmod>2026-06-07T21:40:00+09:00</lastmod>
+    <lastmod>2026-06-15T16:10:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/iterator/</loc>
+    <lastmod>2026-06-15T16:10:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/code-reading/boto3-iterator/</loc>
+    <lastmod>2026-06-15T16:10:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/</loc>
+    <lastmod>2026-06-15T16:10:00+09:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/design-pattern/designpattern-iterator/</loc>
+    <lastmod>2026-06-15T15:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/django/</loc>
     <lastmod>2026-06-07T21:40:00+09:00</lastmod>
@@ -26,20 +65,8 @@
     <loc>http://localhost:1313/tags/python/</loc>
     <lastmod>2026-06-07T21:40:00+09:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2026-06-07T21:40:00+09:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/</loc>
     <lastmod>2026-06-07T21:40:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/</loc>
-    <lastmod>2026-06-07T21:40:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/categories/computer-science/</loc>
-    <lastmod>2026-06-07T16:52:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/vibe-coding/</loc>
-    <lastmod>2026-06-07T16:52:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/posts/design-pattern/designpattern-facade/</loc>
     <lastmod>2026-06-07T16:52:00+09:00</lastmod>
@@ -292,15 +319,6 @@
   </url><url>
     <loc>http://localhost:1313/posts/introduce/myproject-260112/</loc>
     <lastmod>2026-01-12T18:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/iterator/</loc>
-    <lastmod>2025-12-04T18:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/posts/design-pattern/designpattern-iterator/</loc>
-    <lastmod>2025-12-04T18:00:00+09:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/</loc>
-    <lastmod>2025-12-04T18:00:00+09:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/tags/strategy/</loc>
     <lastmod>2025-11-20T18:00:00+09:00</lastmod>

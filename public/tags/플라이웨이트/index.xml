@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>플라이웨이트 on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/%ED%94%8C%EB%9D%BC%EC%9D%B4%EC%9B%A8%EC%9D%B4%ED%8A%B8/</link>
+    <description>Recent content in 플라이웨이트 on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 20 Jun 2026 17:54:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/%ED%94%8C%EB%9D%BC%EC%9D%B4%EC%9B%A8%EC%9D%B4%ED%8A%B8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-flyweight/</link>
+      <pubDate>Sat, 20 Jun 2026 17:54:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-flyweight/</guid>
+      <description>&lt;p&gt;Flyweight Pattern(플라이웨이트 패턴)은 &lt;strong&gt;대량의 유사한 객체들을 효율적으로 공유&lt;/strong&gt;함으로써 메모리 사용량을 줄이는 구조 디자인 패턴이다.&lt;/p&gt;&#xA;&lt;p&gt;핵심 아이디어는 &lt;strong&gt;공유 가능한 상태(intrinsic state)&lt;/strong&gt; 와 &lt;strong&gt;공유 불가능한 상태(extrinsic state)&lt;/strong&gt; 를 분리하는 것이다.&lt;/p&gt;&#xA;&lt;p&gt;예를 들어 텍스트 편집기에서 문자 &lt;code&gt;&#39;A&#39;&lt;/code&gt;가 10만 번 등장한다고 해보자. 각 &lt;code&gt;&#39;A&#39;&lt;/code&gt;마다 글꼴, 색상, 폰트 크기 객체를 따로 만들면 메모리 낭비가 심하다. 하지만 &lt;code&gt;&#39;A&#39;&lt;/code&gt;의 글꼴 정보는 어느 위치에 있든 동일하다. Flyweight는 이 &lt;strong&gt;공통 부분을 하나만 만들어 재사용&lt;/strong&gt;하고, 위치처럼 각 &lt;code&gt;&#39;A&#39;&lt;/code&gt;마다 달라지는 정보만 외부에서 주입한다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

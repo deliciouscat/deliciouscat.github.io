@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템 - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/code-reading/openpyxl-flyweight/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템">
+  <meta property="og:description" content="이전 글 Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)를 읽었다는 가정 하에 쓴다.
+openpyxl이 뭔지 3줄 openpyxl은 Python에서 .xlsx 파일을 읽고 쓰는 라이브러리다.
+엑셀 파일의 셀 값, 수식, 스타일(글꼴·색상·테두리)을 코드로 다룰 수 있다.
+오늘 볼 코드는 그중에서도 “셀이 수십만 개여도 스타일 객체를 어떻게 메모리 효율적으로 관리하는가” 이다.
+문제: 셀은 많지만 스타일 조합은 반복된다 엑셀 파일을 생각해보자. A1부터 Z10000까지 26만 개의 셀이 있다고 하자. 이 중 헤더 행은 굵은 파란 글씨, 짝수 행은 회색 배경, 나머지는 기본 스타일이다.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-20T20:25:00+09:00">
+    <meta property="article:modified_time" content="2026-06-20T20:25:00+09:00">
+    <meta property="article:tag" content="Openpyxl">
+    <meta property="article:tag" content="Flyweight">
+    <meta property="article:tag" content="플라이웨이트">
+    <meta property="article:tag" content="디자인패턴">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-20T20:25:00&#43;09:00">June 20, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p>이전 글 <a href="/posts/design-pattern/designpattern-flyweight/">Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</a>를 읽었다는 가정 하에 쓴다.</p></blockquote>
+<h2 id="openpyxl이-뭔지-3줄">openpyxl이 뭔지 3줄</h2>
+<p>openpyxl은 Python에서 <code>.xlsx</code> 파일을 읽고 쓰는 라이브러리다.<br>
+엑셀 파일의 셀 값, 수식, 스타일(글꼴·색상·테두리)을 코드로 다룰 수 있다.<br>
+오늘 볼 코드는 그중에서도 <strong>&ldquo;셀이 수십만 개여도 스타일 객체를 어떻게 메모리 효율적으로 관리하는가&rdquo;</strong> 이다.</p>
+<hr>
+<h2 id="문제-셀은-많지만-스타일-조합은-반복된다">문제: 셀은 많지만 스타일 조합은 반복된다</h2>
+<p>엑셀 파일을 생각해보자. A1부터 Z10000까지 26만 개의 셀이 있다고 하자. 이 중 헤더 행은 굵은 파란 글씨, 짝수 행은 회색 배경, 나머지는 기본 스타일이다.</p>
+<p>실제 스타일 <strong>조합의 종류</strong>는 3가지뿐이지만, 셀은 26만 개다.</p>
+<p>만약 각 셀이 <code>Font</code>, <code>Fill</code>, <code>Border</code>, <code>Alignment</code> 객체를 직접 들고 있으면:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 이렇게 하면 Font 객체만 26만 개</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cell</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>font <span style="color:#f92672">=</span> Font(bold<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, color<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0000FF&#34;</span>)   <span style="color:#75715e"># 각자 들고 있음</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>fill <span style="color:#f92672">=</span> Fill(<span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>border <span style="color:#f92672">=</span> Border(<span style="color:#f92672">...</span>)
+</span></span></code></pre></div><p><code>Font</code> 하나가 수십 바이트라도, 26만 개면 수십 MB가 스타일에만 쓰인다.</p>
+<p>Flyweight 패턴 글에서 본 숲 예시와 상황이 같다. <strong>스타일 종류(intrinsic)는 적고, 그걸 쓰는 셀(context)은 많다.</strong></p>
+<hr>
+<h2 id="해법-셀은-인덱스만-들고-실제-객체는-workbook이-관리한다">해법: 셀은 인덱스만 들고, 실제 객체는 workbook이 관리한다</h2>
+<p>openpyxl의 핵심 아이디어는 단순하다.</p>
+<ul>
+<li><code>Font</code>, <code>Fill</code>, <code>Border</code> 같은 스타일 객체는 <strong>workbook 수준의 IndexedList</strong>에 딱 하나씩만 저장한다.</li>
+<li>각 셀은 스타일 객체를 직접 보관하지 않고, <strong>그 객체의 인덱스(정수)만 보관한다.</strong></li>
+</ul>
+<pre tabindex="0"><code>Workbook
+ ├── _fonts    = IndexedList([Font(bold=True), Font(italic=True), ...])   # 2개
+ ├── _fills    = IndexedList([PatternFill(), PatternFill(bgColor=...), ...])
+ ├── _borders  = IndexedList([Border(), Border(left=...)])
+ └── _cell_styles = IndexedList(...)
+
+Cell A1 ─── _style = StyleArray([fontId=0, fillId=0, borderId=1, ...])  # 인덱스만!
+Cell A2 ─── _style = StyleArray([fontId=0, fillId=1, borderId=0, ...])  # 인덱스만!
+Cell A3 ─── _style = StyleArray([fontId=0, fillId=0, borderId=1, ...])  # A1과 같은 스타일
+</code></pre><p>A1과 A3의 <code>fontId=0</code>이 가리키는 건 <strong>동일한 <code>Font</code> 객체 하나</strong>다. 복사가 아니라 참조다.</p>
+<hr>
+<h2 id="stylearray--셀이-실제로-들고-있는-것"><code>StyleArray</code> — 셀이 실제로 들고 있는 것</h2>
+<p><code>Cell</code>이 보관하는 <code>_style</code> 필드의 타입은 <code>StyleArray</code>다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># openpyxl/styles/cell_style.py</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StyleArray</span>(array):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Simplified named tuple with an array
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    fontId       <span style="color:#f92672">=</span> ArrayDescriptor(<span style="color:#ae81ff">0</span>)   <span style="color:#75715e"># _fonts 의 인덱스</span>
+</span></span><span style="display:flex;"><span>    fillId       <span style="color:#f92672">=</span> ArrayDescriptor(<span style="color:#ae81ff">1</span>)   <span style="color:#75715e"># _fills 의 인덱스</span>
+</span></span><span style="display:flex;"><span>    borderId     <span style="color:#f92672">=</span> ArrayDescriptor(<span style="color:#ae81ff">2</span>)   <span style="color:#75715e"># _borders 의 인덱스</span>
+</span></span><span style="display:flex;"><span>    numFmtId     <span style="color:#f92672">=</span> ArrayDescriptor(<span style="color:#ae81ff">3</span>)   <span style="color:#75715e"># 숫자 형식 인덱스</span>
+</span></span><span style="display:flex;"><span>    protectionId <span style="color:#f92672">=</span> ArrayDescriptor(<span style="color:#ae81ff">4</span>)   <span style="color:#75715e"># _protections 의 인덱스</span>
+</span></span><span style="display:flex;"><span>    alignmentId  <span style="color:#f92672">=</span> ArrayDescriptor(<span style="color:#ae81ff">5</span>)   <span style="color:#75715e"># _alignments 의 인덱스</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls, args<span style="color:#f92672">=</span>[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">*</span><span style="color:#ae81ff">9</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> array<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls, <span style="color:#e6db74">&#39;i&#39;</span>, args)   <span style="color:#75715e"># 정수 배열 9개</span>
+</span></span></code></pre></div><p><code>StyleArray</code>는 <code>array('i', ...)</code> — 즉 <strong>정수 9개짜리 배열</strong>이다.</p>
+<p><code>Font</code>, <code>Fill</code>, <code>Border</code> 객체를 들고 있는 게 아니라 <strong>그 객체들의 인덱스</strong>만 들고 있다. 셀 하나가 스타일을 위해 쓰는 메모리는 정수 9개(36바이트)가 전부다. <code>Font</code> 객체 자체는 workbook이 한 번만 만들어서 관리한다.</p>
+<hr>
+<h2 id="indexedlist--flyweight-factory이자-캐시"><code>IndexedList</code> — Flyweight Factory이자 캐시</h2>
+<p><code>IndexedList</code>는 openpyxl에서 <strong>스타일 객체를 dedupe(중복 제거)하는 핵심 자료구조</strong>다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># openpyxl/utils/indexed_list.py</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IndexedList</span>(list):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    List with optimised access by value
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, iterable<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>clean <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_dict <span style="color:#f92672">=</span> {}          <span style="color:#75715e"># value → index 역방향 매핑</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> iterable <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> idx, val <span style="color:#f92672">in</span> enumerate(iterable):
+</span></span><span style="display:flex;"><span>                self<span style="color:#f92672">.</span>_dict[val] <span style="color:#f92672">=</span> idx
+</span></span><span style="display:flex;"><span>                list<span style="color:#f92672">.</span>append(self, val)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">append</span>(self, value):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> value <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_dict:          <span style="color:#75715e"># 이미 있으면 추가 안 함</span>
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>_dict[value] <span style="color:#f92672">=</span> len(self)
+</span></span><span style="display:flex;"><span>            list<span style="color:#f92672">.</span>append(self, value)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, value):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>append(value)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_dict[value]             <span style="color:#75715e"># 인덱스 반환</span>
+</span></span></code></pre></div><p><code>add(value)</code>가 핵심이다.</p>
+<ul>
+<li>이미 동일한 값이 있으면 <strong>추가하지 않고</strong> 기존 인덱스를 반환한다.</li>
+<li>새로운 값이면 추가하고 새 인덱스를 반환한다.</li>
+</ul>
+<p>Flyweight 패턴 글의 <code>TreeTypeFactory.get_tree_type()</code>과 역할이 같다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 패턴 글의 팩토리</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_tree_type</span>(cls, tree_type, color, texture) <span style="color:#f92672">-&gt;</span> TreeType:
+</span></span><span style="display:flex;"><span>    key <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>tree_type<span style="color:#e6db74">}</span><span style="color:#e6db74">_</span><span style="color:#e6db74">{</span>color<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> key <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> cls<span style="color:#f92672">.</span>_cache:
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>_cache[key] <span style="color:#f92672">=</span> TreeType(<span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> cls<span style="color:#f92672">.</span>_cache[key]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># openpyxl의 IndexedList.add</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(self, value):
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>append(value)        <span style="color:#75715e"># 내부에서 중복 체크</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_dict[value]  <span style="color:#75715e"># 기존이든 신규든 인덱스 반환</span>
+</span></span></code></pre></div><p>차이가 있다면 패턴 글의 팩토리는 <strong>객체 자체</strong>를 돌려주고, <code>IndexedList.add</code>는 **인덱스(정수)**를 돌려준다는 점이다.</p>
+<hr>
+<h2 id="styledescriptor--셀에서-스타일을-읽고-쓸-때"><code>StyleDescriptor</code> — 셀에서 스타일을 읽고 쓸 때</h2>
+<p>셀에서 <code>cell.font = Font(bold=True)</code>를 쓰면 내부에서 무슨 일이 일어나는지 보자.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># openpyxl/styles/styleable.py</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StyleDescriptor</span>:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, collection, key):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>collection <span style="color:#f92672">=</span> collection   <span style="color:#75715e"># &#34;_fonts&#34;, &#34;_fills&#34;, &#34;_borders&#34; 등</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>key <span style="color:#f92672">=</span> key                 <span style="color:#75715e"># &#34;fontId&#34;, &#34;fillId&#34;, &#34;borderId&#34; 등</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__set__</span>(self, instance, value):
+</span></span><span style="display:flex;"><span>        coll <span style="color:#f92672">=</span> getattr(instance<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>parent, self<span style="color:#f92672">.</span>collection)  <span style="color:#75715e"># wb._fonts</span>
+</span></span><span style="display:flex;"><span>        setattr(instance<span style="color:#f92672">.</span>_style, self<span style="color:#f92672">.</span>key, coll<span style="color:#f92672">.</span>add(value))      <span style="color:#75715e"># 인덱스 저장</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__get__</span>(self, instance, cls):
+</span></span><span style="display:flex;"><span>        coll <span style="color:#f92672">=</span> getattr(instance<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>parent, self<span style="color:#f92672">.</span>collection)   <span style="color:#75715e"># wb._fonts</span>
+</span></span><span style="display:flex;"><span>        idx <span style="color:#f92672">=</span> getattr(instance<span style="color:#f92672">.</span>_style, self<span style="color:#f92672">.</span>key)                  <span style="color:#75715e"># 인덱스 조회</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> StyleProxy(coll[idx])                              <span style="color:#75715e"># 객체 반환</span>
+</span></span></code></pre></div><p><code>cell.font = Font(bold=True)</code>가 실행되는 흐름:</p>
+<pre tabindex="0"><code>cell.font = Font(bold=True)
+    └─ StyleDescriptor.__set__ 호출
+         ├─ wb._fonts.add(Font(bold=True))   # IndexedList에 추가
+         │    └─ 이미 동일한 Font가 있으면 기존 인덱스 반환
+         │       없으면 추가 후 새 인덱스 반환
+         └─ cell._style.fontId = 반환된_인덱스  # 정수 저장
+</code></pre><p><code>cell.font</code>를 읽을 때는:</p>
+<pre tabindex="0"><code>cell.font
+    └─ StyleDescriptor.__get__ 호출
+         ├─ idx = cell._style.fontId          # 정수 꺼냄
+         └─ return wb._fonts[idx]             # 실제 Font 객체 조회
+</code></pre><p>셀은 인덱스만 저장하고, 실제 객체는 workbook에서 꺼내온다. Flyweight 패턴의 구조 그대로다.</p>
+<pre tabindex="0"><code>Cell.font 접근
+            ↓
+     _style.fontId (정수)
+            ↓
+     wb._fonts[idx] (공유 Font 객체)
+</code></pre><hr>
+<h2 id="전체-흐름-한-번에-보기">전체 흐름 한 번에 보기</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> openpyxl
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> openpyxl.styles <span style="color:#f92672">import</span> Font, PatternFill
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wb <span style="color:#f92672">=</span> openpyxl<span style="color:#f92672">.</span>Workbook()
+</span></span><span style="display:flex;"><span>ws <span style="color:#f92672">=</span> wb<span style="color:#f92672">.</span>active
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>bold_blue <span style="color:#f92672">=</span> Font(bold<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, color<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0000FF&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 셀 1만 개에 같은 스타일 적용</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> row <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">10001</span>):
+</span></span><span style="display:flex;"><span>    cell <span style="color:#f92672">=</span> ws<span style="color:#f92672">.</span>cell(row<span style="color:#f92672">=</span>row, column<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    cell<span style="color:#f92672">.</span>font <span style="color:#f92672">=</span> bold_blue
+</span></span></code></pre></div><p>내부에서 일어나는 일:</p>
+<pre tabindex="0"><code>첫 번째 셀: wb._fonts.add(Font(bold=True, color=&#34;0000FF&#34;))
+              → 새 Font 객체 저장, index=2 반환
+              → cell._style.fontId = 2
+
+두 번째 셀: wb._fonts.add(Font(bold=True, color=&#34;0000FF&#34;))
+              → 이미 동일한 Font 존재 → index=2 반환
+              → cell._style.fontId = 2   (같은 인덱스)
+
+...
+
+1만 번째 셀: wb._fonts.add(Font(bold=True, color=&#34;0000FF&#34;))
+               → 여전히 index=2 반환
+               → cell._style.fontId = 2
+</code></pre><p><code>Font</code> 객체는 <strong>딱 1개</strong>, <code>wb._fonts</code> 안에만 존재한다. 1만 개의 셀은 모두 인덱스 <code>2</code>를 들고 공유한다.</p>
+<p>실제로 확인해볼 수 있다:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> openpyxl
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> openpyxl.styles <span style="color:#f92672">import</span> Font
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>wb <span style="color:#f92672">=</span> openpyxl<span style="color:#f92672">.</span>Workbook()
+</span></span><span style="display:flex;"><span>ws <span style="color:#f92672">=</span> wb<span style="color:#f92672">.</span>active
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>bold <span style="color:#f92672">=</span> Font(bold<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> row <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">10001</span>):
+</span></span><span style="display:flex;"><span>    ws<span style="color:#f92672">.</span>cell(row<span style="color:#f92672">=</span>row, column<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>font <span style="color:#f92672">=</span> bold
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(len(wb<span style="color:#f92672">.</span>_fonts))       <span style="color:#75715e"># 2 (기본 폰트 + bold)</span>
+</span></span><span style="display:flex;"><span>print(len(ws<span style="color:#f92672">.</span>_cells))       <span style="color:#75715e"># 10000</span>
+</span></span></code></pre></div><p>셀 1만 개, <code>Font</code> 객체 2개.</p>
+<hr>
+<h2 id="xlsx-파일로-저장될-때도-마찬가지다">xlsx 파일로 저장될 때도 마찬가지다</h2>
+<p>openpyxl이 파일을 저장할 때, Excel의 <code>.xlsx</code> 포맷도 같은 구조를 쓴다. <code>.xlsx</code> 파일의 내부에는 <code>styles.xml</code>이 있는데:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;!-- xl/styles.xml --&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;fonts&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;font&gt;</span><span style="color:#75715e">&lt;!-- 기본 폰트 --&gt;</span><span style="color:#f92672">&lt;/font&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;font&gt;&lt;b/&gt;&lt;color</span> <span style="color:#a6e22e">rgb=</span><span style="color:#e6db74">&#34;0000FF&#34;</span><span style="color:#f92672">/&gt;&lt;/font&gt;</span>  <span style="color:#75715e">&lt;!-- index=1: bold blue --&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/fonts&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;cellXfs&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">&lt;!-- 각 스타일 조합. fontId로 위 fonts를 참조 --&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;xf</span> <span style="color:#a6e22e">fontId=</span><span style="color:#e6db74">&#34;1&#34;</span> <span style="color:#a6e22e">fillId=</span><span style="color:#e6db74">&#34;0&#34;</span> <span style="color:#a6e22e">borderId=</span><span style="color:#e6db74">&#34;0&#34;</span> <span style="color:#960050;background-color:#1e0010">...</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/cellXfs&gt;</span>
+</span></span></code></pre></div><p>그리고 각 셀은 <code>s=&quot;0&quot;</code> 같이 <strong>스타일 인덱스만 XML에 기록</strong>한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;row</span> <span style="color:#a6e22e">r=</span><span style="color:#e6db74">&#34;1&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;c</span> <span style="color:#a6e22e">r=</span><span style="color:#e6db74">&#34;A1&#34;</span> <span style="color:#a6e22e">s=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">&gt;&lt;v&gt;</span>100<span style="color:#f92672">&lt;/v&gt;&lt;/c&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;c</span> <span style="color:#a6e22e">r=</span><span style="color:#e6db74">&#34;A2&#34;</span> <span style="color:#a6e22e">s=</span><span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">&gt;&lt;v&gt;</span>200<span style="color:#f92672">&lt;/v&gt;&lt;/c&gt;</span>  <span style="color:#75715e">&lt;!-- 같은 스타일 인덱스 --&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/row&gt;</span>
+</span></span></code></pre></div><p><strong>Python 코드 레벨의 Flyweight 구조가 파일 포맷 레벨에서도 그대로 반영</strong>된다. Excel 포맷 자체가 이 설계를 요구하기 때문이다.</p>
+<hr>
+<h2 id="flyweight-패턴-용어로-매핑하면">Flyweight 패턴 용어로 매핑하면</h2>
+<table>
+  <thead>
+      <tr>
+          <th>패턴 용어</th>
+          <th>openpyxl 구현</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Flyweight</strong></td>
+          <td><code>Font</code>, <code>Fill</code>, <code>Border</code>, <code>Alignment</code>, <code>Protection</code></td>
+      </tr>
+      <tr>
+          <td><strong>Intrinsic state</strong></td>
+          <td>글꼴 이름·크기·색상, 테두리 스타일 등 — 공유 가능한 불변 스타일 정보</td>
+      </tr>
+      <tr>
+          <td><strong>Flyweight Factory/Cache</strong></td>
+          <td><code>IndexedList</code> (<code>wb._fonts</code>, <code>wb._fills</code>, <code>wb._borders</code>, &hellip;)</td>
+      </tr>
+      <tr>
+          <td><strong>Extrinsic state</strong></td>
+          <td>셀 좌표(<code>row</code>, <code>column</code>), 셀 값(<code>_value</code>)</td>
+      </tr>
+      <tr>
+          <td><strong>Context</strong></td>
+          <td><code>Cell</code> — <code>StyleArray</code>(인덱스들)와 좌표를 함께 보관</td>
+      </tr>
+      <tr>
+          <td><strong>Client</strong></td>
+          <td><code>Worksheet</code>, <code>Workbook</code></td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="패턴-글의-교훈--실전에서-달랐던-점">패턴 글의 교훈 — 실전에서 달랐던 점</h2>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>패턴 글의 교과서 예시</th>
+          <th>openpyxl</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Factory</td>
+          <td>딕셔너리 캐시, 객체 반환</td>
+          <td><code>IndexedList</code>, <strong>인덱스 반환</strong></td>
+      </tr>
+      <tr>
+          <td>Flyweight 저장 방식</td>
+          <td>팩토리 딕셔너리</td>
+          <td>workbook 필드(<code>_fonts</code> 등)</td>
+      </tr>
+      <tr>
+          <td>Context가 보관하는 것</td>
+          <td>Flyweight 객체 <strong>참조</strong></td>
+          <td>Flyweight의 <strong>인덱스(정수)</strong></td>
+      </tr>
+      <tr>
+          <td>파일 저장과의 연계</td>
+          <td>없음</td>
+          <td>Excel 포맷 자체가 인덱스 구조</td>
+      </tr>
+  </tbody>
+</table>
+<p>openpyxl의 한 걸음 더 나아간 점은, <strong>객체 참조 대신 정수 인덱스</strong>를 extrinsic state로 쓴다는 것이다. 참조(포인터)도 메모리를 쓰지만, 정수는 더 작다. 게다가 Excel 파일 포맷이 원래 인덱스 기반이라 저장/로드 시 변환 없이 그대로 쓸 수 있다.</p>
+<hr>
+<h2 id="한-줄-정리">한 줄 정리</h2>
+<blockquote>
+<p>openpyxl은 <code>IndexedList</code>로 스타일 객체를 dedupe하고, 각 셀에는 객체 대신 <strong>정수 인덱스만 남겨</strong> — 셀 수십만 개가 있어도 실제 <code>Font</code>·<code>Fill</code>·<code>Border</code> 객체는 종류만큼만 존재하는 Flyweight 패턴의 정석 사례다.</p></blockquote>
+<p>원본 코드:</p>
+<ul>
+<li><a href="https://foss.heptapod.net/openpyxl/openpyxl/-/blob/branch/default/openpyxl/utils/indexed_list.py"><code>openpyxl/utils/indexed_list.py</code></a></li>
+<li><a href="https://foss.heptapod.net/openpyxl/openpyxl/-/blob/branch/default/openpyxl/styles/styleable.py"><code>openpyxl/styles/styleable.py</code></a></li>
+<li><a href="https://foss.heptapod.net/openpyxl/openpyxl/-/blob/branch/default/openpyxl/styles/cell_style.py"><code>openpyxl/styles/cell_style.py</code></a></li>
+</ul>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/openpyxl/" rel="tag">openpyxl</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/flyweight/" rel="tag">Flyweight</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%ED%94%8C%EB%9D%BC%EC%9D%B4%EC%9B%A8%EC%9D%B4%ED%8A%B8/" rel="tag">플라이웨이트</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-flyweight/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/openpyxl-flyweight/">Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-flyweight/">Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/boto3-iterator/">Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-iterator/">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-facade/">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/aws/" title="AWS">AWS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/boto3/" title="Boto3">Boto3 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/flyweight/" title="Flyweight">Flyweight (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/iterator/" title="Iterator">Iterator (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/openpyxl/" title="Openpyxl">Openpyxl (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (10)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (20)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" title="반복자">반복자 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8D%BC%EC%82%AC%EB%93%9C/" title="퍼사드">퍼사드 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%8C%EB%9D%BC%EC%9D%B4%EC%9B%A8%EC%9D%B4%ED%8A%B8/" title="플라이웨이트">플라이웨이트 (2)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>
