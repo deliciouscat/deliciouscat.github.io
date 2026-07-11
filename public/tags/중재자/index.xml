@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>중재자 on 잡부를 지향합니다.</title>
+    <link>http://localhost:1313/tags/%EC%A4%91%EC%9E%AC%EC%9E%90/</link>
+    <description>Recent content in 중재자 on 잡부를 지향합니다.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 11 Jul 2026 18:00:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/%EC%A4%91%EC%9E%AC%EC%9E%90/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibe Coding을 위한 디자인 패턴 - 중재자(Mediator)</title>
+      <link>http://localhost:1313/posts/design-pattern/designpattern-mediator/</link>
+      <pubDate>Sat, 11 Jul 2026 18:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/design-pattern/designpattern-mediator/</guid>
+      <description>&lt;h1 id=&#34;mediator-pattern-중재자-패턴&#34;&gt;Mediator Pattern (중재자 패턴)&lt;/h1&gt;&#xA;&lt;p&gt;Mediator Pattern(중재자 패턴)은 여러 객체가 서로 직접 통신하던 방식을, &lt;strong&gt;중재자(Mediator) 객체 하나를 통한 통신&lt;/strong&gt;으로 바꾸는 행동 디자인 패턴이다.&lt;/p&gt;&#xA;&lt;p&gt;객체들은 서로의 구체적인 구현을 알 필요 없이 중재자에게만 요청을 보낸다. 중재자는 요청을 받은 뒤 적절한 객체에게 전달하거나, 여러 객체의 동작 순서를 조율한다. 즉, 복잡하게 얽힌 객체들의 관계를 &lt;strong&gt;허브 하나로 모아 결합도를 낮추는 패턴&lt;/strong&gt;이다.&lt;/p&gt;&#xA;&lt;p&gt;중요한 점은 Mediator가 단순히 호출을 대신 전달하는 객체가 아니라는 것이다. &lt;strong&gt;&amp;ldquo;A의 이 이벤트가 일어나면 B와 C는 무엇을 해야 하는가?&amp;ldquo;라는 협력 규칙 자체를 소유&lt;/strong&gt;한다. 각 객체가 자기 일을 수행하고, 객체 사이의 업무 흐름은 중재자가 결정한다.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

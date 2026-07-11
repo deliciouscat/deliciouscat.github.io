@@ -6,8 +6,15 @@
     <description>Recent content in Flyweight on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 20 Jun 2026 17:54:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 20 Jun 2026 20:25:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/flyweight/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템</title>
+      <link>http://localhost:1313/posts/code-reading/openpyxl-flyweight/</link>
+      <pubDate>Sat, 20 Jun 2026 20:25:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/openpyxl-flyweight/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-flyweight/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)&lt;/a&gt;를 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;h2 id=&#34;openpyxl이-뭔지-3줄&#34;&gt;openpyxl이 뭔지 3줄&lt;/h2&gt;&#xA;&lt;p&gt;openpyxl은 Python에서 &lt;code&gt;.xlsx&lt;/code&gt; 파일을 읽고 쓰는 라이브러리다.&lt;br&gt;&#xA;엑셀 파일의 셀 값, 수식, 스타일(글꼴·색상·테두리)을 코드로 다룰 수 있다.&lt;br&gt;&#xA;오늘 볼 코드는 그중에서도 &lt;strong&gt;&amp;ldquo;셀이 수십만 개여도 스타일 객체를 어떻게 메모리 효율적으로 관리하는가&amp;rdquo;&lt;/strong&gt; 이다.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;문제-셀은-많지만-스타일-조합은-반복된다&#34;&gt;문제: 셀은 많지만 스타일 조합은 반복된다&lt;/h2&gt;&#xA;&lt;p&gt;엑셀 파일을 생각해보자. A1부터 Z10000까지 26만 개의 셀이 있다고 하자. 이 중 헤더 행은 굵은 파란 글씨, 짝수 행은 회색 배경, 나머지는 기본 스타일이다.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</title>
       <link>http://localhost:1313/posts/design-pattern/designpattern-flyweight/</link>

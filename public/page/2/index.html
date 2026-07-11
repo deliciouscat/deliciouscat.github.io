@@ -89,6 +89,70 @@
 	
 	<header class="list__header">
 		<h2 class="list__title post__title">
+			<a href="/posts/games/defold-6/" rel="bookmark">
+			Defold 게임 엔진 입문 — 메시징과 주소 지정
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-03T15:00:00&#43;09:00">June 03, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/games/" rel="category">Games</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<blockquote>
+<p><strong>시리즈</strong>: Defold 입문 — 6편: 메시징·주소 지정<br>
+실습 예: <a href="/posts/games/defold-5/">5편 GUI·점수</a> · <a href="/posts/games/defold-1/">1편 기본 구조</a></p></blockquote>
+<h2 id="개요">개요</h2>
+<p>게임 오브젝트와 시스템이 <strong>강하게 묶이지 않고</strong> 통신하려면 메시징이 핵심이다. Defold는 <strong>주소가 정해진 봉투(메시지)</strong> 를 보내는 방식으로 이벤트 기반·구독형 설계의 기반을 제공한다. 동시에 런타임에 생성된 모든 게임 오브젝트·컴포넌트에 <strong>언제 어디서든</strong> 접근할 수 있는 주소 지정이 필수다.</p>
+<p>이 글은 <a href="/posts/games/defold-1/">1편</a>의 게임 오브젝트·컴포넌트 개념을 알고 있다고 가정한다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart LR
+    A[&#34;발신자\nmsg.post&#34;] --&gt; B[&#34;URL 주소&#34;]
+    B --&gt; C[&#34;수신자\nGO / 컴포넌트&#34;]
+    C --&gt; D[&#34;on_message\n또는 엔진 처리&#34;]
+</code></pre><hr>
+<h2 id="1-메시지란-무엇인가">1. 메시지란 무엇인가</h2>
+<p>런타임의 모든 것은 <strong>컴포넌트를 가진 게임 오브젝트 인스턴스</strong>다. 메시징은 그 인스턴스들이 서로 말하게 해 주는 통로다.</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/games/defold-6/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
+			<a href="/posts/games/defold-5/" rel="bookmark">
+			Defold 게임 엔진 입문 — 슈팅 게임 (이펙트·사운드·GUI)
+			</a>
+		</h2>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-06-03T15:00:00&#43;09:00">June 03, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/games/" rel="category">Games</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p><a href="https://youtu.be/4r-L51jen_I?si=TKVRLk_W7OY889hW">원본 유튜브</a></p>
+<blockquote>
+<p><strong>시리즈</strong>: Defold 입문 — 5편: 슈팅 게임 마무리 (이펙트·UI)<br>
+이전: <a href="/posts/games/defold-4/">4편 적·충돌·팩토리</a> · <a href="/posts/games/defold-3/">3편</a> · <a href="/posts/games/defold-1/">1편</a> · <a href="/posts/games/defold-2/">2편</a></p></blockquote>
+<h2 id="개요">개요</h2>
+<p><a href="/posts/games/defold-4/">4편</a>까지 만든 프로토타입은 비행·발사·격추가 되지만, 아직 “게임” 느낌은 부족하다. 이 글에서는 <strong>파괴 애니메이션</strong>, <strong>파티클</strong>, <strong>사운드</strong>, <strong>GUI·점수</strong>를 붙여 갤러그 스타일 클론을 한 단계 다듬는다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart LR
+    A[&#34;스프라이트 파괴 애니&#34;] --&gt; B[&#34;Particle FX 폭발&#34;]
+    B --&gt; C[&#34;Sound&#34;]
+    C --&gt; D[&#34;GUI + 메시징\n점수·생명&#34;]
+</code></pre><hr>
+<h2 id="1-적-파괴-스프라이트-애니메이션">1. 적 파괴 스프라이트 애니메이션</h2>
+<p>Atlas에 <strong>전체 프레임 시퀀스</strong>를 넣는다 (예: <code>enemy_death</code>).</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/posts/games/defold-5/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	
+	<header class="list__header">
+		<h2 class="list__title post__title">
 			<a href="/posts/games/defold-4/" rel="bookmark">
 			Defold 게임 엔진 입문 — 슈팅 게임 (적·충돌·팩토리)
 			</a>
@@ -352,81 +416,12 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-singleton/">Read more…</a>
 	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-abs-factory/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 추상 팩토리(Abstract Factory)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-05-08T15:44:00&#43;09:00">May 08, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p>Abstract Factory Pattern은 <strong>관련 있는 객체들의 묶음(제품군)을 생성하는 인터페이스를 제공하되, 구체적인 클래스는 클라이언트가 알지 못하게 하는</strong> 생성 디자인 패턴이다.</p>
-<p>Factory Method가 &ldquo;객체 하나를 어떻게 만들지&quot;에 집중한다면, Abstract Factory는 &ldquo;서로 어울리는 객체 세트를 어떤 계열로 만들지&quot;에 집중한다.</p>
-<p>예를 들어 GUI를 만든다고 해보자.</p>
-<ul>
-<li>Windows 환경에서는 <code>WindowsButton</code>, <code>WindowsCheckbox</code>, <code>WindowsTextbox</code></li>
-<li>Mac 환경에서는 <code>MacButton</code>, <code>MacCheckbox</code>, <code>MacTextbox</code></li>
-</ul>
-<p>이렇게 버튼, 체크박스, 텍스트박스가 각각 따로 존재하지만, 실제로는 <strong>같은 운영체제 스타일끼리 함께 생성되어야 한다.</strong></p>
-<p>이때 <code>WindowsButton</code>과 <code>MacCheckbox</code>가 섞여버리면 UI 스타일이 깨진다. Abstract Factory는 이런 문제를 막고, 관련 객체들을 하나의 제품군으로 일관되게 생성하게 해준다.</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-abs-factory/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	
-	<header class="list__header">
-		<h2 class="list__title post__title">
-			<a href="/posts/design-pattern/designpattern-dependency-injection/" rel="bookmark">
-			Vibe Coding을 위한 디자인 패턴 - 의존성 주입(Dependency Injection)
-			</a>
-		</h2>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-04-08T19:00:00&#43;09:00">April 08, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/computer-science/" rel="category">Computer Science</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<h1 id="의존성이란">의존성이란?</h1>
-<p>의존성 = &ldquo;이게 없으면 나도 못 돌아가는 것&rdquo;<br>
-의존성 관리 = &ldquo;그 &lsquo;없으면 안 되는 것&rsquo;이 바뀔 때 나한테 얼마나 퍼지냐를 제어하는 것&rdquo;<br>
--&gt; 의존 대상이 바뀔 때 얼마나 많은 곳을 수정해야 하냐가 설계 품질의 척도</p>
-<h1 id="dependency-injection-pattern-의존성-주입-패턴">Dependency Injection Pattern (의존성 주입 패턴)</h1>
-<p>Dependency Injection(의존성 주입, DI)은 <strong>객체가 자신이 필요한 의존성을 직접 생성하지 않고, 외부에서 주입(inject)받는</strong> 디자인 패턴이다.
-&ldquo;의존성을 스스로 만들지 말고, 누군가가 가져다줄 때까지 기다려라.&rdquo;</p>
-<p>예를 들어:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># DI 없이: 의존성을 스스로 만든다</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> MySQLDatabase()   <span style="color:#75715e"># 직접 생성 ← 문제</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># DI 적용: 의존성을 주입받는다</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderService</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, db):         <span style="color:#75715e"># 외부에서 받는다 ← 해결</span>
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>db <span style="color:#f92672">=</span> db
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 호출 측에서 의존성을 결정하고 주입</span>
-</span></span><span style="display:flex;"><span>db <span style="color:#f92672">=</span> MySQLDatabase()
-</span></span><span style="display:flex;"><span>service <span style="color:#f92672">=</span> OrderService(db)
-</span></span></code></pre></div><p>→ <code>OrderService</code>는 <code>MySQLDatabase</code>가 뭔지 알 필요가 없다. <strong>인터페이스만 알면 된다.</strong></p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/posts/design-pattern/designpattern-dependency-injection/">Read more…</a>
-	</div>
 </article>
 </main>
 
 <div class="pagination">
 	<a class="pagination__item pagination__item--prev btn" href="/">«</a>
-	<span class="pagination__item pagination__item--current">2/6</span>
+	<span class="pagination__item pagination__item--current">2/7</span>
 	<a class="pagination__item pagination__item--next btn" href="/page/3/">»</a>
 </div>
 
@@ -442,11 +437,11 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-mediator/">Mediator는 실전에서 이렇게 쓰인다 — Django ModelForm 검증 흐름</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-mediator/">Vibe Coding을 위한 디자인 패턴 - 중재자(Mediator)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/openpyxl-flyweight/">Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-flyweight/">Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</a></li>
 			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/boto3-iterator/">Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-iterator/">Vibe Coding을 위한 디자인 패턴 - 반복자(Iterator)</a></li>
-			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-facade/">Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</a></li>
 		</ul>
 	</div>
 </div>
@@ -491,7 +486,7 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
@@ -504,14 +499,16 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/iterator/" title="Iterator">Iterator (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/mediator/" title="Mediator">Mediator (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/modelform/" title="ModelForm">ModelForm (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/openpyxl/" title="Openpyxl">Openpyxl (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
@@ -519,12 +516,13 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (10)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (11)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%80%EC%A6%9D/" title="검증">검증 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
-		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (20)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (22)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" title="반복자">반복자 (2)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
@@ -532,6 +530,7 @@ Supabase가 &ldquo;DB + 인증 + API를 클라우드에서 제공&quot;하는 �
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A4%91%EC%9E%AC%EC%9E%90/" title="중재자">중재자 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>

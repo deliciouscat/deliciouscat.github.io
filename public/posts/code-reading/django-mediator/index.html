@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mediator는 실전에서 이렇게 쓰인다 — Django ModelForm 검증 흐름 - 잡부를 지향합니다.</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+		<meta property="og:url" content="http://localhost:1313/posts/code-reading/django-mediator/">
+  <meta property="og:site_name" content="잡부를 지향합니다.">
+  <meta property="og:title" content="Mediator는 실전에서 이렇게 쓰인다 — Django ModelForm 검증 흐름">
+  <meta property="og:description" content="이전 글 Vibe Coding을 위한 디자인 패턴 - 중재자를 읽었다는 가정 하에 쓴다.
+Mediator를 배울 때 흔히 채팅방이나 UI 대화상자를 예로 든다. 실무에서는 좀 더 조용한 모습으로 나타난다. 여러 객체가 직접 서로를 호출하지 않게 하고, 순서·예외 처리·결과 변환을 한곳에서 조율하는 객체가 바로 Mediator다.
+Django의 ModelForm은 그 좋은 사례다. 사용자가 입력한 데이터를 모델 인스턴스에 반영하고 검증할 때, Form 필드·Model·Validator·오류 표현이 각자 알아서 협력하게 두지 않는다. BaseModelForm이 전체 검증 여정을 조율한다.
+소스: django/forms/models.py">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-11T19:00:00+09:00">
+    <meta property="article:modified_time" content="2026-07-11T19:00:00+09:00">
+    <meta property="article:tag" content="Python">
+    <meta property="article:tag" content="Mediator">
+    <meta property="article:tag" content="디자인패턴">
+    <meta property="article:tag" content="Django">
+    <meta property="article:tag" content="ModelForm">
+    <meta property="article:tag" content="검증">
+
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/custom.css">
+
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+	
+	
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+	<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+		
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  window.addEventListener('load', function() {
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+    
+    
+    const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+    
+    mermaidBlocks.forEach(function(block, index) {
+      const pre = block.parentElement;
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      mermaidDiv.id = 'mermaid-' + index;
+      
+      pre.parentNode.replaceChild(mermaidDiv, pre);
+    });
+    
+    
+    if (document.querySelectorAll('.mermaid').length > 0) {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
+
+
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container header__container">
+		
+	<div class="logo">
+		<a class="logo__link" href="/" title="잡부를 지향합니다." rel="home">
+			<div class="logo__item logo__text">
+					<div class="logo__title">잡부를 지향합니다.</div>
+					<div class="logo__tagline">Deliciouscat의 개발/일상</div>
+				</div>
+		</a>
+	</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Mediator는 실전에서 이렇게 쓰인다 — Django ModelForm 검증 흐름</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0a14 14 0 1 1 0 28 1 1 0 0 1 0-28m0 3a3 3 0 1 0 0 22 3 3 0 0 0 0-22m1 4h-2v8.4l6.8 4.4L22 18l-6-3.8z"/></svg><time class="meta__text" datetime="2026-07-11T19:00:00&#43;09:00">July 11, 2026</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class="meta__text"><a class="meta__link" href="/categories/code-reading/" rel="category">Code Reading</a>
+	</span>
+</div></div>
+		</header>
+		<div class="content post__content clearfix">
+			<blockquote>
+<p>이전 글 <a href="/posts/design-pattern/designpattern-mediator/">Vibe Coding을 위한 디자인 패턴 - 중재자</a>를 읽었다는 가정 하에 쓴다.</p></blockquote>
+<p>Mediator를 배울 때 흔히 채팅방이나 UI 대화상자를 예로 든다. 실무에서는 좀 더 조용한 모습으로 나타난다. 여러 객체가 직접 서로를 호출하지 않게 하고, <strong>순서·예외 처리·결과 변환을 한곳에서 조율하는 객체</strong>가 바로 Mediator다.</p>
+<p>Django의 <code>ModelForm</code>은 그 좋은 사례다. 사용자가 입력한 데이터를 모델 인스턴스에 반영하고 검증할 때, Form 필드·Model·Validator·오류 표현이 각자 알아서 협력하게 두지 않는다. <code>BaseModelForm</code>이 전체 검증 여정을 조율한다.</p>
+<p>소스: <a href="https://github.com/django/django/blob/main/django/forms/models.py">django/forms/models.py</a></p>
+<hr>
+<h2 id="django와-modelform이-뭔지-3줄">Django와 ModelForm이 뭔지 3줄</h2>
+<p>Django는 Python 웹 프레임워크다. <code>Model</code>은 데이터베이스 테이블과 그 데이터 규칙을 표현하고, <code>Form</code>은 HTTP 요청으로 들어온 문자열을 입력 필드 단위로 정리하고 검증한다.</p>
+<p><code>ModelForm</code>은 둘을 연결한다. 예를 들어 <code>Article</code> 모델이 있으면 제목·본문용 Form 필드를 만들어 주고, 검증을 통과한 값을 <code>Article</code> 인스턴스에 반영해 저장까지 이어 갈 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Article</span>(models<span style="color:#f92672">.</span>Model):
+</span></span><span style="display:flex;"><span>    title <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>CharField(max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>, unique<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    body <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>TextField()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ArticleForm</span>(forms<span style="color:#f92672">.</span>ModelForm):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Meta</span>:
+</span></span><span style="display:flex;"><span>        model <span style="color:#f92672">=</span> Article
+</span></span><span style="display:flex;"><span>        fields <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;title&#34;</span>, <span style="color:#e6db74">&#34;body&#34;</span>]
+</span></span></code></pre></div><p>여기서 “제목이 비어 있나?”, “길이가 너무 긴가?”, “같은 제목이 이미 있나?”, “모델의 제약 조건을 만족하나?”는 서로 다른 층의 질문이다. 그러나 사용자는 <code>form.is_valid()</code> 한 번으로 일관된 <code>form.errors</code>를 받고 싶다.</p>
+<h2 id="문제-검증-주체가-서로-직접-협력하면-무엇이-꼬이나">문제: 검증 주체가 서로 직접 협력하면 무엇이 꼬이나</h2>
+<p>검증을 직접 엮는다면 view는 이런 순서와 예외 타입을 모두 알아야 한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 개념적인 나쁜 예 — 실제 Django 권장 코드가 아님</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_article</span>(request):
+</span></span><span style="display:flex;"><span>    form <span style="color:#f92672">=</span> ArticleForm(request<span style="color:#f92672">.</span>POST)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> form<span style="color:#f92672">.</span>is_valid():              <span style="color:#75715e"># Form field 검증</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> render(request, <span style="color:#e6db74">&#34;new.html&#34;</span>, {<span style="color:#e6db74">&#34;form&#34;</span>: form})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    article <span style="color:#f92672">=</span> Article(<span style="color:#f92672">**</span>form<span style="color:#f92672">.</span>cleaned_data)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        article<span style="color:#f92672">.</span>full_clean()             <span style="color:#75715e"># Model 검증, 제약 조건, 중복 검사</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> ValidationError <span style="color:#66d9ef">as</span> error:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 어느 필드의 오류인지, Form 오류로 어떻게 바꿀지 view가 알아야 한다.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> field, messages <span style="color:#f92672">in</span> error<span style="color:#f92672">.</span>message_dict<span style="color:#f92672">.</span>items():
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> message <span style="color:#f92672">in</span> messages:
+</span></span><span style="display:flex;"><span>                form<span style="color:#f92672">.</span>add_error(field, message)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> render(request, <span style="color:#e6db74">&#34;new.html&#34;</span>, {<span style="color:#e6db74">&#34;form&#34;</span>: form})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    article<span style="color:#f92672">.</span>save()
+</span></span></code></pre></div><p>이 방식에는 세 가지 문제가 있다.</p>
+<ol>
+<li>Form이 이미 실패한 필드를 Model이 다시 검증할 수 있다.</li>
+<li><code>ValidationError</code>를 사용자가 볼 <code>form.errors</code> 구조로 바꾸는 규칙이 view마다 반복된다.</li>
+<li>필드 검증, 모델 검증, unique 검사, constraint 검사의 <strong>순서</strong>가 호출하는 쪽에 새어 나온다.</li>
+</ol>
+<p>특히 순서는 구현 세부 사항이 아니다. 모델 인스턴스를 먼저 만들지 않으면 모델 검증을 할 수 없고, 이미 형식 오류가 난 필드는 중복 검사에서 다시 문제 삼지 않는 편이 올바른 오류 메시지를 만든다.</p>
+<h2 id="해법-basemodelform_post_clean이-검증-여정을-지휘한다">해법: <code>BaseModelForm._post_clean()</code>이 검증 여정을 지휘한다</h2>
+<p><code>form.is_valid()</code>는 내부적으로 <code>full_clean()</code>을 호출한다. 그 흐름에서 일반 Form이 필드와 Form 자체를 정리한 뒤, <code>ModelForm</code>이 오버라이드한 <code>_post_clean()</code>이 실행된다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
+    Request[request.POST] --&gt; Field[Form field 검증]
+    Field --&gt; FormClean[Form.clean]
+    FormClean --&gt; PostClean[BaseModelForm._post_clean]
+    PostClean --&gt; Build[construct_instance&lt;br/&gt;cleaned_data → Model instance]
+    Build --&gt; ModelClean[Model.full_clean&lt;br/&gt;필드 + model.clean]
+    ModelClean --&gt; Unique[validate_unique]
+    Unique --&gt; Constraints[validate_constraints]
+    Constraints --&gt; Errors[_update_errors&lt;br/&gt;ValidationError → form.errors]
+
+    style PostClean fill:#fff4e1,color:#000000
+    style Errors fill:#e1f5ff,color:#000000
+</code></pre><p><code>_post_clean()</code>은 “검증을 직접 구현하는 거대한 함수”라기보다, 이미 존재하는 검증자들을 <strong>알맞은 순서로 호출하고 결과를 번역하는 조정자</strong>다. 현재 Django 소스를 이해하기 쉽게 줄이면 다음과 같은 구조다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># django/forms/models.py의 흐름을 설명용으로 단순화</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_post_clean</span>(self):
+</span></span><span style="display:flex;"><span>    exclude <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>_get_validation_exclusions()
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>instance <span style="color:#f92672">=</span> construct_instance(self, self<span style="color:#f92672">.</span>instance, <span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>instance<span style="color:#f92672">.</span>full_clean(
+</span></span><span style="display:flex;"><span>            exclude<span style="color:#f92672">=</span>exclude,
+</span></span><span style="display:flex;"><span>            validate_unique<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>,
+</span></span><span style="display:flex;"><span>            validate_constraints<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> ValidationError <span style="color:#66d9ef">as</span> error:
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_update_errors(error)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>_validate_unique:
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>validate_unique()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>_validate_constraints:
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>validate_constraints()
+</span></span></code></pre></div><p>여기서 <code>False</code> 두 개가 핵심이다. <code>Model.full_clean()</code>도 unique·constraint 검사를 할 수 있지만, <code>ModelForm</code>은 이 둘을 별도 단계로 미룬다. 그래야 Form에 없는 필드와 inline foreign key처럼 <strong>검사마다 제외 기준이 다른 경우</strong>를 올바르게 처리하고, 발생한 오류도 같은 방식으로 Form에 담을 수 있다.</p>
+<h2 id="_get_validation_exclusions--모두에게-같은-입력을-주지-않는다"><code>_get_validation_exclusions()</code> — 모두에게 같은 입력을 주지 않는다</h2>
+<p>중재자는 무조건 모든 객체를 호출하는 브로드캐스터가 아니다. 누구에게 어떤 정보를 넘길지 결정한다. <code>_get_validation_exclusions()</code>이 그 역할을 한다.</p>
+<p>이 메서드는 모델 필드 중에서 다음과 같은 필드를 검증 대상에서 뺀다.</p>
+<ul>
+<li>Form에 아예 노출하지 않은 모델 필드</li>
+<li><code>Meta.fields</code> 또는 <code>Meta.exclude</code>로 제외한 필드</li>
+<li>Form 필드 검증에서 이미 오류가 난 필드</li>
+<li>Form에서는 선택 사항이지만 Model에서는 빈 값을 허용하지 않는 특정 필드</li>
+</ul>
+<p>예를 들어 <code>title</code>의 길이가 이미 Form 필드 검증에서 실패했다면, Model에게 같은 <code>title</code>을 다시 검증해 또 다른 오류를 얹게 할 이유가 없다. <strong>Form의 현재 상태를 읽어 Model 검증의 입력 범위를 조정하는 것</strong>이 ModelForm의 Mediator다운 부분이다.</p>
+<p>단, inline foreign key는 기본 모델 검증에서는 제외하되 unique 검사에는 포함해야 한다. 그래서 <code>_post_clean()</code>은 이 필드를 별도로 다룬다. 중재자가 존재하는 이유는 바로 이런 “A 단계에는 빼되 B 단계에는 넣는다” 같은 협력 규칙을 각 객체 밖에 두기 위해서다.</p>
+<h2 id="construct_instance--form-데이터를-model로-넘기는-경계"><code>construct_instance()</code> — Form 데이터를 Model로 넘기는 경계</h2>
+<p>Form의 <code>cleaned_data</code>는 검증된 입력값 딕셔너리이고, Model 검증은 모델 인스턴스에서 실행된다. <code>construct_instance()</code>는 둘 사이의 번역을 담당한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 개념적으로는 이런 작업이다.</span>
+</span></span><span style="display:flex;"><span>article <span style="color:#f92672">=</span> form<span style="color:#f92672">.</span>instance
+</span></span><span style="display:flex;"><span>article<span style="color:#f92672">.</span>title <span style="color:#f92672">=</span> form<span style="color:#f92672">.</span>cleaned_data[<span style="color:#e6db74">&#34;title&#34;</span>]
+</span></span><span style="display:flex;"><span>article<span style="color:#f92672">.</span>body <span style="color:#f92672">=</span> form<span style="color:#f92672">.</span>cleaned_data[<span style="color:#e6db74">&#34;body&#34;</span>]
+</span></span></code></pre></div><p>실제 구현은 파일 입력, 제외 필드, many-to-many 관계 등을 처리하므로 더 복잡하다. 중요한 것은 ModelForm이 이 변환을 호출해 <strong>Model이 Form을 알 필요 없게</strong> 만든다는 점이다. <code>Article</code> 모델은 HTTP form이나 <code>cleaned_data</code>의 존재를 모른 채 자신의 <code>full_clean()</code>만 제공한다.</p>
+<h2 id="full_clean과-validate_unique를-분리하는-이유"><code>full_clean()</code>과 <code>validate_unique()</code>를 분리하는 이유</h2>
+<p><code>_post_clean()</code>은 Model에 모든 일을 맡기지 않는다. 먼저 <code>full_clean()</code>에서 모델 필드와 <code>model.clean()</code>을 실행하고, 그 뒤 unique 검사와 constraint 검사를 각각 실행한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 설명용 호출 관계</span>
+</span></span><span style="display:flex;"><span>ModelForm<span style="color:#f92672">.</span>_post_clean()
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">├─</span> instance<span style="color:#f92672">.</span>full_clean(<span style="color:#f92672">...</span>, validate_unique<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">│</span>                      validate_constraints<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">├─</span> instance<span style="color:#f92672">.</span>validate_unique(exclude<span style="color:#f92672">=...</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">└─</span> instance<span style="color:#f92672">.</span>validate_constraints(exclude<span style="color:#f92672">=...</span>)
+</span></span></code></pre></div><p>이 분리 덕분에 <code>ModelForm.clean()</code>은 unique/constraint 검사를 켤지 결정할 수 있다. Django의 기본 <code>BaseModelForm.clean()</code>은 두 플래그를 <code>True</code>로 바꾼다. 따라서 커스텀 <code>clean()</code>을 오버라이드할 때 <code>super().clean()</code>을 호출하지 않으면 이 검사들이 실행되지 않을 수 있다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ArticleForm</span>(forms<span style="color:#f92672">.</span>ModelForm):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">clean</span>(self):
+</span></span><span style="display:flex;"><span>        cleaned_data <span style="color:#f92672">=</span> super()<span style="color:#f92672">.</span>clean()  <span style="color:#75715e"># unique/constraint 검사 활성화</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> cleaned_data<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;title&#34;</span>) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;공지&#34;</span>:
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>add_error(<span style="color:#e6db74">&#34;title&#34;</span>, <span style="color:#e6db74">&#34;제목으로 &#39;공지&#39;는 사용할 수 없습니다.&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cleaned_data
+</span></span></code></pre></div><p>이것은 단순한 관례가 아니다. <code>clean()</code>은 사용자 정의 Form 규칙을 추가하면서도, 이후 Model 검증 파이프라인을 계속 진행하겠다는 <strong>중재자와의 약속</strong>이다.</p>
+<h2 id="_update_errors--예외를-ui가-이해하는-언어로-번역한다"><code>_update_errors()</code> — 예외를 UI가 이해하는 언어로 번역한다</h2>
+<p>Model은 검증 실패를 <code>ValidationError</code>로 표현한다. 그러나 템플릿은 보통 <code>form.errors[&quot;title&quot;]</code>처럼 Form 오류를 읽는다. <code>BaseModelForm._update_errors()</code>는 그 사이를 번역한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 개념적인 역할</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>    instance<span style="color:#f92672">.</span>validate_unique(exclude<span style="color:#f92672">=</span>exclude)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">except</span> ValidationError <span style="color:#66d9ef">as</span> error:
+</span></span><span style="display:flex;"><span>    form<span style="color:#f92672">.</span>add_error(<span style="color:#66d9ef">None</span>, error)  <span style="color:#75715e"># 필드별 오류를 form.errors에 병합</span>
+</span></span></code></pre></div><p>실제 <code>_update_errors()</code>는 Form의 <code>Meta.error_messages</code>나 각 Form field의 <code>error_messages</code>를 우선 적용한 뒤, non-field error까지 포함해 오류를 병합한다. 그래서 Model은 오류의 의미와 코드만 제공하고, <strong>어떤 문구로 어떤 Form 필드에 보여 줄지</strong>는 ModelForm이 통제한다.</p>
+<p>이 지점에서 ModelForm은 Adapter처럼도 보인다. 하지만 본질은 단순한 예외 타입 변환이 아니다. 인스턴스 생성 → Model 검증 → unique 검사 → constraint 검사라는 <strong>여러 협력 단계를 지휘하는 과정 중 하나로 오류 변환이 들어간다</strong>는 점에서 Mediator에 더 가깝다.</p>
+<h2 id="패턴-용어로-역할을-매핑하면">패턴 용어로 역할을 매핑하면</h2>
+<p>교과서 Mediator는 <code>ChatRoom.notify()</code>처럼 한 메서드로 메시지를 중계하는 모습을 보인다. Django에는 그와 똑같은 모양의 <code>notify()</code>가 없다. 대신 검증 라이프사이클의 훅들이 중재자 역할을 나눠 가진다.</p>
+<ul>
+<li><strong>ConcreteMediator</strong> → <code>BaseModelForm</code>, 특히 <code>_post_clean()</code>과 관련 헬퍼</li>
+<li><strong>Colleague: 입력 검증</strong> → <code>Form</code> field와 <code>Form.clean()</code></li>
+<li><strong>Colleague: 도메인 규칙</strong> → Model의 field validator와 <code>Model.clean()</code></li>
+<li><strong>Colleague: 데이터 무결성 검사</strong> → <code>Model.validate_unique()</code>, <code>Model.validate_constraints()</code></li>
+<li><strong>공유 결과 표현</strong> → <code>form.errors</code></li>
+</ul>
+<p>Form field, Model, validator가 서로를 호출하지 않는다는 말은 절대적으로 완전한 단절이라는 뜻은 아니다. 예를 들어 ModelForm은 Model의 메타데이터를 읽어 Form 필드를 만든다. 여기서 말하는 Mediator-like 구조는 <strong>런타임 검증 흐름에서 각각의 검증 주체가 다음 주체의 호출 순서와 오류 표현을 결정하지 않는다</strong>는 뜻이다. 그 결정은 <code>BaseModelForm</code>에 모여 있다.</p>
+<h2 id="이것은-god-object인가">이것은 God Object인가?</h2>
+<p>ModelForm은 Form·Model·Validator·오류 표현을 모두 알아야 하므로 중앙 집중적인 객체다. 따라서 “결합을 없앤다”기보다, 그 결합을 <strong>검증 경계에 의도적으로 모은다</strong>고 보는 편이 정확하다.</p>
+<p>그렇다고 아무 검증이나 <code>ModelForm.clean()</code>에 넣으면 곧 God Object가 된다. 책임의 경계를 이렇게 잡는 것이 좋다.</p>
+<ul>
+<li>형식·입력 UX 규칙 → Form field 또는 <code>Form.clean_&lt;field&gt;()</code></li>
+<li>여러 Form 입력값의 관계 → <code>Form.clean()</code></li>
+<li>HTTP와 무관한 도메인 규칙 → <code>Model.clean()</code> 또는 별도 도메인 서비스</li>
+<li>DB 수준의 무결성 → <code>UniqueConstraint</code>, <code>CheckConstraint</code> 같은 모델 제약 조건</li>
+<li>이 규칙들을 어떤 순서로 실행하고 오류를 어디에 보여 줄지 → <code>ModelForm</code></li>
+</ul>
+<p>예를 들어 “비밀번호 확인 값이 비밀번호와 같은가?”는 화면 입력의 문제이므로 Form에 두는 편이 자연스럽다. 반면 “예약 종료 시각은 시작 시각보다 뒤여야 한다”는 API·관리 화면·배치 작업에서도 지켜야 하는 도메인 규칙이므로 Model이나 DB constraint 쪽이 더 적합하다.</p>
+<h2 id="한-줄-정리">한 줄 정리</h2>
+<blockquote>
+<p>Django <code>ModelForm</code>은 검증을 전부 직접 수행하는 만능 객체가 아니다. Form·Model·Validator가 각자 가진 검증 능력은 유지한 채, <strong>무엇을 제외하고 어떤 순서로 실행하며 오류를 어디에 모을지</strong>를 <code>BaseModelForm._post_clean()</code>에 집중시킨 Mediator-like 구조다.</p></blockquote>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M4 0h8s2 0 4 2l15 15s2 2 0 4L21 31s-2 2-4 0L2 16s-2-2-2-4V3s0-3 4-3m3 10a3 3 0 0 0 0-6 3 3 0 0 0 0 6"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/python/" rel="tag">Python</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/mediator/" rel="tag">Mediator</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" rel="tag">디자인패턴</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/django/" rel="tag">Django</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/modelform/" rel="tag">ModelForm</a>
+		</li>
+		<li class="tags__item">
+			<a class="tags__link btn" href="/tags/%EA%B2%80%EC%A6%9D/" rel="tag">검증</a>
+		</li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<p class="authorbox__warning">
+		<strong>WARNING:</strong> Authorbox is activated, but [Author] parameters are not specified.
+	</p>
+</div>
+
+<nav class="pager flex">
+	<div class="pager__item pager__item--prev">
+		<a class="pager__link" href="/posts/design-pattern/designpattern-mediator/" rel="prev">
+			<span class="pager__subtitle">«&thinsp;Previous</span>
+			<p class="pager__title">Vibe Coding을 위한 디자인 패턴 - 중재자(Mediator)</p>
+		</a>
+	</div>
+</nav>
+
+<section class="comments">
+  <script src="https://utteranc.es/client.js"
+          repo="deliciouscat/blog-comments"
+          issue-term="pathname"
+          theme="boxy-light"
+          crossorigin="anonymous"
+          async>
+  </script>
+</section>
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<input class="widget-search__field" type="search" placeholder="Search…" value="" name="q" aria-label="Search…">
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="http://localhost:1313/">
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/django-mediator/">Mediator는 실전에서 이렇게 쓰인다 — Django ModelForm 검증 흐름</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-mediator/">Vibe Coding을 위한 디자인 패턴 - 중재자(Mediator)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/openpyxl-flyweight/">Flyweight는 실전에서 이렇게 쓰인다 — openpyxl 스타일 시스템</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/design-pattern/designpattern-flyweight/">Vibe Coding을 위한 디자인 패턴 - 플라이웨이트(Flyweight)</a></li>
+			<li class="widget__item"><a class="widget__link" href="/posts/code-reading/boto3-iterator/">Iterator는 실전에서 이렇게 쓰인다 — boto3 ResourceCollection</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/agents/">Agents</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/api-manuals/">API Manuals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/code-reading/">Code Reading</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/computer-science/">Computer Science</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/games/">Games</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/generals/">Generals</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/resources/">Resources</a></li>
+			<li class="widget__item">
+				<a class="widget__link" href="/categories/who-am-i/">Who Am I</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/abstract-factory/" title="Abstract Factory">Abstract Factory (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/authentification/" title="Authentification">Authentification (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/aws/" title="AWS">AWS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/baas/" title="BaaS">BaaS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/backend/" title="Backend">Backend (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/boto3/" title="Boto3">Boto3 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/chain-of-responsibility/" title="Chain of Responsibility">Chain of Responsibility (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/collision/" title="Collision">Collision (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/component/" title="Component">Component (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/composite/" title="Composite">Composite (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/cpython/" title="CPython">CPython (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/decorator/" title="Decorator">Decorator (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/defold/" title="Defold">Defold (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/dependency-injection/" title="Dependency Injection">Dependency Injection (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/di/" title="DI">DI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/django/" title="Django">Django (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ecs/" title="ECS">ECS (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/facade/" title="Facade">Facade (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/factory/" title="Factory">Factory (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/flyweight/" title="Flyweight">Flyweight (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/full-stack/" title="Full Stack">Full Stack (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gamedev/" title="GameDev">GameDev (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/gui/" title="GUI">GUI (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/hugo/" title="Hugo">Hugo (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/humanity/" title="Humanity">Humanity (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/iterator/" title="Iterator">Iterator (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/logfire/" title="Logfire">Logfire (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/lua/" title="Lua">Lua (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/mediator/" title="Mediator">Mediator (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/messaging/" title="Messaging">Messaging (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/modelform/" title="ModelForm">ModelForm (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/multi-agent/" title="Multi-Agent">Multi-Agent (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/observer/" title="Observer">Observer (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/openpyxl/" title="Openpyxl">Openpyxl (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/particle/" title="Particle">Particle (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/prototype/" title="Prototype">Prototype (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/pydanticai/" title="PydanticAI">PydanticAI (27)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python/" title="Python">Python (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/rag/" title="RAG">RAG (4)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/registry/" title="Registry">Registry (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/scikit-learn/" title="Scikit-Learn">Scikit-Learn (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/singleton/" title="Singleton">Singleton (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/sound/" title="Sound">Sound (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/strategy/" title="Strategy">Strategy (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/urllib/" title="Urllib">Urllib (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/vibe-coding/" title="Vibe Coding">Vibe Coding (11)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%80%EC%A6%9D/" title="검증">검증 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%8C%EC%9E%84%EC%97%94%EC%A7%84/" title="게임엔진">게임엔진 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B2%B0%ED%95%A9%EB%8F%84/" title="결합도">결합도 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EA%B4%80%EC%B0%B0%EC%9E%90/" title="관찰자">관찰자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%8D%B0%EC%BD%94%EB%A0%88%EC%9D%B4%ED%84%B0/" title="데코레이터">데코레이터 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4/" title="디자인패턴">디자인패턴 (22)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%A0%88%EC%A7%80%EC%8A%A4%ED%8A%B8%EB%A6%AC/" title="레지스트리">레지스트리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B0%98%EB%B3%B5%EC%9E%90/" title="반복자">반복자 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EB%B3%B5%ED%95%A9%EC%B2%B4/" title="복합체">복합체 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8A%88%ED%8C%85%EA%B2%8C%EC%9E%84/" title="슈팅게임">슈팅게임 (3)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%8B%B1%EA%B8%80%ED%86%A4/" title="싱글톤">싱글톤 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%9D%98%EC%A1%B4%EC%84%B1%EC%A3%BC%EC%9E%85/" title="의존성주입">의존성주입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A0%84%EB%9E%B5%ED%8C%A8%ED%84%B4/" title="전략패턴">전략패턴 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%A4%91%EC%9E%AC%EC%9E%90/" title="중재자">중재자 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B1%85%EC%9E%84%EC%97%B0%EC%87%84/" title="책임연쇄">책임연쇄 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B2%AB-%ED%8F%AC%EC%8A%A4%ED%8A%B8/" title="첫 포스트">첫 포스트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%EC%B6%94%EC%83%81%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="추상팩토리">추상팩토리 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC/" title="튜토리얼">튜토리얼 (6)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8C%A9%ED%86%A0%EB%A6%AC/" title="팩토리">팩토리 (2)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%8D%BC%EC%82%AC%EB%93%9C/" title="퍼사드">퍼사드 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8/" title="프로젝트">프로젝트 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85/" title="프로토타입">프로토타입 (1)</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/%ED%94%8C%EB%9D%BC%EC%9D%B4%EC%9B%A8%EC%9D%B4%ED%8A%B8/" title="플라이웨이트">플라이웨이트 (2)</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2026 잡부를 지향합니다..
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script>
+</body>
+</html>

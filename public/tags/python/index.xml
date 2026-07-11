@@ -6,8 +6,15 @@
     <description>Recent content in Python on 잡부를 지향합니다.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 07 Jun 2026 21:40:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 11 Jul 2026 19:00:00 +0900</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mediator는 실전에서 이렇게 쓰인다 — Django ModelForm 검증 흐름</title>
+      <link>http://localhost:1313/posts/code-reading/django-mediator/</link>
+      <pubDate>Sat, 11 Jul 2026 19:00:00 +0900</pubDate>
+      <guid>http://localhost:1313/posts/code-reading/django-mediator/</guid>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;이전 글 &lt;a href=&#34;http://localhost:1313/posts/design-pattern/designpattern-mediator/&#34;&gt;Vibe Coding을 위한 디자인 패턴 - 중재자&lt;/a&gt;를 읽었다는 가정 하에 쓴다.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;p&gt;Mediator를 배울 때 흔히 채팅방이나 UI 대화상자를 예로 든다. 실무에서는 좀 더 조용한 모습으로 나타난다. 여러 객체가 직접 서로를 호출하지 않게 하고, &lt;strong&gt;순서·예외 처리·결과 변환을 한곳에서 조율하는 객체&lt;/strong&gt;가 바로 Mediator다.&lt;/p&gt;&#xA;&lt;p&gt;Django의 &lt;code&gt;ModelForm&lt;/code&gt;은 그 좋은 사례다. 사용자가 입력한 데이터를 모델 인스턴스에 반영하고 검증할 때, Form 필드·Model·Validator·오류 표현이 각자 알아서 협력하게 두지 않는다. &lt;code&gt;BaseModelForm&lt;/code&gt;이 전체 검증 여정을 조율한다.&lt;/p&gt;&#xA;&lt;p&gt;소스: &lt;a href=&#34;https://github.com/django/django/blob/main/django/forms/models.py&#34;&gt;django/forms/models.py&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Facade는 실전에서 이렇게 쓰인다 — Django shortcuts.py</title>
       <link>http://localhost:1313/posts/code-reading/django-facade/</link>
