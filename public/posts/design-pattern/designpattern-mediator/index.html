@@ -337,13 +337,46 @@
 </table>
 <p>그래서 <code>PhoneField</code>는 주문서나 프로필 수정 화면에서도 재사용할 수 있다. 새 <code>EmailField</code>가 추가되어도 기존 컴포넌트에 서로를 참조하는 코드를 더하지 않고, <code>RegistrationDialog</code>에 새로운 협력 규칙을 추가하면 된다.</p>
 <p>반대로 중재자가 모든 도메인 로직과 화면 로직을 받아들여 거대해지면 <strong>God Object</strong>가 된다. 중재자는 화면·기능·업무 흐름 단위로 작게 나누는 편이 좋다. 예를 들어 회원가입과 결제의 규칙을 하나의 <code>AppMediator</code>에 모으기보다 각각의 중재자로 분리한다.</p>
-<h2 id="facade-observer-pattern과-차이">Facade, Observer Pattern과 차이</h2>
-<p>Mediator는 특히 Facade, Observer와 혼동하기 쉽다. 모두 결합도를 낮추지만, 해결하려는 문제가 다르다.</p>
+<h2 id="facade-pattern과-차이">Facade Pattern과 차이</h2>
+<p>Mediator와 Facade는 모두 결합도를 낮추지만, 해결하려는 문제가 다르다.</p>
 <p><strong>Mediator</strong>는 여러 동료 객체의 <strong>협력과 흐름을 조율</strong>한다. 동료 객체는 중재자를 알지만 서로의 존재와 API는 알 필요가 없다. 대화상자, 채팅방, 항공 관제가 대표적인 예다.</p>
 <p><strong>Facade</strong>는 복잡한 서브시스템을 쉽게 쓰도록 <strong>단순한 진입점</strong>을 제공한다. 클라이언트는 Facade를 사용하지만, 서브시스템은 Facade의 존재를 모른다. 주문 API나 홈시어터 제어가 이에 해당한다.</p>
-<p><strong>Observer</strong>는 Subject의 상태 변화를 등록된 Observer 모두에게 알리는 <strong>일대다 알림</strong> 패턴이다. Subject가 Observer 목록을 관리하며, 이벤트 리스너나 주가 알림에 적합하다.</p>
 <p>Facade는 외부 클라이언트가 내부 시스템을 쉽게 사용하도록 만드는 <strong>입구</strong>이고, Mediator는 내부 객체들이 서로 얽히지 않도록 만드는 <strong>교통정리 담당자</strong>다. Facade 뒤의 서브시스템 객체들은 여전히 서로 직접 통신할 수 있지만, Mediator의 동료 객체들은 협력할 때 중재자를 거치도록 설계한다.</p>
-<p>또한 채팅방 예제만 보면 Mediator가 메시지를 여러 사용자에게 보내므로 Observer처럼 보일 수 있다. 하지만 핵심은 채팅방이 단순히 알림을 뿌리는 것이 아니라, 참여자·수신 범위·권한·메시지 형식을 <strong>중앙에서 조율</strong>한다는 데 있다.</p>
+<h2 id="observer-pattern과-차이">Observer Pattern과 차이</h2>
+<p>Mediator와 Observer는 모두 객체가 서로의 구체 구현을 덜 알게 만든다. 하지만 Observer가 해결하는 문제는 <strong>&ldquo;상태가 바뀌었으니 관심 있는 모두에게 알려야 한다&rdquo;</strong> 이고, Mediator가 해결하는 문제는 <strong>&ldquo;이 이벤트가 일어난 지금 누구를 어떤 순서로 움직여야 하는가&rdquo;</strong> 이다.</p>
+<p>Observer에서는 Subject가 상태 변화를 발행하고, 등록된 Observer들이 같은 이벤트를 독립적으로 받는다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Subject는 수신자들의 구체적인 일을 모른다.</span>
+</span></span><span style="display:flex;"><span>stock<span style="color:#f92672">.</span>set_price(<span style="color:#ae81ff">100_000</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 투자자 알림, 뉴스 게시, 분석 데이터 갱신 등이 각각 반응</span>
+</span></span></code></pre></div><p>Subject는 보통 “구독자 전원에게 알린다”까지만 책임진다. 한 Observer가 다른 Observer보다 먼저 성공해야 하는지, 실패를 어떤 객체가 복구하는지는 Observer 패턴의 중심 관심사가 아니다. 따라서 구독자는 런타임에 자유롭게 추가·제거하기 좋고, 상태 변화 뒤의 부수 효과를 느슨하게 붙이기 좋다.</p>
+<p>Mediator에서는 동료 객체가 중재자에게 이벤트를 알리고, 중재자가 현재 상태를 보고 <strong>필요한 대상만 선택해 다음 동작을 지시</strong>한다.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 체크박스는 자기 상태만 바꾸고, 다음 일을 결정하지 않는다.</span>
+</span></span><span style="display:flex;"><span>terms<span style="color:#f92672">.</span>check()
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># RegistrationDialog가 전화번호 유효성까지 확인한 뒤</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># SubmitButton을 활성화할지 결정한다.</span>
+</span></span></code></pre></div><p>여기서 <code>CheckBox</code> 이벤트는 <code>PhoneField</code>, <code>SubmitButton</code> 모두에게 방송되지 않는다. 중재자는 “약관 동의만으로는 부족하고 전화번호도 유효해야 한다”는 규칙을 알고 있으므로, <code>SubmitButton</code>에 필요한 상태만 반영한다. 이벤트의 <strong>수신자·순서·조건·결과 전달</strong>이 중재자의 책임이다.</p>
+<h3 id="한-단계가-다음-단계의-입력인가">한 단계가 다음 단계의 입력인가?</h3>
+<p>둘을 구분하는 실용적인 기준은 이것이다.</p>
+<ul>
+<li>이벤트를 받은 객체들이 서로 독립적으로 반응해도 된다면 → <strong>Observer</strong></li>
+<li>앞 단계의 결과가 다음 대상과 다음 행동을 결정한다면 → <strong>Mediator</strong></li>
+</ul>
+<p>예를 들어 주문이 저장된 뒤 이메일 발송, 검색 색인 갱신, 분석 로그 기록을 붙이는 일은 Observer에 잘 맞는다. 각 작업은 “주문 저장됨”이라는 사실만 알면 되고, 서로를 알 필요가 없다.</p>
+<p>반대로 결제 화면에서 “쿠폰 적용 → 할인 금액 재계산 → 결제 버튼 활성화 → 결제 수단별 추가 인증”은 Mediator에 가깝다. 할인 계산 결과가 다음 단계의 조건이 되고, 결제 수단에 따라 실행할 대상도 달라지기 때문이다.</p>
+<h3 id="함께-사용하는-경우">함께 사용하는 경우</h3>
+<p>두 패턴은 경쟁 관계가 아니다. 하나의 기능 안에서도 역할을 나눠 함께 쓸 수 있다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart LR
+    Input[입력 컴포넌트] --&gt; Mediator[결제 화면 Mediator]
+    Mediator --&gt; Payment[결제 처리]
+    Payment --&gt; Saved[주문 저장]
+    Saved --&gt; Event[주문 저장 이벤트]
+    Event --&gt; Mail[이메일 발송]
+    Event --&gt; Index[검색 색인]
+    Event --&gt; Analytics[분석 로그]
+
+    style Mediator fill:#fff4e1,color:#000000
+    style Event fill:#e1f5ff,color:#000000
+</code></pre><p>결제 전 화면의 조건부 흐름은 Mediator가 조율하고, 주문 저장 후 서로 독립적인 부수 효과는 Observer 방식으로 알린다. 채팅방 예제처럼 Mediator가 여러 사용자에게 메시지를 보낸다고 해서 자동으로 Observer가 되는 것은 아니다. 참여자·수신 범위·권한·메시지 형식을 <strong>중앙에서 조율</strong>한다면 그 핵심은 Mediator다.</p>
 <h2 id="장점과-주의할-점">장점과 주의할 점</h2>
 <h3 id="장점">장점</h3>
 <ol>

@@ -60,6 +60,29 @@ def create_article(request):
     article.save()
 ```
 
+흐름으로 보면, 검증 주체 사이의 조율 책임이 전부 view에 몰린다.
+
+```mermaid
+flowchart TD
+    Request[request.POST] --> View[view: create_article]
+    View --> Form[ArticleForm 생성]
+    Form --> FormValid{form.is_valid?}
+
+    FormValid -->|아니오| Render1[view가 form.errors와 함께 다시 렌더링]
+    FormValid -->|예| Build[view가 cleaned_data로<br/>Article 인스턴스 생성]
+    Build --> ModelClean[view가 article.full_clean 호출]
+    ModelClean --> ModelValid{Model 검증 통과?}
+
+    ModelValid -->|아니오| Convert[view가 ValidationError를<br/>form.errors로 직접 변환]
+    Convert --> Render2[view가 다시 렌더링]
+    ModelValid -->|예| Save[view가 article.save 호출]
+
+    style View fill:#fff4e1,color:#000000
+    style Convert fill:#ffebee,color:#000000
+    style Render1 fill:#e1f5ff,color:#000000
+    style Render2 fill:#e1f5ff,color:#000000
+```
+
 이 방식에는 세 가지 문제가 있다.
 
 1. Form이 이미 실패한 필드를 Model이 다시 검증할 수 있다.

@@ -143,7 +143,26 @@ Django의 ModelForm은 그 좋은 사례다. 사용자가 입력한 데이터를
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> render(request, <span style="color:#e6db74">&#34;new.html&#34;</span>, {<span style="color:#e6db74">&#34;form&#34;</span>: form})
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    article<span style="color:#f92672">.</span>save()
-</span></span></code></pre></div><p>이 방식에는 세 가지 문제가 있다.</p>
+</span></span></code></pre></div><p>흐름으로 보면, 검증 주체 사이의 조율 책임이 전부 view에 몰린다.</p>
+<pre tabindex="0"><code class="language-mermaid" data-lang="mermaid">flowchart TD
+    Request[request.POST] --&gt; View[view: create_article]
+    View --&gt; Form[ArticleForm 생성]
+    Form --&gt; FormValid{form.is_valid?}
+
+    FormValid --&gt;|아니오| Render1[view가 form.errors와 함께 다시 렌더링]
+    FormValid --&gt;|예| Build[view가 cleaned_data로&lt;br/&gt;Article 인스턴스 생성]
+    Build --&gt; ModelClean[view가 article.full_clean 호출]
+    ModelClean --&gt; ModelValid{Model 검증 통과?}
+
+    ModelValid --&gt;|아니오| Convert[view가 ValidationError를&lt;br/&gt;form.errors로 직접 변환]
+    Convert --&gt; Render2[view가 다시 렌더링]
+    ModelValid --&gt;|예| Save[view가 article.save 호출]
+
+    style View fill:#fff4e1,color:#000000
+    style Convert fill:#ffebee,color:#000000
+    style Render1 fill:#e1f5ff,color:#000000
+    style Render2 fill:#e1f5ff,color:#000000
+</code></pre><p>이 방식에는 세 가지 문제가 있다.</p>
 <ol>
 <li>Form이 이미 실패한 필드를 Model이 다시 검증할 수 있다.</li>
 <li><code>ValidationError</code>를 사용자가 볼 <code>form.errors</code> 구조로 바꾸는 규칙이 view마다 반복된다.</li>
